@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { evaluateRoutingRules, shouldBlockByScanLimit } from '@/lib/smartRouting';
+import { generatePixelLandingPage } from '@/lib/pixelManager';
+import { appendUTMParameters } from '@/lib/utmBuilder';
+import { RedirectContext } from '@/types/routing';
 
 export async function GET(
   request: NextRequest,
@@ -8,11 +12,20 @@ export async function GET(
   try {
     const { shortCode } = await params;
 
-    // Find QR code by short URL
+    // Find QR code with all related data
     const qrCode = await prisma.qRCode.findFirst({
       where: {
         shortUrl: shortCode,
         type: 'dynamic',
+      },
+      include: {
+        routingRules: {
+          where: { active: true },
+          orderBy: { priority: 'desc' },
+        },
+        pixelConfigs: {
+          where: { active: true },
+        },
       },
     });
 
@@ -25,7 +38,7 @@ export async function GET(
       return NextResponse.json({ error: 'QR code has expired' }, { status: 410 });
     }
 
-    // Check if password protected
+    // Check password protection
     const { searchParams } = new URL(request.url);
     const providedPassword = searchParams.get('password');
 
@@ -33,12 +46,23 @@ export async function GET(
       return NextResponse.json({ error: 'Password required', passwordProtected: true }, { status: 403 });
     }
 
-    // Extract analytics data
+    // Check scan limit
+    if (shouldBlockByScanLimit(qrCode.scanCount, qrCode.maxScans || undefined)) {
+      // Find scan limit rule with exceeded URL
+      const scanLimitRule = qrCode.routingRules.find(r => r.type === 'scanLimit');
+      if (scanLimitRule && scanLimitRule.destination) {
+        return NextResponse.redirect(scanLimitRule.destination, 302);
+      }
+      return NextResponse.json({ error: 'Scan limit exceeded' }, { status: 410 });
+    }
+
+    // Extract request context
     const userAgent = request.headers.get('user-agent') || '';
     const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '';
-    const referrer = request.headers.get('referer') || null;
+    const acceptLanguage = request.headers.get('accept-language') || '';
+    const referrer = request.headers.get('referer') || undefined;
 
-    // Parse user agent for device/browser info
+    // Parse user agent for analytics
     const device = userAgent.includes('Mobile') ? 'Mobile' : userAgent.includes('Tablet') ? 'Tablet' : 'Desktop';
     const browser = 
       userAgent.includes('Chrome') ? 'Chrome' :
@@ -52,32 +76,77 @@ export async function GET(
       userAgent.includes('Android') ? 'Android' :
       userAgent.includes('iOS') ? 'iOS' : 'Other';
 
-    // Record scan analytics
-    await Promise.all([
-      prisma.scan.create({
-        data: {
-          qrCodeId: qrCode.id,
-          ipAddress,
-          userAgent,
-          device,
-          browser,
-          os,
-          referrer,
-          country: 'Unknown', // Could use IP geolocation API
-          city: 'Unknown',
-        },
-      }),
-      prisma.qRCode.update({
-        where: { id: qrCode.id },
-        data: {
-          scanCount: { increment: 1 },
-          lastScanned: new Date(),
-        },
-      }),
-    ]);
+    // Build redirect context
+    const context: RedirectContext = {
+      qrCodeId: qrCode.id,
+      userAgent,
+      ipAddress,
+      acceptLanguage,
+      referer: referrer,
+      timestamp: new Date(),
+      scanCount: qrCode.scanCount,
+    };
 
-    // Redirect to destination
-    return NextResponse.redirect(qrCode.destination!, 302);
+    // Evaluate smart routing rules
+    const routingResult = await evaluateRoutingRules(
+      qrCode.routingRules as any[],
+      context,
+      qrCode.destination || ''
+    );
+
+    let finalDestination = routingResult.destination;
+
+    // Apply UTM parameters if configured
+    if (qrCode.utmParams && typeof qrCode.utmParams === 'object') {
+      finalDestination = appendUTMParameters(finalDestination, qrCode.utmParams as any);
+    }
+
+    // Record scan analytics (don't await - fire and forget)
+    prisma.scan.create({
+      data: {
+        qrCodeId: qrCode.id,
+        ipAddress,
+        userAgent,
+        device,
+        browser,
+        os,
+        referrer,
+        country: 'Unknown', // TODO: Add IP geolocation
+        city: 'Unknown',
+      },
+    }).catch(err => console.error('Failed to record scan:', err));
+
+    // Update scan count (don't await)
+    prisma.qRCode.update({
+      where: { id: qrCode.id },
+      data: {
+        scanCount: { increment: 1 },
+        lastScanned: new Date(),
+      },
+    }).catch(err => console.error('Failed to update scan count:', err));
+
+    // Check if pixels are configured
+    if (qrCode.pixelConfigs && qrCode.pixelConfigs.length > 0) {
+      // Generate landing page with pixel injection
+      const maxDelay = Math.max(...qrCode.pixelConfigs.map(p => p.delayRedirect));
+      const landingPageHtml = generatePixelLandingPage(
+        qrCode.pixelConfigs as any[],
+        finalDestination,
+        maxDelay
+      );
+
+      // Return HTML landing page with pixels
+      return new NextResponse(landingPageHtml, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+        },
+      });
+    }
+
+    // Direct redirect (no pixels)
+    return NextResponse.redirect(finalDestination, 302);
   } catch (error: any) {
     console.error('Error processing QR code redirect:', error);
     return NextResponse.json(
