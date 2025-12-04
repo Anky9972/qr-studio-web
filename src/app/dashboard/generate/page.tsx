@@ -506,15 +506,14 @@ END:VCARD`}
                       backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.02)'
                     }}>
                       <TemplateGallerySelector
-                        onSelectTemplate={(templateId) => {
-                          setSelectedTemplate(templateId)
-                          const template = getTemplateById(templateId)
+                        onSelectTemplate={(template) => {
+                          setSelectedTemplate(template.id)
                           if (template) {
                             // Apply template settings
-                            if (template.dotsOptions.type) {
+                            if (template.dotsOptions?.type) {
                               setPattern(template.dotsOptions.type)
                             }
-                            if (template.dotsOptions.gradient) {
+                            if (template.dotsOptions?.gradient) {
                               setUseGradient(true)
                               setGradientType(template.dotsOptions.gradient.type)
                               if (template.dotsOptions.gradient.colorStops) {
@@ -524,17 +523,17 @@ END:VCARD`}
                               if (template.dotsOptions.gradient.rotation !== undefined) {
                                 setGradientRotation(template.dotsOptions.gradient.rotation * (180 / Math.PI))
                               }
-                            } else if (template.dotsOptions.color) {
+                            } else if (template.dotsOptions?.color) {
                               setUseGradient(false)
                               setForeground(template.dotsOptions.color)
                             }
-                            if (template.backgroundOptions?.color) {
-                              setBackground(template.backgroundOptions.color)
+                            if (template.background) {
+                              setBackground(template.background)
                             }
                           }
                           setShowTemplateGallery(false)
                         }}
-                        selectedTemplateId={selectedTemplate}
+                        selectedTemplateId={selectedTemplate ?? undefined}
                       />
                     </Box>
                   )}
@@ -977,7 +976,6 @@ END:VCARD`}
                   animationType={animationType}
                   pattern={pattern as any}
                   baseColor={useGradient ? gradientColor1 : foreground}
-                  speed={animationSpeed}
                 />
               ) : (
                 <div ref={qrCodeRef} />

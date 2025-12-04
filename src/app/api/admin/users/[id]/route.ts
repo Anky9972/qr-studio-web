@@ -23,7 +23,7 @@ async function checkAdmin(session: any) {
 // GET single user details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -32,8 +32,10 @@ export async function GET(
       return NextResponse.json({ error: adminCheck.error }, { status: adminCheck.status });
     }
 
+    const { id } = await params;
+
     const user = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         _count: {
           select: {
@@ -71,7 +73,7 @@ export async function GET(
 // PATCH update user
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -80,6 +82,7 @@ export async function PATCH(
       return NextResponse.json({ error: adminCheck.error }, { status: adminCheck.status });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const { subscription, isBanned, isAdmin, emailVerified } = body;
 
@@ -90,7 +93,7 @@ export async function PATCH(
     if (emailVerified !== undefined) updateData.emailVerified = emailVerified ? new Date() : null;
 
     const user = await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       select: {
         id: true,
@@ -112,7 +115,7 @@ export async function PATCH(
 // DELETE user account
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -121,13 +124,15 @@ export async function DELETE(
       return NextResponse.json({ error: adminCheck.error }, { status: adminCheck.status });
     }
 
+    const { id } = await params;
+
     // Prevent admin from deleting themselves
     const currentUser = await prisma.user.findUnique({
       where: { email: session?.user?.email! },
       select: { id: true },
     });
 
-    if (currentUser?.id === params.id) {
+    if (currentUser?.id === id) {
       return NextResponse.json(
         { error: 'Cannot delete your own account' },
         { status: 400 }
@@ -136,7 +141,7 @@ export async function DELETE(
 
     // Delete user and all related data (cascade delete should handle this)
     await prisma.user.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: 'User deleted successfully' });

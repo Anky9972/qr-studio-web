@@ -5,10 +5,11 @@ import bcrypt from 'bcryptjs'
 // POST /api/qr-codes/:id/verify - Verify password for protected QR code
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { password } = await req.json()
+    const { id } = await params
 
     if (!password) {
       return NextResponse.json(
@@ -19,7 +20,7 @@ export async function POST(
 
     // Find the QR code
     const qrCode = await prisma.qRCode.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: {
         id: true,
         content: true,
@@ -64,7 +65,7 @@ export async function POST(
 
     // Password is correct - increment scan count and return destination
     await prisma.qRCode.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         scanCount: {
           increment: 1,

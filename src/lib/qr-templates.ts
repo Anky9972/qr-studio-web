@@ -473,6 +473,10 @@ export const getTemplateById = (id: string) => {
   return QR_TEMPLATES.find(t => t.id === id);
 };
 
+export const getAllTemplates = () => {
+  return QR_TEMPLATES;
+};
+
 export const getFreeTemplates = () => {
   return QR_TEMPLATES.filter(t => !t.premium);
 };

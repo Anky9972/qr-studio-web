@@ -6,9 +6,9 @@ export const dynamic = 'force-dynamic';
 // GET /qr/[id] - Redirect handler for short URL QR codes
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
 
   try {
     // Find QR code by short URL or ID

@@ -23,7 +23,7 @@ async function checkAdmin(session: any) {
 // DELETE QR code
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -32,8 +32,10 @@ export async function DELETE(
       return NextResponse.json({ error: adminCheck.error }, { status: adminCheck.status });
     }
 
+    const { id } = await params;
+
     await prisma.qRCode.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: 'QR code deleted successfully' });

@@ -83,13 +83,16 @@ export function LanguageSwitcher() {
  * Compact Language Switcher for Mobile
  */
 export function LanguageSwitcherCompact() {
-  const locale = useLocale();
+  // Temporarily use 'en' as default until i18n is properly configured
+  // const locale = useLocale();
+  const [locale, setLocale] = useState('en');
   const router = useRouter();
   const pathname = usePathname();
 
   const handleLanguageChange = (newLocale: string) => {
     if (newLocale === locale) return;
 
+    setLocale(newLocale);
     const pathWithoutLocale = pathname.replace(/^\/(en|es|fr|de|pt)/, '') || '/';
     const newPath = newLocale === 'en' ? pathWithoutLocale : `/${newLocale}${pathWithoutLocale}`;
 
