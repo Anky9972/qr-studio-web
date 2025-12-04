@@ -157,7 +157,7 @@ export default function CampaignsPage() {
       description: campaign.description || '',
       startDate: campaign.startDate ? campaign.startDate.split('T')[0] : '',
       endDate: campaign.endDate ? campaign.endDate.split('T')[0] : '',
-      tags: campaign.tags.join(', '),
+      tags: campaign.tags?.join(', ') || '',
     });
     setEditDialogOpen(true);
     setAnchorEl(null);
@@ -293,7 +293,7 @@ export default function CampaignsPage() {
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 2 }}>
                       <DateRangeIcon fontSize="small" color="action" />
                       <Typography variant="caption" color="text.secondary">
-                        {formatDate(campaign.startDate)} - {formatDate(campaign.endDate)}
+                        {formatDate(campaign.startDate ?? null)} - {formatDate(campaign.endDate ?? null)}
                       </Typography>
                     </Box>
                   )}

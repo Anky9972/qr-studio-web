@@ -16,14 +16,14 @@ const qrCodeSchema = z.object({
   size: z.number().default(512),
   foreground: z.string().default('#000000'),
   background: z.string().default('#FFFFFF'),
-  logo: z.string().optional(),
+  logo: z.string().optional().nullable(),
   errorLevel: z.enum(['L', 'M', 'Q', 'H']).default('M'),
   pattern: z.string().default('square'),
-  design: z.any().optional(),
-  destination: z.string().optional(),
-  password: z.string().optional(),
-  expiresAt: z.string().optional(),
-  campaignId: z.string().optional(),
+  design: z.any().optional().nullable(),
+  destination: z.string().optional().nullable(),
+  password: z.string().optional().nullable(),
+  expiresAt: z.string().optional().nullable(),
+  campaignId: z.string().optional().nullable(),
   tags: z.array(z.string()).default([]),
 })
 
@@ -118,6 +118,7 @@ export async function POST(request: NextRequest) {
     // Check QR code limit
     const qrCodeCheck = await checkQRCodeLimit(userId)
     if (!qrCodeCheck.allowed) {
+      console.log('QR code limit exceeded:', qrCodeCheck)
       return NextResponse.json(
         {
           error: 'LIMIT_EXCEEDED',
@@ -134,6 +135,7 @@ export async function POST(request: NextRequest) {
     if (data.type === 'dynamic') {
       const dynamicCheck = await checkDynamicQRCodeLimit(userId)
       if (!dynamicCheck.allowed) {
+        console.log('Dynamic QR code limit exceeded:', dynamicCheck)
         return NextResponse.json(
           {
             error: 'DYNAMIC_LIMIT_EXCEEDED',

@@ -28,9 +28,10 @@ export async function GET(
           select: {
             id: true,
             name: true,
+            content: true,
             type: true,
             qrType: true,
-            scans: true,
+            scanCount: true,
             createdAt: true,
           },
         },

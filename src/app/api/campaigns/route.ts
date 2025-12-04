@@ -6,10 +6,10 @@ import { z } from 'zod';
 
 const campaignSchema = z.object({
   name: z.string().min(1),
-  description: z.string().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  tags: z.array(z.string()).default([]),
+  description: z.string().optional().nullable(),
+  startDate: z.string().optional().nullable(),
+  endDate: z.string().optional().nullable(),
+  tags: z.array(z.string()).optional().default([]),
 });
 
 // GET /api/campaigns - List user's campaigns
@@ -100,11 +100,11 @@ export async function POST(request: NextRequest) {
 
     const userId = (session.user as any).id;
     const body = await request.json();
-    const { startDate, endDate, ...restData } = campaignSchema.parse(body);
+    const { startDate, endDate, ...data } = campaignSchema.parse(body);
 
     const campaign = await prisma.campaign.create({
       data: {
-        ...restData,
+        ...data,
         userId,
         ...(startDate && { startDate: new Date(startDate) }),
         ...(endDate && { endDate: new Date(endDate) }),

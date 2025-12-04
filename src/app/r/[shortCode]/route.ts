@@ -124,39 +124,53 @@ export async function GET(
     // Get geolocation data (don't await - fire and forget)
     getGeolocation(ipAddress).then(geoData => {
       // Record scan analytics with geolocation and visitor tracking
-      prisma.scan.create({
-        data: {
-          qrCodeId: qrCode.id,
-          ipAddress,
-          userAgent,
-          device,
-          browser,
-          os,
-          referrer,
-          country: geoData.country,
-          city: geoData.city,
-          visitorId,
-          isUnique: visitorInfo.isUnique,
-        },
-      }).catch(err => console.error('Failed to record scan:', err));
+      Promise.all([
+        prisma.scan.create({
+          data: {
+            qrCodeId: qrCode.id,
+            ipAddress,
+            userAgent,
+            device,
+            browser,
+            os,
+            referrer,
+            country: geoData.country,
+            city: geoData.city,
+            visitorId,
+            isUnique: visitorInfo.isUnique,
+          },
+        }),
+        // Increment scan count
+        prisma.qRCode.update({
+          where: { id: qrCode.id },
+          data: { scanCount: { increment: 1 } },
+        }),
+      ]).catch(err => console.error('Failed to record scan:', err));
     }).catch(err => {
       console.error('Geolocation failed, recording scan without geo data:', err);
       // Fallback: record scan without geolocation
-      prisma.scan.create({
-        data: {
-          qrCodeId: qrCode.id,
-          ipAddress,
-          userAgent,
-          device,
-          browser,
-          os,
-          referrer,
-          country: 'Unknown',
-          city: 'Unknown',
-          visitorId,
-          isUnique: visitorInfo.isUnique,
-        },
-      }).catch(err => console.error('Failed to record scan:', err));
+      Promise.all([
+        prisma.scan.create({
+          data: {
+            qrCodeId: qrCode.id,
+            ipAddress,
+            userAgent,
+            device,
+            browser,
+            os,
+            referrer,
+            country: 'Unknown',
+            city: 'Unknown',
+            visitorId,
+            isUnique: visitorInfo.isUnique,
+          },
+        }),
+        // Increment scan count
+        prisma.qRCode.update({
+          where: { id: qrCode.id },
+          data: { scanCount: { increment: 1 } },
+        }),
+      ]).catch(err => console.error('Failed to record scan:', err));
     });
 
     // Update scan count (don't await)

@@ -40,16 +40,21 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import QrCode2Icon from '@mui/icons-material/QrCode2'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import CampaignIcon from '@mui/icons-material/Campaign'
+import LinkIcon from '@mui/icons-material/Link'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 
 interface QRCode {
   id: string
   name: string | null
   type: 'static' | 'dynamic'
   content: string
+  destination: string
   qrType: string
   scanCount: number
   favorite: boolean
   createdAt: string
+  shortUrl: string
+  tags: string[]
   campaign?: {
     id: string
     name: string
@@ -72,8 +77,14 @@ export default function QRCodesPage() {
   const [editDialog, setEditDialog] = useState<{
     open: boolean
     qrCode: QRCode | null
+    name: string
     destination: string
-  }>({ open: false, qrCode: null, destination: '' })
+    tags: string
+  }>({ open: false, qrCode: null, name: '', destination: '', tags: '' })
+  const [shareDialog, setShareDialog] = useState<{
+    open: boolean
+    qrCode: QRCode | null
+  }>({ open: false, qrCode: null })
   const [campaignDialog, setCampaignDialog] = useState<{
     open: boolean
     qrCode: QRCode | null
@@ -193,11 +204,46 @@ export default function QRCodesPage() {
     handleMenuClose()
   }
 
+  const handleShare = (qrCode: QRCode) => {
+    setShareDialog({ open: true, qrCode })
+    handleMenuClose()
+  }
+
+  const handleCopyLink = (text: string) => {
+    navigator.clipboard.writeText(text)
+    alert('Link copied to clipboard!')
+  }
+
+  const handleNativeShare = async (qrCode: QRCode) => {
+    const shareData = {
+      title: qrCode.name || 'QR Code',
+      text: `Check out my QR code: ${qrCode.name || 'QR Code'}`,
+      url: qrCode.type === 'dynamic' 
+        ? `${window.location.origin}/r/${qrCode.shortUrl}`
+        : qrCode.content,
+    }
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData)
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        handleCopyLink(shareData.url)
+      }
+    } catch (error) {
+      if ((error as Error).name !== 'AbortError') {
+        console.error('Error sharing:', error)
+      }
+    }
+  }
+
   const handleEditDestination = (qrCode: QRCode) => {
     setEditDialog({
       open: true,
       qrCode,
-      destination: qrCode.content
+      name: qrCode.name || '',
+      destination: qrCode.type === 'dynamic' ? qrCode.destination : qrCode.content,
+      tags: qrCode.tags?.join(', ') || ''
     })
     handleMenuClose()
   }
@@ -207,21 +253,34 @@ export default function QRCodesPage() {
 
     try {
       setSaving(true)
+      const tagsArray = editDialog.tags
+        .split(',')
+        .map(t => t.trim())
+        .filter(t => t.length > 0)
+      
+      const updateData: any = {
+        name: editDialog.name || null,
+        tags: tagsArray
+      }
+      
+      if (editDialog.qrCode.type === 'dynamic') {
+        updateData.destination = editDialog.destination
+      } else {
+        updateData.content = editDialog.destination
+      }
+      
       const response = await fetch(`/api/qr-codes/${editDialog.qrCode.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          destination: editDialog.destination,
-          content: editDialog.destination 
-        }),
+        body: JSON.stringify(updateData),
       })
       
       if (response.ok) {
         await fetchQRCodes()
-        setEditDialog({ open: false, qrCode: null, destination: '' })
+        setEditDialog({ open: false, qrCode: null, name: '', destination: '', tags: '' })
       }
     } catch (error) {
-      console.error('Failed to update destination:', error)
+      console.error('Failed to update QR code:', error)
     } finally {
       setSaving(false)
     }
@@ -391,6 +450,22 @@ export default function QRCodesPage() {
                     {qrCode.name || 'Untitled QR Code'}
                   </Typography>
 
+                  {/* QR Code Preview */}
+                  <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    my: 2,
+                    p: 2,
+                    bgcolor: 'background.default',
+                    borderRadius: 1
+                  }}>
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrCode.content)}`}
+                      alt={qrCode.name || 'QR Code'}
+                      style={{ width: 150, height: 150 }}
+                    />
+                  </Box>
+
                   <Typography
                     variant="body2"
                     color="text.secondary"
@@ -405,6 +480,40 @@ export default function QRCodesPage() {
                   >
                     {qrCode.content}
                   </Typography>
+
+                  {qrCode.type === 'dynamic' && qrCode.shortUrl && (
+                    <Box sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 0.5, 
+                      mb: 2,
+                      p: 1,
+                      bgcolor: 'primary.lighter',
+                      borderRadius: 1,
+                      border: '1px solid',
+                      borderColor: 'primary.light'
+                    }}>
+                      <LinkIcon fontSize="small" color="primary" />
+                      <Typography 
+                        variant="caption" 
+                        color="primary"
+                        sx={{ 
+                          flex: 1,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {window.location.origin}/r/{qrCode.shortUrl}
+                      </Typography>
+                      <IconButton 
+                        size="small" 
+                        onClick={() => handleCopyLink(`${window.location.origin}/r/${qrCode.shortUrl}`)}
+                      >
+                        <ContentCopyIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  )}
 
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="caption" color="text.secondary">
@@ -426,12 +535,32 @@ export default function QRCodesPage() {
                     Created {new Date(qrCode.createdAt).toLocaleDateString()}
                   </Typography>
 
+                  {qrCode.tags && qrCode.tags.length > 0 && (
+                    <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 1 }}>
+                      {qrCode.tags.slice(0, 3).map((tag, idx) => (
+                        <Chip
+                          key={idx}
+                          label={tag}
+                          size="small"
+                          variant="outlined"
+                        />
+                      ))}
+                      {qrCode.tags.length > 3 && (
+                        <Chip
+                          label={`+${qrCode.tags.length - 3}`}
+                          size="small"
+                          variant="outlined"
+                        />
+                      )}
+                    </Box>
+                  )}
+
                   {qrCode.campaign && (
                     <Chip
                       label={qrCode.campaign.name}
                       size="small"
                       sx={{ mt: 1 }}
-                      icon={<FilterListIcon />}
+                      icon={<CampaignIcon />}
                     />
                   )}
                 </CardContent>
@@ -440,14 +569,14 @@ export default function QRCodesPage() {
                   <Button
                     size="small"
                     startIcon={<EditIcon />}
-                    onClick={() => router.push(`/dashboard/qr-codes/${qrCode.id}/edit`)}
+                    onClick={() => handleEditDestination(qrCode)}
                   >
                     Edit
                   </Button>
                   <Button
                     size="small"
                     startIcon={<ShareIcon />}
-                    onClick={() => handleDownload(qrCode)}
+                    onClick={() => handleShare(qrCode)}
                   >
                     Share
                   </Button>
@@ -487,14 +616,13 @@ export default function QRCodesPage() {
         )}
         <MenuItem onClick={() => {
           if (menuAnchor.qrCode) {
-            router.push(`/dashboard/qr-codes/${menuAnchor.qrCode.id}/edit`)
+            handleEditDestination(menuAnchor.qrCode)
           }
-          handleMenuClose()
         }}>
           <ListItemIcon>
             <EditIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Edit Design</ListItemText>
+          <ListItemText>Edit Details</ListItemText>
         </MenuItem>
         <MenuItem onClick={() => menuAnchor.qrCode && handleDownload(menuAnchor.qrCode)}>
           <ListItemIcon>
@@ -528,28 +656,50 @@ export default function QRCodesPage() {
         </MenuItem>
       </Menu>
 
-      {/* Edit Destination Dialog */}
+      {/* Edit QR Code Dialog */}
       <Dialog
         open={editDialog.open}
-        onClose={() => setEditDialog({ open: false, qrCode: null, destination: '' })}
+        onClose={() => setEditDialog({ open: false, qrCode: null, name: '', destination: '', tags: '' })}
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Edit Destination URL</DialogTitle>
+        <DialogTitle>Edit QR Code</DialogTitle>
         <DialogContent>
+          <TextField
+            margin="dense"
+            label="QR Code Name"
+            type="text"
+            fullWidth
+            value={editDialog.name}
+            onChange={(e) => setEditDialog({ ...editDialog, name: e.target.value })}
+            helperText="Give your QR code a descriptive name"
+            sx={{ mb: 2 }}
+          />
           <TextField
             autoFocus
             margin="dense"
-            label="Destination URL"
+            label={editDialog.qrCode?.type === 'dynamic' ? 'Destination URL' : 'Content'}
             type="url"
             fullWidth
             value={editDialog.destination}
             onChange={(e) => setEditDialog({ ...editDialog, destination: e.target.value })}
-            helperText="Change where this QR code redirects without reprinting"
+            helperText={editDialog.qrCode?.type === 'dynamic' 
+              ? 'Change where this QR code redirects without reprinting'
+              : 'The content encoded in this QR code'}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            margin="dense"
+            label="Tags"
+            type="text"
+            fullWidth
+            value={editDialog.tags}
+            onChange={(e) => setEditDialog({ ...editDialog, tags: e.target.value })}
+            helperText="Comma-separated tags (e.g., marketing, event, product)"
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setEditDialog({ open: false, qrCode: null, destination: '' })}>
+          <Button onClick={() => setEditDialog({ open: false, qrCode: null, name: '', destination: '', tags: '' })}>
             Cancel
           </Button>
           <Button 
@@ -557,7 +707,234 @@ export default function QRCodesPage() {
             variant="contained"
             disabled={saving || !editDialog.destination}
           >
-            {saving ? 'Saving...' : 'Save'}
+            {saving ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Share Dialog */}
+      <Dialog
+        open={shareDialog.open}
+        onClose={() => setShareDialog({ open: false, qrCode: null })}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Share QR Code</DialogTitle>
+        <DialogContent>
+          {shareDialog.qrCode && (
+            <Box>
+              {/* QR Code Preview */}
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                my: 3,
+                p: 3,
+                bgcolor: 'background.default',
+                borderRadius: 2
+              }}>
+                <img 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareDialog.qrCode.content)}`}
+                  alt={shareDialog.qrCode.name || 'QR Code'}
+                  style={{ width: 200, height: 200 }}
+                />
+              </Box>
+
+              {/* Native Share Button - Prominent */}
+              <Button
+                variant="contained"
+                size="large"
+                fullWidth
+                startIcon={<ShareIcon />}
+                onClick={() => handleNativeShare(shareDialog.qrCode!)}
+                sx={{ mb: 2 }}
+              >
+                Share via Apps
+              </Button>
+
+              <Typography variant="caption" color="text.secondary" display="block" textAlign="center" sx={{ mb: 3 }}>
+                Share directly to WhatsApp, Email, SMS, and more
+              </Typography>
+
+              {/* Quick Share Buttons */}
+              <Box sx={{ display: 'flex', gap: 1, mb: 3, flexWrap: 'wrap', justifyContent: 'center' }}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => {
+                    const url = shareDialog.qrCode!.type === 'dynamic' 
+                      ? `${window.location.origin}/r/${shareDialog.qrCode!.shortUrl}`
+                      : shareDialog.qrCode!.content
+                    const text = `Check out my QR code: ${shareDialog.qrCode!.name || 'QR Code'}`
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank')
+                  }}
+                  sx={{ color: '#25D366', borderColor: '#25D366' }}
+                >
+                  WhatsApp
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => {
+                    const url = shareDialog.qrCode!.type === 'dynamic' 
+                      ? `${window.location.origin}/r/${shareDialog.qrCode!.shortUrl}`
+                      : shareDialog.qrCode!.content
+                    const subject = `QR Code: ${shareDialog.qrCode!.name || 'Check this out'}`
+                    const body = `Check out my QR code:\n\n${url}`
+                    window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank')
+                  }}
+                >
+                  Email
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => {
+                    const url = shareDialog.qrCode!.type === 'dynamic' 
+                      ? `${window.location.origin}/r/${shareDialog.qrCode!.shortUrl}`
+                      : shareDialog.qrCode!.content
+                    const text = `Check out my QR code: ${shareDialog.qrCode!.name || 'QR Code'} ${url}`
+                    window.open(`sms:?body=${encodeURIComponent(text)}`, '_blank')
+                  }}
+                >
+                  SMS
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => {
+                    const url = shareDialog.qrCode!.type === 'dynamic' 
+                      ? `${window.location.origin}/r/${shareDialog.qrCode!.shortUrl}`
+                      : shareDialog.qrCode!.content
+                    const text = `Check out my QR code: ${shareDialog.qrCode!.name || 'QR Code'}`
+                    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank')
+                  }}
+                  sx={{ color: '#1DA1F2', borderColor: '#1DA1F2' }}
+                >
+                  Twitter
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => {
+                    const url = shareDialog.qrCode!.type === 'dynamic' 
+                      ? `${window.location.origin}/r/${shareDialog.qrCode!.shortUrl}`
+                      : shareDialog.qrCode!.content
+                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank')
+                  }}
+                  sx={{ color: '#1877F2', borderColor: '#1877F2' }}
+                >
+                  Facebook
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => {
+                    const url = shareDialog.qrCode!.type === 'dynamic' 
+                      ? `${window.location.origin}/r/${shareDialog.qrCode!.shortUrl}`
+                      : shareDialog.qrCode!.content
+                    window.open(`https://telegram.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(shareDialog.qrCode!.name || 'QR Code')}`, '_blank')
+                  }}
+                  sx={{ color: '#0088cc', borderColor: '#0088cc' }}
+                >
+                  Telegram
+                </Button>
+              </Box>
+
+              {/* Divider */}
+              <Box sx={{ display: 'flex', alignItems: 'center', my: 3 }}>
+                <Box sx={{ flex: 1, height: '1px', bgcolor: 'divider' }} />
+                <Typography variant="caption" color="text.secondary" sx={{ px: 2 }}>
+                  OR
+                </Typography>
+                <Box sx={{ flex: 1, height: '1px', bgcolor: 'divider' }} />
+              </Box>
+
+              {/* Share Options */}
+              <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
+                Short URL
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={`${window.location.origin}/r/${shareDialog.qrCode.shortUrl}`}
+                  InputProps={{ readOnly: true }}
+                />
+                <Button 
+                  variant="outlined"
+                  onClick={() => handleCopyLink(`${window.location.origin}/r/${shareDialog.qrCode.shortUrl}`)}
+                >
+                  Copy
+                </Button>
+              </Box>
+
+              <Typography variant="subtitle2" gutterBottom>
+                Original Content
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={shareDialog.qrCode.content}
+                  InputProps={{ readOnly: true }}
+                />
+                <Button 
+                  variant="outlined"
+                  onClick={() => handleCopyLink(shareDialog.qrCode!.content)}
+                >
+                  Copy
+                </Button>
+              </Box>
+
+              {/* Download Options */}
+              <Typography variant="subtitle2" gutterBottom>
+                Download QR Code
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                <Button 
+                  variant="outlined" 
+                  startIcon={<DownloadIcon />}
+                  onClick={() => {
+                    const link = document.createElement('a')
+                    link.href = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(shareDialog.qrCode!.content)}`
+                    link.download = `${shareDialog.qrCode!.name || 'qrcode'}.png`
+                    link.click()
+                  }}
+                >
+                  PNG (500x500)
+                </Button>
+                <Button 
+                  variant="outlined" 
+                  startIcon={<DownloadIcon />}
+                  onClick={() => {
+                    const link = document.createElement('a')
+                    link.href = `https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data=${encodeURIComponent(shareDialog.qrCode!.content)}`
+                    link.download = `${shareDialog.qrCode!.name || 'qrcode'}-large.png`
+                    link.click()
+                  }}
+                >
+                  PNG (1000x1000)
+                </Button>
+                <Button 
+                  variant="outlined" 
+                  startIcon={<DownloadIcon />}
+                  onClick={() => {
+                    const svgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&format=svg&data=${encodeURIComponent(shareDialog.qrCode!.content)}`
+                    const link = document.createElement('a')
+                    link.href = svgUrl
+                    link.download = `${shareDialog.qrCode!.name || 'qrcode'}.svg`
+                    link.click()
+                  }}
+                >
+                  SVG
+                </Button>
+              </Box>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShareDialog({ open: false, qrCode: null })}>
+            Close
           </Button>
         </DialogActions>
       </Dialog>

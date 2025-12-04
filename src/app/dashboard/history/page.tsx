@@ -306,7 +306,7 @@ export default function HistoryPage() {
                     primary={
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
                         {'name' in item && item.name && (
-                          <Typography variant="subtitle1" fontWeight={600}>
+                          <Typography variant="subtitle1" fontWeight={600} component="span">
                             {item.name}
                           </Typography>
                         )}
@@ -326,11 +326,13 @@ export default function HistoryPage() {
                       </Box>
                     }
                     secondary={
-                      <Box>
+                      <Box component="span" sx={{ display: 'block' }}>
                         <Typography
                           variant="body2"
                           color="text.secondary"
+                          component="span"
                           sx={{
+                            display: 'block',
                             wordBreak: 'break-all',
                             mb: 1,
                           }}
@@ -339,8 +341,8 @@ export default function HistoryPage() {
                             ? `${item.content.substring(0, 150)}...`
                             : item.content}
                         </Typography>
-                        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                          <Typography variant="caption" color="text.secondary">
+                        <Box component="span" sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                          <Typography variant="caption" color="text.secondary" component="span">
                             {item.timestamp.toLocaleString()}
                           </Typography>
                           {item.type === 'scan' && 'source' in item && (
