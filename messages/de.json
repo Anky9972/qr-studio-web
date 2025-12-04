@@ -1,0 +1,249 @@
+{
+  "common": {
+    "appName": "QR Studio",
+    "tagline": "Professioneller QR-Code-Generator und Verwaltungsplattform",
+    "getStarted": "Loslegen",
+    "learnMore": "Mehr Erfahren",
+    "signIn": "Anmelden",
+    "signUp": "Registrieren",
+    "signOut": "Abmelden",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "create": "Erstellen",
+    "update": "Aktualisieren",
+    "close": "Schließen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "loading": "Lädt...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "warning": "Warnung",
+    "info": "Information"
+  },
+  "nav": {
+    "features": "Funktionen",
+    "pricing": "Preise",
+    "templates": "Vorlagen",
+    "useCases": "Anwendungsfälle",
+    "about": "Über Uns",
+    "support": "Support",
+    "dashboard": "Dashboard",
+    "myQRCodes": "Meine QR-Codes",
+    "analytics": "Analytik",
+    "settings": "Einstellungen"
+  },
+  "hero": {
+    "title": "QR-Codes Erstellen, Verwalten und Nachverfolgen",
+    "subtitle": "Professionelle QR-Code-Generierung mit erweiterten Analysen, dynamischem Inhalt und Teamzusammenarbeit",
+    "cta": "Kostenlos Starten",
+    "watchDemo": "Demo Ansehen"
+  },
+  "features": {
+    "title": "Leistungsstarke Funktionen",
+    "subtitle": "Alles, was Sie brauchen, um professionelle QR-Codes zu erstellen und zu verwalten",
+    "dynamic": {
+      "title": "Dynamische QR-Codes",
+      "description": "Inhalte jederzeit aktualisieren ohne Neudruck"
+    },
+    "analytics": {
+      "title": "Erweiterte Analysen",
+      "description": "Scans, Standorte, Geräte und mehr verfolgen"
+    },
+    "customization": {
+      "title": "Vollständige Anpassung",
+      "description": "Branden Sie Ihre QR-Codes mit Farben, Logos und Designs"
+    },
+    "bulk": {
+      "title": "Massengenerierung",
+      "description": "Tausende von QR-Codes auf einmal erstellen"
+    },
+    "api": {
+      "title": "API-Zugriff",
+      "description": "QR-Generierung in Ihre Anwendungen integrieren"
+    },
+    "teams": {
+      "title": "Teamzusammenarbeit",
+      "description": "Zusammenarbeiten mit rollenbasierten Berechtigungen"
+    }
+  },
+  "pricing": {
+    "title": "Einfache, Transparente Preise",
+    "subtitle": "Wählen Sie den Plan, der zu Ihren Bedürfnissen passt",
+    "monthly": "Monatlich",
+    "annually": "Jährlich",
+    "save": "20% Sparen",
+    "perMonth": "pro Monat",
+    "free": {
+      "name": "Kostenlos",
+      "description": "Perfekt für den persönlichen Gebrauch",
+      "price": "0€",
+      "features": [
+        "50 statische QR-Codes",
+        "Grundlegende Analysen",
+        "Standard-Designs",
+        "Community-Support"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "Für Profis und kleine Teams",
+      "price": "19€",
+      "features": [
+        "100 dynamische QR-Codes",
+        "Erweiterte Analysen",
+        "Individuelles Branding",
+        "Prioritäts-Support",
+        "Massengenerierung (1.000)",
+        "E-Mail-Kampagnen"
+      ]
+    },
+    "business": {
+      "name": "Business",
+      "description": "Für wachsende Unternehmen",
+      "price": "49€",
+      "features": [
+        "1.000 dynamische QR-Codes",
+        "Erweiterte Analysen & BI",
+        "Teamzusammenarbeit (10 Mitglieder)",
+        "API-Zugriff (10.000 Aufrufe/Monat)",
+        "Eigene Domain",
+        "Massengenerierung (10.000)",
+        "White-Label-Optionen"
+      ]
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "description": "Für große Organisationen",
+      "price": "Individuell",
+      "features": [
+        "Unbegrenzte QR-Codes",
+        "Dedizierter Support",
+        "Individuelle Integrationen",
+        "SLA-Garantie",
+        "Erweiterte Sicherheit",
+        "On-Premise-Option"
+      ]
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Willkommen Zurück",
+      "subtitle": "Melden Sie sich bei Ihrem Konto an",
+      "email": "E-Mail-Adresse",
+      "password": "Passwort",
+      "forgotPassword": "Passwort vergessen?",
+      "noAccount": "Noch kein Konto?",
+      "signUpLink": "Registrieren",
+      "signInButton": "Anmelden",
+      "orContinueWith": "Oder fortfahren mit"
+    },
+    "signUp": {
+      "title": "Konto Erstellen",
+      "subtitle": "Beginnen Sie noch heute mit der Erstellung von QR-Codes",
+      "name": "Vollständiger Name",
+      "email": "E-Mail-Adresse",
+      "password": "Passwort",
+      "confirmPassword": "Passwort Bestätigen",
+      "agreeToTerms": "Ich akzeptiere die Nutzungsbedingungen und Datenschutzrichtlinie",
+      "hasAccount": "Sie haben bereits ein Konto?",
+      "signInLink": "Anmelden",
+      "signUpButton": "Konto Erstellen"
+    }
+  },
+  "dashboard": {
+    "welcome": "Willkommen zurück, {name}!",
+    "overview": "Übersicht",
+    "recentQRCodes": "Letzte QR-Codes",
+    "totalScans": "Gesamtanzahl Scans",
+    "activeQRCodes": "Aktive QR-Codes",
+    "scanRate": "Scan-Rate",
+    "createNewQR": "Neuen QR-Code Erstellen",
+    "viewAll": "Alle Anzeigen"
+  },
+  "qrCode": {
+    "create": "QR-Code Erstellen",
+    "edit": "QR-Code Bearbeiten",
+    "name": "Name",
+    "type": "Typ",
+    "content": "Inhalt",
+    "url": "URL",
+    "text": "Text",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "sms": "SMS",
+    "wifi": "WiFi",
+    "vcard": "Visitenkarte",
+    "design": {
+      "title": "Design",
+      "foregroundColor": "Vordergrundfarbe",
+      "backgroundColor": "Hintergrundfarbe",
+      "logo": "Logo",
+      "pattern": "Muster",
+      "errorCorrection": "Fehlerkorrektur"
+    },
+    "preview": "Vorschau",
+    "download": "Herunterladen",
+    "share": "Teilen",
+    "delete": "Löschen",
+    "duplicate": "Duplizieren"
+  },
+  "analytics": {
+    "title": "Analytik",
+    "scans": "Scans",
+    "uniqueScans": "Einzigartige Scans",
+    "topCountries": "Top-Länder",
+    "topCities": "Top-Städte",
+    "devices": "Geräte",
+    "browsers": "Browser",
+    "scansByDate": "Scans nach Datum",
+    "scansByHour": "Scans nach Stunde",
+    "last7Days": "Letzte 7 Tage",
+    "last30Days": "Letzte 30 Tage",
+    "last90Days": "Letzte 90 Tage",
+    "allTime": "Gesamter Zeitraum"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "account": "Konto",
+    "profile": "Profil",
+    "security": "Sicherheit",
+    "notifications": "Benachrichtigungen",
+    "billing": "Abrechnung",
+    "team": "Team",
+    "apiKeys": "API-Schlüssel",
+    "integrations": "Integrationen",
+    "language": "Sprache",
+    "timezone": "Zeitzone",
+    "privacy": "Datenschutz",
+    "deleteAccount": "Konto Löschen"
+  },
+  "footer": {
+    "product": "Produkt",
+    "features": "Funktionen",
+    "pricing": "Preise",
+    "templates": "Vorlagen",
+    "useCases": "Anwendungsfälle",
+    "company": "Unternehmen",
+    "about": "Über Uns",
+    "contact": "Kontakt",
+    "support": "Support",
+    "blog": "Blog",
+    "legal": "Rechtliches",
+    "terms": "Nutzungsbedingungen",
+    "privacy": "Datenschutz",
+    "cookies": "Cookie-Richtlinie",
+    "gdpr": "DSGVO-Konformität",
+    "allRightsReserved": "Alle Rechte vorbehalten"
+  },
+  "errors": {
+    "pageNotFound": "Seite Nicht Gefunden",
+    "pageNotFoundDescription": "Die Seite, die Sie suchen, existiert nicht.",
+    "goHome": "Zur Startseite",
+    "serverError": "Serverfehler",
+    "serverErrorDescription": "Etwas ist auf unserer Seite schief gelaufen.",
+    "unauthorized": "Nicht Autorisiert",
+    "unauthorizedDescription": "Sie haben keine Berechtigung, auf diese Seite zuzugreifen."
+  }
+}

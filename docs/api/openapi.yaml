@@ -1,0 +1,660 @@
+openapi: 3.0.3
+info:
+  title: QR Studio API
+  version: 1.0.0
+  description: |
+    QR Studio REST API for QR code management, analytics, and automation.
+    
+    ## Authentication
+    
+    Two authentication methods are supported:
+    
+    1. **Session-based**: Use NextAuth session cookies (for web app)
+    2. **API Key**: Use Bearer token in Authorization header (for integrations)
+    
+    ## Rate Limiting
+    
+    - Free: 100 requests/hour
+    - Pro: 1,000 requests/hour
+    - Business: 10,000 requests/hour
+    
+    ## Base URL
+    
+    - Production: `https://qr-studio.com`
+    - Development: `http://localhost:3000`
+    
+  contact:
+    name: API Support
+    email: support@qr-studio.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://qr-studio.com
+    description: Production server
+  - url: http://localhost:3000
+    description: Development server
+
+tags:
+  - name: QR Codes
+    description: QR code management operations
+  - name: Analytics
+    description: Analytics and reporting
+  - name: Webhooks
+    description: Webhook configuration
+  - name: Templates
+    description: QR code templates
+  - name: Teams
+    description: Team and collaboration
+  - name: User
+    description: User account management
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: API key authentication
+    
+    SessionAuth:
+      type: apiKey
+      in: cookie
+      name: next-auth.session-token
+      description: Session-based authentication
+
+  schemas:
+    QRCode:
+      type: object
+      properties:
+        id:
+          type: string
+          format: cuid
+          example: clg1234567890
+        userId:
+          type: string
+        url:
+          type: string
+          format: uri
+          example: https://example.com
+        title:
+          type: string
+          example: Product Landing Page
+        description:
+          type: string
+          nullable: true
+        type:
+          type: string
+          enum: [url, vcard, text, email, phone, sms, wifi, location, event, app]
+          example: url
+        style:
+          type: object
+          properties:
+            backgroundColor:
+              type: string
+              example: "#ffffff"
+            foregroundColor:
+              type: string
+              example: "#000000"
+            logoUrl:
+              type: string
+              nullable: true
+            errorCorrectionLevel:
+              type: string
+              enum: [L, M, Q, H]
+              default: M
+        folderId:
+          type: string
+          nullable: true
+        campaignId:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+          default: true
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+        scanLimit:
+          type: integer
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        _count:
+          type: object
+          properties:
+            scans:
+              type: integer
+              example: 42
+
+    QRCodeInput:
+      type: object
+      required:
+        - url
+        - type
+      properties:
+        url:
+          type: string
+          format: uri
+        title:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+        type:
+          type: string
+          enum: [url, vcard, text, email, phone, sms, wifi, location, event, app]
+        style:
+          type: object
+          properties:
+            backgroundColor:
+              type: string
+              pattern: "^#[0-9A-Fa-f]{6}$"
+            foregroundColor:
+              type: string
+              pattern: "^#[0-9A-Fa-f]{6}$"
+            logoUrl:
+              type: string
+              format: uri
+            errorCorrectionLevel:
+              type: string
+              enum: [L, M, Q, H]
+        folderId:
+          type: string
+        campaignId:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+        scanLimit:
+          type: integer
+          minimum: 1
+
+    Scan:
+      type: object
+      properties:
+        id:
+          type: string
+        qrCodeId:
+          type: string
+        country:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        device:
+          type: string
+          nullable: true
+        browser:
+          type: string
+          nullable: true
+        os:
+          type: string
+          nullable: true
+        referrer:
+          type: string
+          nullable: true
+        scannedAt:
+          type: string
+          format: date-time
+
+    Analytics:
+      type: object
+      properties:
+        totalScans:
+          type: integer
+          example: 1234
+        totalQRCodes:
+          type: integer
+          example: 56
+        scansByDay:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              scans:
+                type: integer
+        topQRCodes:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              scans:
+                type: integer
+        deviceBreakdown:
+          type: object
+          properties:
+            mobile:
+              type: integer
+            desktop:
+              type: integer
+            tablet:
+              type: integer
+        locationBreakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              country:
+                type: string
+              scans:
+                type: integer
+
+    Webhook:
+      type: object
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+            enum: [qr.created, qr.updated, qr.deleted, qr.scanned, scan.created]
+        isActive:
+          type: boolean
+        secret:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Invalid request
+        details:
+          type: object
+          nullable: true
+
+    PaginatedResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            limit:
+              type: integer
+            total:
+              type: integer
+            totalPages:
+              type: integer
+
+security:
+  - BearerAuth: []
+  - SessionAuth: []
+
+paths:
+  /api/qr-codes:
+    get:
+      summary: List QR codes
+      tags:
+        - QR Codes
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            maximum: 100
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [url, vcard, text, email, phone, sms, wifi, location, event, app]
+        - name: folderId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/QRCode'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create QR code
+      tags:
+        - QR Codes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QRCodeInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QRCode'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Plan limit reached
+
+  /api/qr-codes/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+
+    get:
+      summary: Get QR code
+      tags:
+        - QR Codes
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QRCode'
+        '404':
+          description: Not found
+
+    put:
+      summary: Update QR code
+      tags:
+        - QR Codes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QRCodeInput'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QRCode'
+        '404':
+          description: Not found
+
+    delete:
+      summary: Delete QR code
+      tags:
+        - QR Codes
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: Not found
+
+  /api/qr-codes/{id}/analytics:
+    get:
+      summary: Get QR code analytics
+      tags:
+        - Analytics
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analytics'
+
+  /api/analytics:
+    get:
+      summary: Get overall analytics
+      tags:
+        - Analytics
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analytics'
+
+  /api/analytics/realtime:
+    get:
+      summary: Get real-time metrics
+      tags:
+        - Analytics
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  activeScans:
+                    type: integer
+                  activeQRCodes:
+                    type: integer
+                  activeViewers:
+                    type: integer
+
+  /api/analytics/export:
+    post:
+      summary: Export analytics data
+      tags:
+        - Analytics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - format
+              properties:
+                format:
+                  type: string
+                  enum: [csv, excel, pdf]
+                startDate:
+                  type: string
+                  format: date
+                endDate:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: File download
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  /api/webhooks:
+    get:
+      summary: List webhooks
+      tags:
+        - Webhooks
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Webhook'
+
+    post:
+      summary: Create webhook
+      tags:
+        - Webhooks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - url
+                - events
+              properties:
+                url:
+                  type: string
+                  format: uri
+                events:
+                  type: array
+                  items:
+                    type: string
+                    enum: [qr.created, qr.updated, qr.deleted, qr.scanned, scan.created]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+
+  /api/webhooks/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+
+    put:
+      summary: Update webhook
+      tags:
+        - Webhooks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+                events:
+                  type: array
+                  items:
+                    type: string
+                isActive:
+                  type: boolean
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+
+    delete:
+      summary: Delete webhook
+      tags:
+        - Webhooks
+      responses:
+        '204':
+          description: Deleted
+
+  /api/webhooks/{id}/test:
+    post:
+      summary: Test webhook
+      tags:
+        - Webhooks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Test sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  statusCode:
+                    type: integer

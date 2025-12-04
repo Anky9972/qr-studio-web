@@ -1,0 +1,249 @@
+{
+  "common": {
+    "appName": "QR Studio",
+    "tagline": "Gerador e Plataforma de Gestão de Códigos QR Profissional",
+    "getStarted": "Começar",
+    "learnMore": "Saiba Mais",
+    "signIn": "Entrar",
+    "signUp": "Cadastrar",
+    "signOut": "Sair",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "create": "Criar",
+    "update": "Atualizar",
+    "close": "Fechar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "warning": "Aviso",
+    "info": "Informação"
+  },
+  "nav": {
+    "features": "Recursos",
+    "pricing": "Preços",
+    "templates": "Modelos",
+    "useCases": "Casos de Uso",
+    "about": "Sobre",
+    "support": "Suporte",
+    "dashboard": "Painel",
+    "myQRCodes": "Meus Códigos QR",
+    "analytics": "Analíticas",
+    "settings": "Configurações"
+  },
+  "hero": {
+    "title": "Criar, Gerenciar e Rastrear Códigos QR",
+    "subtitle": "Geração profissional de códigos QR com análises avançadas, conteúdo dinâmico e colaboração em equipe",
+    "cta": "Começar Grátis",
+    "watchDemo": "Ver Demonstração"
+  },
+  "features": {
+    "title": "Recursos Poderosos",
+    "subtitle": "Tudo o que você precisa para criar e gerenciar códigos QR profissionais",
+    "dynamic": {
+      "title": "Códigos QR Dinâmicos",
+      "description": "Atualize o conteúdo a qualquer momento sem reimprimir"
+    },
+    "analytics": {
+      "title": "Análises Avançadas",
+      "description": "Rastreie leituras, localizações, dispositivos e mais"
+    },
+    "customization": {
+      "title": "Personalização Completa",
+      "description": "Personalize seus códigos QR com cores, logos e designs"
+    },
+    "bulk": {
+      "title": "Geração em Massa",
+      "description": "Crie milhares de códigos QR de uma vez"
+    },
+    "api": {
+      "title": "Acesso à API",
+      "description": "Integre a geração de QR em suas aplicações"
+    },
+    "teams": {
+      "title": "Colaboração em Equipe",
+      "description": "Trabalhe junto com permissões baseadas em função"
+    }
+  },
+  "pricing": {
+    "title": "Preços Simples e Transparentes",
+    "subtitle": "Escolha o plano que atende suas necessidades",
+    "monthly": "Mensal",
+    "annually": "Anual",
+    "save": "Economize 20%",
+    "perMonth": "por mês",
+    "free": {
+      "name": "Grátis",
+      "description": "Perfeito para uso pessoal",
+      "price": "R$ 0",
+      "features": [
+        "50 códigos QR estáticos",
+        "Análises básicas",
+        "Designs padrão",
+        "Suporte comunitário"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "Para profissionais e pequenas equipes",
+      "price": "R$ 99",
+      "features": [
+        "100 códigos QR dinâmicos",
+        "Análises avançadas",
+        "Marca personalizada",
+        "Suporte prioritário",
+        "Geração em massa (1.000)",
+        "Campanhas por e-mail"
+      ]
+    },
+    "business": {
+      "name": "Business",
+      "description": "Para empresas em crescimento",
+      "price": "R$ 249",
+      "features": [
+        "1.000 códigos QR dinâmicos",
+        "Análises avançadas e BI",
+        "Colaboração em equipe (10 membros)",
+        "Acesso à API (10.000 chamadas/mês)",
+        "Domínio personalizado",
+        "Geração em massa (10.000)",
+        "Opções de marca branca"
+      ]
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "description": "Para grandes organizações",
+      "price": "Personalizado",
+      "features": [
+        "Códigos QR ilimitados",
+        "Suporte dedicado",
+        "Integrações personalizadas",
+        "Garantia de SLA",
+        "Segurança avançada",
+        "Opção local"
+      ]
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Bem-vindo de Volta",
+      "subtitle": "Entre na sua conta",
+      "email": "Endereço de E-mail",
+      "password": "Senha",
+      "forgotPassword": "Esqueceu a senha?",
+      "noAccount": "Não tem uma conta?",
+      "signUpLink": "Cadastre-se",
+      "signInButton": "Entrar",
+      "orContinueWith": "Ou continue com"
+    },
+    "signUp": {
+      "title": "Criar Sua Conta",
+      "subtitle": "Comece a criar códigos QR hoje",
+      "name": "Nome Completo",
+      "email": "Endereço de E-mail",
+      "password": "Senha",
+      "confirmPassword": "Confirmar Senha",
+      "agreeToTerms": "Concordo com os Termos de Serviço e Política de Privacidade",
+      "hasAccount": "Já tem uma conta?",
+      "signInLink": "Entre",
+      "signUpButton": "Criar Conta"
+    }
+  },
+  "dashboard": {
+    "welcome": "Bem-vindo de volta, {name}!",
+    "overview": "Visão Geral",
+    "recentQRCodes": "Códigos QR Recentes",
+    "totalScans": "Total de Leituras",
+    "activeQRCodes": "Códigos QR Ativos",
+    "scanRate": "Taxa de Leitura",
+    "createNewQR": "Criar Novo Código QR",
+    "viewAll": "Ver Todos"
+  },
+  "qrCode": {
+    "create": "Criar Código QR",
+    "edit": "Editar Código QR",
+    "name": "Nome",
+    "type": "Tipo",
+    "content": "Conteúdo",
+    "url": "URL",
+    "text": "Texto",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "sms": "SMS",
+    "wifi": "WiFi",
+    "vcard": "Cartão de Visita",
+    "design": {
+      "title": "Design",
+      "foregroundColor": "Cor Principal",
+      "backgroundColor": "Cor de Fundo",
+      "logo": "Logo",
+      "pattern": "Padrão",
+      "errorCorrection": "Correção de Erro"
+    },
+    "preview": "Visualizar",
+    "download": "Baixar",
+    "share": "Compartilhar",
+    "delete": "Excluir",
+    "duplicate": "Duplicar"
+  },
+  "analytics": {
+    "title": "Analíticas",
+    "scans": "Leituras",
+    "uniqueScans": "Leituras Únicas",
+    "topCountries": "Principais Países",
+    "topCities": "Principais Cidades",
+    "devices": "Dispositivos",
+    "browsers": "Navegadores",
+    "scansByDate": "Leituras por Data",
+    "scansByHour": "Leituras por Hora",
+    "last7Days": "Últimos 7 Dias",
+    "last30Days": "Últimos 30 Dias",
+    "last90Days": "Últimos 90 Dias",
+    "allTime": "Todo o Período"
+  },
+  "settings": {
+    "title": "Configurações",
+    "account": "Conta",
+    "profile": "Perfil",
+    "security": "Segurança",
+    "notifications": "Notificações",
+    "billing": "Faturamento",
+    "team": "Equipe",
+    "apiKeys": "Chaves API",
+    "integrations": "Integrações",
+    "language": "Idioma",
+    "timezone": "Fuso Horário",
+    "privacy": "Privacidade",
+    "deleteAccount": "Excluir Conta"
+  },
+  "footer": {
+    "product": "Produto",
+    "features": "Recursos",
+    "pricing": "Preços",
+    "templates": "Modelos",
+    "useCases": "Casos de Uso",
+    "company": "Empresa",
+    "about": "Sobre",
+    "contact": "Contato",
+    "support": "Suporte",
+    "blog": "Blog",
+    "legal": "Legal",
+    "terms": "Termos de Serviço",
+    "privacy": "Política de Privacidade",
+    "cookies": "Política de Cookies",
+    "gdpr": "Conformidade GDPR",
+    "allRightsReserved": "Todos os direitos reservados"
+  },
+  "errors": {
+    "pageNotFound": "Página Não Encontrada",
+    "pageNotFoundDescription": "A página que você está procurando não existe.",
+    "goHome": "Ir para o Início",
+    "serverError": "Erro do Servidor",
+    "serverErrorDescription": "Algo deu errado do nosso lado.",
+    "unauthorized": "Não Autorizado",
+    "unauthorizedDescription": "Você não tem permissão para acessar esta página."
+  }
+}

@@ -1,0 +1,249 @@
+{
+  "common": {
+    "appName": "QR Studio",
+    "tagline": "Professional QR Code Generator & Management Platform",
+    "getStarted": "Get Started",
+    "learnMore": "Learn More",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "update": "Update",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information"
+  },
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "templates": "Templates",
+    "useCases": "Use Cases",
+    "about": "About",
+    "support": "Support",
+    "dashboard": "Dashboard",
+    "myQRCodes": "My QR Codes",
+    "analytics": "Analytics",
+    "settings": "Settings"
+  },
+  "hero": {
+    "title": "Create, Manage & Track QR Codes",
+    "subtitle": "Professional QR code generation with advanced analytics, dynamic content, and team collaboration",
+    "cta": "Start Creating Free",
+    "watchDemo": "Watch Demo"
+  },
+  "features": {
+    "title": "Powerful Features",
+    "subtitle": "Everything you need to create and manage professional QR codes",
+    "dynamic": {
+      "title": "Dynamic QR Codes",
+      "description": "Update content anytime without reprinting"
+    },
+    "analytics": {
+      "title": "Advanced Analytics",
+      "description": "Track scans, locations, devices, and more"
+    },
+    "customization": {
+      "title": "Full Customization",
+      "description": "Brand your QR codes with colors, logos, and designs"
+    },
+    "bulk": {
+      "title": "Bulk Generation",
+      "description": "Create thousands of QR codes at once"
+    },
+    "api": {
+      "title": "API Access",
+      "description": "Integrate QR generation into your applications"
+    },
+    "teams": {
+      "title": "Team Collaboration",
+      "description": "Work together with role-based permissions"
+    }
+  },
+  "pricing": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Choose the plan that fits your needs",
+    "monthly": "Monthly",
+    "annually": "Annually",
+    "save": "Save 20%",
+    "perMonth": "per month",
+    "free": {
+      "name": "Free",
+      "description": "Perfect for personal use",
+      "price": "$0",
+      "features": [
+        "50 static QR codes",
+        "Basic analytics",
+        "Standard designs",
+        "Community support"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "For professionals and small teams",
+      "price": "$19",
+      "features": [
+        "100 dynamic QR codes",
+        "Advanced analytics",
+        "Custom branding",
+        "Priority support",
+        "Bulk generation (1,000)",
+        "Email campaigns"
+      ]
+    },
+    "business": {
+      "name": "Business",
+      "description": "For growing businesses",
+      "price": "$49",
+      "features": [
+        "1,000 dynamic QR codes",
+        "Advanced analytics & BI",
+        "Team collaboration (10 members)",
+        "API access (10,000 calls/month)",
+        "Custom domain",
+        "Bulk generation (10,000)",
+        "White-label options"
+      ]
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "description": "For large organizations",
+      "price": "Custom",
+      "features": [
+        "Unlimited QR codes",
+        "Dedicated support",
+        "Custom integrations",
+        "SLA guarantee",
+        "Advanced security",
+        "On-premise option"
+      ]
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to your account",
+      "email": "Email Address",
+      "password": "Password",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign up",
+      "signInButton": "Sign In",
+      "orContinueWith": "Or continue with"
+    },
+    "signUp": {
+      "title": "Create Your Account",
+      "subtitle": "Start creating QR codes today",
+      "name": "Full Name",
+      "email": "Email Address",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "agreeToTerms": "I agree to the Terms of Service and Privacy Policy",
+      "hasAccount": "Already have an account?",
+      "signInLink": "Sign in",
+      "signUpButton": "Create Account"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {name}!",
+    "overview": "Overview",
+    "recentQRCodes": "Recent QR Codes",
+    "totalScans": "Total Scans",
+    "activeQRCodes": "Active QR Codes",
+    "scanRate": "Scan Rate",
+    "createNewQR": "Create New QR Code",
+    "viewAll": "View All"
+  },
+  "qrCode": {
+    "create": "Create QR Code",
+    "edit": "Edit QR Code",
+    "name": "Name",
+    "type": "Type",
+    "content": "Content",
+    "url": "URL",
+    "text": "Text",
+    "email": "Email",
+    "phone": "Phone",
+    "sms": "SMS",
+    "wifi": "WiFi",
+    "vcard": "vCard",
+    "design": {
+      "title": "Design",
+      "foregroundColor": "Foreground Color",
+      "backgroundColor": "Background Color",
+      "logo": "Logo",
+      "pattern": "Pattern",
+      "errorCorrection": "Error Correction"
+    },
+    "preview": "Preview",
+    "download": "Download",
+    "share": "Share",
+    "delete": "Delete",
+    "duplicate": "Duplicate"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "scans": "Scans",
+    "uniqueScans": "Unique Scans",
+    "topCountries": "Top Countries",
+    "topCities": "Top Cities",
+    "devices": "Devices",
+    "browsers": "Browsers",
+    "scansByDate": "Scans by Date",
+    "scansByHour": "Scans by Hour",
+    "last7Days": "Last 7 Days",
+    "last30Days": "Last 30 Days",
+    "last90Days": "Last 90 Days",
+    "allTime": "All Time"
+  },
+  "settings": {
+    "title": "Settings",
+    "account": "Account",
+    "profile": "Profile",
+    "security": "Security",
+    "notifications": "Notifications",
+    "billing": "Billing",
+    "team": "Team",
+    "apiKeys": "API Keys",
+    "integrations": "Integrations",
+    "language": "Language",
+    "timezone": "Timezone",
+    "privacy": "Privacy",
+    "deleteAccount": "Delete Account"
+  },
+  "footer": {
+    "product": "Product",
+    "features": "Features",
+    "pricing": "Pricing",
+    "templates": "Templates",
+    "useCases": "Use Cases",
+    "company": "Company",
+    "about": "About Us",
+    "contact": "Contact",
+    "support": "Support",
+    "blog": "Blog",
+    "legal": "Legal",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "cookies": "Cookie Policy",
+    "gdpr": "GDPR Compliance",
+    "allRightsReserved": "All rights reserved"
+  },
+  "errors": {
+    "pageNotFound": "Page Not Found",
+    "pageNotFoundDescription": "The page you're looking for doesn't exist.",
+    "goHome": "Go Home",
+    "serverError": "Server Error",
+    "serverErrorDescription": "Something went wrong on our end.",
+    "unauthorized": "Unauthorized",
+    "unauthorizedDescription": "You don't have permission to access this page."
+  }
+}
