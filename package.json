@@ -49,6 +49,7 @@
     "next-intl": "^4.5.7",
     "nodemailer": "^7.0.11",
     "papaparse": "^5.5.3",
+    "pdf-lib": "^1.17.1",
     "qr-code-styling": "^1.9.2",
     "qrcode": "^1.5.4",
     "react": "19.2.0",

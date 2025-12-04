@@ -8,30 +8,36 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  name          String?
-  email         String?        @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  role          String         @default("user")
-  plan          String         @default("free")
-  planExpiry    DateTime?
-  isAdmin       Boolean        @default(false)
-  subscription  String         @default("FREE")
-  lastLoginAt   DateTime?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  accounts      Account[]
-  apiKeys       ApiKey[]
-  campaigns     Campaign[]
-  qrCodes       QRCode[]
-  sessions      Session[]
-  teamMembers   TeamMember[]
-  templates     Template[]
-  webhooks      Webhook[]
-  customDomains CustomDomain[]
-  microsites    Microsite[]
+  id                    String         @id @default(cuid())
+  name                  String?
+  email                 String?        @unique
+  emailVerified         DateTime?
+  image                 String?
+  password              String?
+  role                  String         @default("user")
+  plan                  String         @default("free")
+  planExpiry            DateTime?
+  isAdmin               Boolean        @default(false)
+  subscription          String         @default("FREE")
+  lastLoginAt           DateTime?
+  emailNotifications    Boolean        @default(true)
+  scanAlerts            Boolean        @default(false)
+  weeklyReports         Boolean        @default(true)
+  limitWarnings         Boolean        @default(true)
+  expirationReminders   Boolean        @default(true)
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  accounts              Account[]
+  apiKeys               ApiKey[]
+  campaigns             Campaign[]
+  qrCodes               QRCode[]
+  sessions              Session[]
+  teamMembers           TeamMember[]
+  templates             Template[]
+  webhooks              Webhook[]
+  customDomains         CustomDomain[]
+  microsites            Microsite[]
+  notificationSettings  NotificationSetting[]
 
   @@index([lastLoginAt])
 }
@@ -123,11 +129,15 @@ model Scan {
   browser   String?
   os        String?
   referrer  String?
+  visitorId String?
+  isUnique  Boolean  @default(true)
   scannedAt DateTime @default(now())
   qrCode    QRCode   @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
 
   @@index([qrCodeId])
   @@index([scannedAt])
+  @@index([visitorId])
+  @@index([isUnique])
 }
 
 model Template {
@@ -363,4 +373,38 @@ model CTAFrame {
 
   @@index([category])
   @@index([premium])
+}
+
+// ===== NOTIFICATION SETTINGS =====
+model NotificationSetting {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String   // 'scan_alert', 'weekly_report', 'limit_warning', 'expiration_reminder'
+  enabled     Boolean  @default(true)
+  frequency   String?  // 'immediate', 'daily', 'weekly'
+  threshold   Int?     // For limit warnings (percentage)
+  qrCodeIds   String[] // Specific QR codes to monitor (empty = all)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+  @@index([userId])
+  @@index([type])
+}
+
+// ===== NOTIFICATION LOG =====
+model NotificationLog {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  subject   String
+  message   String
+  sentAt    DateTime @default(now())
+  success   Boolean
+  error     String?
+
+  @@index([userId])
+  @@index([sentAt])
+  @@index([type])
 }

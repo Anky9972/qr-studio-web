@@ -32,7 +32,6 @@ import {
   Schedule,
   Language,
   PinDrop,
-  LimitIcon,
 } from '@mui/icons-material';
 import { RoutingCondition, RoutingRuleType } from '@/types/routing';
 
@@ -348,7 +347,7 @@ export default function SmartRoutingManager({
                     type="number"
                     label="Maximum Scans"
                     value={scanLimit}
-                    onChange={(e) => setScanLimit(parseInt(e.target.value))}
+                    onChange={(e) => setScanlimit(parseInt(e.target.value))}
                     helperText="Redirect to this URL after reaching scan limit"
                   />
                 </Grid>

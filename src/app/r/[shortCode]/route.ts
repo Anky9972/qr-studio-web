@@ -4,6 +4,12 @@ import { evaluateRoutingRules, shouldBlockByScanLimit } from '@/lib/smartRouting
 import { generatePixelLandingPage } from '@/lib/pixelManager';
 import { appendUTMParameters } from '@/lib/utmBuilder';
 import { RedirectContext } from '@/types/routing';
+import { getGeolocation } from '@/lib/geolocation';
+import { 
+  generateVisitorFingerprint, 
+  checkUniqueVisitor, 
+  getVisitorIdFromCookie 
+} from '@/lib/visitor-tracking';
 
 export async function GET(
   request: NextRequest,
@@ -60,7 +66,21 @@ export async function GET(
     const userAgent = request.headers.get('user-agent') || '';
     const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '';
     const acceptLanguage = request.headers.get('accept-language') || '';
+    const acceptEncoding = request.headers.get('accept-encoding') || '';
     const referrer = request.headers.get('referer') || undefined;
+    const cookieHeader = request.headers.get('cookie');
+
+    // Generate visitor fingerprint
+    const cookieVisitorId = getVisitorIdFromCookie(cookieHeader);
+    const visitorId = cookieVisitorId || generateVisitorFingerprint(
+      ipAddress,
+      userAgent,
+      acceptLanguage,
+      acceptEncoding
+    );
+
+    // Check if visitor is unique
+    const visitorInfo = await checkUniqueVisitor(qrCode.id, visitorId, prisma);
 
     // Parse user agent for analytics
     const device = userAgent.includes('Mobile') ? 'Mobile' : userAgent.includes('Tablet') ? 'Tablet' : 'Desktop';
@@ -101,20 +121,43 @@ export async function GET(
       finalDestination = appendUTMParameters(finalDestination, qrCode.utmParams as any);
     }
 
-    // Record scan analytics (don't await - fire and forget)
-    prisma.scan.create({
-      data: {
-        qrCodeId: qrCode.id,
-        ipAddress,
-        userAgent,
-        device,
-        browser,
-        os,
-        referrer,
-        country: 'Unknown', // TODO: Add IP geolocation
-        city: 'Unknown',
-      },
-    }).catch(err => console.error('Failed to record scan:', err));
+    // Get geolocation data (don't await - fire and forget)
+    getGeolocation(ipAddress).then(geoData => {
+      // Record scan analytics with geolocation and visitor tracking
+      prisma.scan.create({
+        data: {
+          qrCodeId: qrCode.id,
+          ipAddress,
+          userAgent,
+          device,
+          browser,
+          os,
+          referrer,
+          country: geoData.country,
+          city: geoData.city,
+          visitorId,
+          isUnique: visitorInfo.isUnique,
+        },
+      }).catch(err => console.error('Failed to record scan:', err));
+    }).catch(err => {
+      console.error('Geolocation failed, recording scan without geo data:', err);
+      // Fallback: record scan without geolocation
+      prisma.scan.create({
+        data: {
+          qrCodeId: qrCode.id,
+          ipAddress,
+          userAgent,
+          device,
+          browser,
+          os,
+          referrer,
+          country: 'Unknown',
+          city: 'Unknown',
+          visitorId,
+          isUnique: visitorInfo.isUnique,
+        },
+      }).catch(err => console.error('Failed to record scan:', err));
+    });
 
     // Update scan count (don't await)
     prisma.qRCode.update({

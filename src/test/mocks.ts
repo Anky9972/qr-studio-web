@@ -15,6 +15,11 @@ export const mockUser: User = {
   planExpiry: null,
   subscription: 'none',
   lastLoginAt: null,
+  emailNotifications: true,
+  scanAlerts: true,
+  weeklyReports: true,
+  limitWarnings: true,
+  expirationReminders: true,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -76,6 +81,11 @@ export const mockQRCode: QRCode = {
   favorite: false,
   scanCount: 0,
   lastScanned: null,
+  maxScans: null,
+  customDomain: null,
+  frameId: null,
+  micrositeId: null,
+  utmParams: null,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -109,6 +119,8 @@ export const mockScan: Scan = {
   ipAddress: '192.168.1.1',
   userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)',
   referrer: null,
+  visitorId: 'visitor-123',
+  isUnique: true,
 };
 
 // Mock Campaign
