@@ -229,6 +229,8 @@ export default function PixelManager({
                   <MenuItem value="linkedin">LinkedIn Insight Tag</MenuItem>
                   <MenuItem value="tiktok">TikTok Pixel</MenuItem>
                   <MenuItem value="twitter">Twitter (X) Pixel</MenuItem>
+                  <MenuItem value="pinterest">Pinterest Tag</MenuItem>
+                  <MenuItem value="snapchat">Snapchat Pixel</MenuItem>
                   <MenuItem value="custom">Custom Script</MenuItem>
                 </TextField>
               </Grid>

@@ -81,6 +81,9 @@ export default function SmartRoutingManager({
   // Scan limit state
   const [scanLimit, setScanlimit] = useState(1000);
 
+  // Geo routing state
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+
   const handleOpenDialog = (rule?: RoutingRule) => {
     if (rule) {
       setEditingRule(rule);
@@ -125,6 +128,9 @@ export default function SmartRoutingManager({
         break;
       case 'scanLimit':
         condition = { type: 'scanLimit', maxScans: scanLimit };
+        break;
+      case 'geo':
+        condition = { type: 'geo', countries: selectedCountries };
         break;
       default:
         return;
@@ -176,6 +182,9 @@ export default function SmartRoutingManager({
       case 'scanLimit':
         const limitCond = rule.condition as any;
         return `Max scans: ${limitCond.maxScans}`;
+      case 'geo':
+        const geoCond = rule.condition as any;
+        return `Countries: ${geoCond.countries?.join(', ')}`;
       default:
         return 'Custom rule';
     }
@@ -281,7 +290,7 @@ export default function SmartRoutingManager({
                     select
                     fullWidth
                     label="Target Devices"
-                    value={selectedDevices}
+                    value={selectedDevices[0]}
                     onChange={(e) => setSelectedDevices([e.target.value])}
                     helperText="Select which devices should use this route"
                   >
@@ -289,6 +298,7 @@ export default function SmartRoutingManager({
                     <MenuItem value="android">Android</MenuItem>
                     <MenuItem value="windows">Windows</MenuItem>
                     <MenuItem value="mac">Mac</MenuItem>
+                    <MenuItem value="linux">Linux</MenuItem>
                   </TextField>
                 </Grid>
               )}
@@ -350,6 +360,34 @@ export default function SmartRoutingManager({
                     onChange={(e) => setScanlimit(parseInt(e.target.value))}
                     helperText="Redirect to this URL after reaching scan limit"
                   />
+                </Grid>
+              )}
+
+              {/* Geographic Location */}
+              {ruleType === 'geo' && (
+                <Grid item xs={12}>
+                  <TextField
+                    select
+                    fullWidth
+                    label="Target Countries"
+                    value={selectedCountries[0] || ''}
+                    onChange={(e) => setSelectedCountries([e.target.value])}
+                    helperText="Select which countries should use this route"
+                  >
+                    <MenuItem value="US">United States</MenuItem>
+                    <MenuItem value="GB">United Kingdom</MenuItem>
+                    <MenuItem value="CA">Canada</MenuItem>
+                    <MenuItem value="AU">Australia</MenuItem>
+                    <MenuItem value="DE">Germany</MenuItem>
+                    <MenuItem value="FR">France</MenuItem>
+                    <MenuItem value="ES">Spain</MenuItem>
+                    <MenuItem value="IT">Italy</MenuItem>
+                    <MenuItem value="JP">Japan</MenuItem>
+                    <MenuItem value="CN">China</MenuItem>
+                    <MenuItem value="IN">India</MenuItem>
+                    <MenuItem value="BR">Brazil</MenuItem>
+                    <MenuItem value="MX">Mexico</MenuItem>
+                  </TextField>
                 </Grid>
               )}
 

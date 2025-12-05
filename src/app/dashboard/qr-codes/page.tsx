@@ -857,12 +857,12 @@ export default function QRCodesPage() {
                 <TextField
                   fullWidth
                   size="small"
-                  value={`${window.location.origin}/r/${shareDialog.qrCode.shortUrl}`}
+                  value={`${window.location.origin}/r/${shareDialog.qrCode?.shortUrl || ''}`}
                   InputProps={{ readOnly: true }}
                 />
                 <Button 
                   variant="outlined"
-                  onClick={() => handleCopyLink(`${window.location.origin}/r/${shareDialog.qrCode.shortUrl}`)}
+                  onClick={() => handleCopyLink(`${window.location.origin}/r/${shareDialog.qrCode?.shortUrl}`)}
                 >
                   Copy
                 </Button>

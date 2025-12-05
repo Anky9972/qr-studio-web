@@ -36,12 +36,25 @@ export async function GET(
     });
 
     if (!qrCode) {
-      return NextResponse.json({ error: 'QR code not found' }, { status: 404 });
+      // Redirect to friendly error page
+      const errorUrl = new URL('/qr-expired', request.url);
+      errorUrl.searchParams.set('type', 'not-found');
+      return NextResponse.redirect(errorUrl, 302);
     }
 
     // Check if expired
     if (qrCode.expiresAt && qrCode.expiresAt < new Date()) {
-      return NextResponse.json({ error: 'QR code has expired' }, { status: 410 });
+      // Redirect to friendly error page with optional fallback
+      const errorUrl = new URL('/qr-expired', request.url);
+      errorUrl.searchParams.set('type', 'expired');
+      
+      // Check if owner set a fallback URL for expired codes
+      const fallbackRule = qrCode.routingRules.find(r => r.type === 'expired');
+      if (fallbackRule && fallbackRule.destination) {
+        errorUrl.searchParams.set('fallback', fallbackRule.destination);
+      }
+      
+      return NextResponse.redirect(errorUrl, 302);
     }
 
     // Check password protection
@@ -49,17 +62,27 @@ export async function GET(
     const providedPassword = searchParams.get('password');
 
     if (qrCode.password && qrCode.password !== providedPassword) {
-      return NextResponse.json({ error: 'Password required', passwordProtected: true }, { status: 403 });
+      // Redirect to friendly error page
+      const errorUrl = new URL('/qr-expired', request.url);
+      errorUrl.searchParams.set('type', 'password');
+      errorUrl.searchParams.set('message', 'This QR code requires a password. Please contact the owner.');
+      return NextResponse.redirect(errorUrl, 302);
     }
 
     // Check scan limit
     if (shouldBlockByScanLimit(qrCode.scanCount, qrCode.maxScans || undefined)) {
       // Find scan limit rule with exceeded URL
       const scanLimitRule = qrCode.routingRules.find(r => r.type === 'scanLimit');
+      
+      // Redirect to friendly error page
+      const errorUrl = new URL('/qr-expired', request.url);
+      errorUrl.searchParams.set('type', 'limit');
+      
       if (scanLimitRule && scanLimitRule.destination) {
-        return NextResponse.redirect(scanLimitRule.destination, 302);
+        errorUrl.searchParams.set('fallback', scanLimitRule.destination);
       }
-      return NextResponse.json({ error: 'Scan limit exceeded' }, { status: 410 });
+      
+      return NextResponse.redirect(errorUrl, 302);
     }
 
     // Extract request context

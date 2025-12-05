@@ -40,6 +40,10 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import GroupIcon from '@mui/icons-material/Group'
 import LogoutIcon from '@mui/icons-material/Logout'
 import NotificationsIcon from '@mui/icons-material/Notifications'
+import LinkIcon from '@mui/icons-material/Link'
+import ContactPageIcon from '@mui/icons-material/ContactPage'
+import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu'
+import AssignmentIcon from '@mui/icons-material/Assignment'
 import { signOut } from 'next-auth/react'
 
 const drawerWidth = 280
@@ -74,6 +78,11 @@ export default function DashboardLayout({
     { text: 'Campaigns', icon: FolderIcon, path: '/dashboard/campaigns' },
     { text: 'Templates', icon: TemplateIcon, path: '/dashboard/templates' },
     { text: 'Team', icon: GroupIcon, path: '/dashboard/team', badge: 'Pro' },
+    { divider: true },
+    { text: 'Link in Bio', icon: LinkIcon, path: '/dashboard/link-in-bio', badge: 'New' },
+    { text: 'vCard Plus', icon: ContactPageIcon, path: '/dashboard/vcard-plus', badge: 'New' },
+    { text: 'Digital Menu', icon: RestaurantMenuIcon, path: '/dashboard/digital-menu', badge: 'New' },
+    { text: 'Lead Gate', icon: AssignmentIcon, path: '/dashboard/lead-gate', badge: 'New' },
     ...(isAdmin ? [
       { divider: true },
       { text: 'Admin Panel', icon: SettingsIcon, path: '/admin' },
