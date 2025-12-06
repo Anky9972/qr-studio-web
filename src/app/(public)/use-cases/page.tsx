@@ -1,29 +1,24 @@
 'use client';
 
 import {
-  Box,
-  Container,
-  Typography,
-  Button,
-  Grid
-} from '@mui/material';
-import {
-  Restaurant,
-  StoreMallDirectory,
+  UtensilsCrossed,
+  Store,
   Home,
-  Event,
-  School,
-  LocalHospital,
-  Adjust,
-  Campaign,
-  ArrowForward,
-  QrCode2
-} from '@mui/icons-material';
+  Calendar,
+  GraduationCap,
+  Hospital,
+  Target,
+  Megaphone,
+  ArrowRight,
+  QrCode
+} from 'lucide-react';
 import Link from 'next/link';
 import IndustryCard from '@/components/use-cases/IndustryCard';
 import CaseStudy from '@/components/use-cases/CaseStudy';
 import TestimonialCard from '@/components/use-cases/TestimonialCard';
 import SuccessStory from '@/components/use-cases/SuccessStory';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 
 export default function UseCasesPage() {
   const industries = [
@@ -31,7 +26,7 @@ export default function UseCasesPage() {
       title: 'Restaurant & Hospitality',
       description:
         'Transform dining experiences with contactless menus, table ordering, and instant feedback collection.',
-      icon: <Restaurant sx={{ fontSize: 32 }} />,
+      icon: <UtensilsCrossed size={32} />,
       useCases: ['Digital Menus', 'Table Ordering', 'WiFi Sharing', 'Feedback'],
       benefits: [
         'Reduce printing costs by 90%',
@@ -48,7 +43,7 @@ export default function UseCasesPage() {
       title: 'Retail & E-commerce',
       description:
         'Bridge physical and digital shopping with product information, reviews, and loyalty programs.',
-      icon: <StoreMallDirectory sx={{ fontSize: 32 }} />,
+      icon: <Store size={32} />,
       useCases: ['Product Info', 'Inventory Tracking', 'Reviews', 'Loyalty Programs'],
       benefits: [
         'Increase customer engagement',
@@ -65,7 +60,7 @@ export default function UseCasesPage() {
       title: 'Real Estate',
       description:
         'Showcase properties with virtual tours, instant contact information, and scheduling.',
-      icon: <Home sx={{ fontSize: 32 }} />,
+      icon: <Home size={32} />,
       useCases: ['Property Listings', 'Virtual Tours', 'Contact Info', 'Scheduling'],
       benefits: [
         'Generate more qualified leads',
@@ -82,7 +77,7 @@ export default function UseCasesPage() {
       title: 'Events & Ticketing',
       description:
         'Streamline event management with registration, ticket validation, and attendee networking.',
-      icon: <Event sx={{ fontSize: 32 }} />,
+      icon: <Calendar size={32} />,
       useCases: ['Registration', 'Ticket Validation', 'Networking', 'Surveys'],
       benefits: [
         'Eliminate paper tickets',
@@ -99,7 +94,7 @@ export default function UseCasesPage() {
       title: 'Education',
       description:
         'Enhance learning experiences with campus navigation, course materials, and digital ID cards.',
-      icon: <School sx={{ fontSize: 32 }} />,
+      icon: <GraduationCap size={32} />,
       useCases: ['Campus Navigation', 'Course Materials', 'Library', 'Student IDs'],
       benefits: [
         'Improve student engagement',
@@ -116,7 +111,7 @@ export default function UseCasesPage() {
       title: 'Healthcare',
       description:
         'Improve patient care with appointment scheduling, medical records access, and emergency contacts.',
-      icon: <LocalHospital sx={{ fontSize: 32 }} />,
+      icon: <Hospital size={32} />,
       useCases: ['Patient Info', 'Appointments', 'Medical Records', 'Emergency'],
       benefits: [
         'Reduce administrative workload',
@@ -133,7 +128,7 @@ export default function UseCasesPage() {
       title: 'Manufacturing',
       description:
         'Optimize operations with inventory tracking, quality control, and equipment maintenance.',
-      icon: <Adjust sx={{ fontSize: 32 }} />,
+      icon: <Target size={32} />,
       useCases: ['Inventory', 'Quality Control', 'Maintenance', 'Supply Chain'],
       benefits: [
         'Reduce inventory errors by 80%',
@@ -150,7 +145,7 @@ export default function UseCasesPage() {
       title: 'Marketing Campaigns',
       description:
         'Bridge print and digital with campaign tracking, social media integration, and analytics.',
-      icon: <Campaign sx={{ fontSize: 32 }} />,
+      icon: <Megaphone size={32} />,
       useCases: ['Print to Digital', 'Social Media', 'Promotions', 'Analytics'],
       benefits: [
         'Track campaign ROI accurately',
@@ -323,231 +318,190 @@ export default function UseCasesPage() {
   ];
 
   return (
-    <Box>
+    <div className="min-h-screen bg-black text-white">
       {/* Hero Section */}
-      <Box
-        sx={{
-          bgcolor: 'background.default',
-          pt: { xs: 8, md: 12 },
-          pb: { xs: 6, md: 10 }
-        }}
-      >
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: 'center', mb: 6 }}>
-            <Typography
-              variant="overline"
-              color="primary"
-              fontWeight="bold"
-              sx={{ display: 'block', mb: 2 }}
+      <section className="relative py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-black pointer-events-none" />
+        <div className="absolute top-0 right-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute top-[10%] right-[-10%] w-[60%] h-[60%] bg-purple-600/10 rounded-full blur-[120px] animate-pulse-slow" />
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <div className="mb-6">
+            <Badge variant="outline" className="text-purple-400 border-purple-400/30 bg-purple-400/10">
+              REAL-WORLD APPLICATIONS
+            </Badge>
+          </div>
+          <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 mb-6">
+            QR Codes Across Industries
+          </h1>
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-10">
+            Discover how businesses worldwide use QR codes to enhance customer
+            experiences, streamline operations, and drive measurable results.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Button
+              size="lg"
+              variant="premium"
+              className="text-lg px-8 py-6"
+              onClick={() => window.location.href = '/dashboard'}
             >
-              Real-World Applications
-            </Typography>
-            <Typography
-              variant="h2"
-              component="h1"
-              fontWeight="bold"
-              sx={{
-                mb: 3,
-                fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' }
-              }}
+              Start Creating
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="text-lg px-8 py-6 bg-transparent border-white/20 text-white hover:bg-white/10"
+              onClick={() => window.location.href = '/pricing'}
             >
-              QR Codes Across Industries
-            </Typography>
-            <Typography
-              variant="h6"
-              color="text.secondary"
-              sx={{ maxWidth: 800, mx: 'auto', mb: 4 }}
-            >
-              Discover how businesses worldwide use QR codes to enhance customer
-              experiences, streamline operations, and drive measurable results.
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Button
-                component={Link}
-                href="/dashboard"
-                variant="contained"
-                size="large"
-                endIcon={<ArrowForward />}
-              >
-                Start Creating
-              </Button>
-              <Button
-                component={Link}
-                href="/pricing"
-                variant="outlined"
-                size="large"
-              >
-                View Pricing
-              </Button>
-            </Box>
-          </Box>
+              View Pricing
+            </Button>
+          </div>
 
           {/* Stats */}
-          <Grid container spacing={4} sx={{ mt: 4 }}>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20 border-t border-white/10 pt-12">
             {[
               { value: '10,000+', label: 'Active Users' },
               { value: '8', label: 'Industries Served' },
               { value: '5M+', label: 'QR Codes Generated' },
               { value: '99.9%', label: 'Uptime Guarantee' }
             ].map((stat, index) => (
-              <Grid item xs={6} md={3} key={index}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography
-                    variant="h3"
-                    component="div"
-                    fontWeight="bold"
-                    color="primary"
-                  >
-                    {stat.value}
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary">
-                    {stat.label}
-                  </Typography>
-                </Box>
-              </Grid>
+              <div key={index} className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-2">
+                  {stat.value}
+                </div>
+                <div className="text-gray-400 text-sm uppercase tracking-wide">
+                  {stat.label}
+                </div>
+              </div>
             ))}
-          </Grid>
-        </Container>
-      </Box>
+          </div>
+        </div>
+      </section>
 
       {/* Industry Cards Section */}
-      <Container maxWidth="lg" sx={{ py: { xs: 8, md: 12 } }}>
-        <Box sx={{ textAlign: 'center', mb: 6 }}>
-          <Typography variant="h3" component="h2" fontWeight="bold" sx={{ mb: 2 }}>
-            Industry Solutions
-          </Typography>
-          <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 700, mx: 'auto' }}>
-            Tailored QR code solutions for every industry with proven results and
-            best practices.
-          </Typography>
-        </Box>
+      <section className="py-24 bg-white/5 backdrop-blur-sm">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Industry Solutions
+            </h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Tailored QR code solutions for every industry with proven results and
+              best practices.
+            </p>
+          </div>
 
-        <Grid container spacing={4}>
-          {industries.map((industry, index) => (
-            <Grid item xs={12} sm={6} lg={3} key={index}>
-              <IndustryCard {...industry} />
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {industries.map((industry, index) => (
+              <div key={index} className="flex">
+                <IndustryCard {...industry} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Case Studies Section */}
-      <Box sx={{ bgcolor: 'background.default', py: { xs: 8, md: 12 } }}>
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: 'center', mb: 6 }}>
-            <Typography variant="h3" component="h2" fontWeight="bold" sx={{ mb: 2 }}>
+      <section className="py-24 relative overflow-hidden">
+        <div className="absolute left-[-20%] top-[20%] w-[50%] h-[50%] bg-blue-600/5 rounded-full blur-[100px]" />
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16 relative z-10">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Success Stories
-            </Typography>
-            <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 700, mx: 'auto' }}>
+            </h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">
               Real businesses achieving real results with QR Studio
-            </Typography>
-          </Box>
+            </p>
+          </div>
 
-          <Grid container spacing={4}>
+          <div className="grid gap-12 relative z-10">
             {caseStudies.map((study, index) => (
-              <Grid item xs={12} key={index}>
-                <CaseStudy {...study} />
-              </Grid>
+              <CaseStudy key={index} {...study} />
             ))}
-          </Grid>
-        </Container>
-      </Box>
+          </div>
+        </div>
+      </section>
 
       {/* Success Stories Grid */}
-      <Container maxWidth="lg" sx={{ py: { xs: 8, md: 12 } }}>
-        <Box sx={{ textAlign: 'center', mb: 6 }}>
-          <Typography variant="h3" component="h2" fontWeight="bold" sx={{ mb: 2 }}>
-            More Success Stories
-          </Typography>
-          <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 700, mx: 'auto' }}>
-            Quick wins and transformative results from our customers
-          </Typography>
-        </Box>
+      <section className="py-24 bg-black/50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              More Success Stories
+            </h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Quick wins and transformative results from our customers
+            </p>
+          </div>
 
-        <Grid container spacing={4}>
-          {successStories.map((story, index) => (
-            <Grid item xs={12} md={6} key={index}>
-              <SuccessStory {...story} />
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
+          <div className="grid md:grid-cols-2 gap-8">
+            {successStories.map((story, index) => (
+              <SuccessStory key={index} {...story} />
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Testimonials Section */}
-      <Box sx={{ bgcolor: 'background.default', py: { xs: 8, md: 12 } }}>
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: 'center', mb: 6 }}>
-            <Typography variant="h3" component="h2" fontWeight="bold" sx={{ mb: 2 }}>
+      <section className="py-24 bg-gradient-to-b from-black to-blue-900/10">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               What Our Customers Say
-            </Typography>
-            <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 700, mx: 'auto' }}>
+            </h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">
               Trusted by businesses worldwide
-            </Typography>
-          </Box>
+            </p>
+          </div>
 
-          <Grid container spacing={4}>
+          <div className="grid md:grid-cols-2 gap-8">
             {testimonials.map((testimonial, index) => (
-              <Grid item xs={12} md={6} key={index}>
-                <TestimonialCard {...testimonial} />
-              </Grid>
+              <TestimonialCard key={index} {...testimonial} />
             ))}
-          </Grid>
-        </Container>
-      </Box>
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
-      <Container maxWidth="lg" sx={{ py: { xs: 8, md: 12 } }}>
-        <Box
-          sx={{
-            bgcolor: 'primary.main',
-            color: 'primary.contrastText',
-            borderRadius: 4,
-            p: { xs: 4, md: 8 },
-            textAlign: 'center'
-          }}
-        >
-          <QrCode2 sx={{ fontSize: 60, mb: 2 }} />
-          <Typography variant="h3" component="h2" fontWeight="bold" sx={{ mb: 2 }}>
-            Ready to Transform Your Business?
-          </Typography>
-          <Typography variant="h6" sx={{ mb: 4, opacity: 0.9, maxWidth: 600, mx: 'auto' }}>
-            Join 10,000+ businesses using QR Studio to enhance customer experiences
-            and drive results.
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Button
-              component={Link}
-              href="/dashboard"
-              variant="contained"
-              size="large"
-              sx={{
-                bgcolor: 'background.paper',
-                color: 'text.primary',
-                '&:hover': { bgcolor: 'background.default' }
-              }}
-              endIcon={<ArrowForward />}
-            >
-              Get Started Free
-            </Button>
-            <Button
-              component={Link}
-              href="/pricing"
-              variant="outlined"
-              size="large"
-              sx={{
-                borderColor: 'primary.contrastText',
-                color: 'primary.contrastText',
-                '&:hover': {
-                  borderColor: 'primary.contrastText',
-                  bgcolor: 'rgba(255,255,255,0.1)'
-                }
-              }}
-            >
-              View Pricing
-            </Button>
-          </Box>
-        </Box>
-      </Container>
-    </Box>
+      <section className="py-24 border-t border-white/10">
+        <div className="container mx-auto px-4">
+          <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 rounded-3xl p-12 text-center border border-white/10 relative overflow-hidden">
+            <div className="absolute inset-0 bg-grid-white/[0.05] bg-[length:30px_30px]" />
+            <div className="relative z-10">
+              <QrCode className="text-white w-20 h-20 mb-6 mx-auto opacity-80" />
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+                Ready to Transform Your Business?
+              </h2>
+              <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+                Join 10,000+ businesses using QR Studio to enhance customer experiences
+                and drive results.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-4">
+                <Button
+                  size="lg"
+                  variant="premium"
+                  className="px-8 h-14 text-lg"
+                  onClick={() => window.location.href = '/dashboard'}
+                >
+                  Get Started Free
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="px-8 h-14 text-lg bg-transparent border-white/20 text-white hover:bg-white/10"
+                  onClick={() => window.location.href = '/pricing'}
+                >
+                  View Pricing
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
+

@@ -1,33 +1,30 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Grid,
-  IconButton,
-  Menu,
-  MenuItem,
-  TextField,
-  Typography,
-  CircularProgress,
-} from '@mui/material';
-import {
-  Add as AddIcon,
-  MoreVert as MoreVertIcon,
-  Campaign as CampaignIcon,
-  QrCode as QrCodeIcon,
-  Visibility as VisibilityIcon,
-  DateRange as DateRangeIcon,
-} from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
+import {
+  Plus,
+  Search,
+  MoreVertical,
+  QrCode,
+  Calendar,
+  Tag,
+  Eye,
+  Edit,
+  Trash2,
+  Megaphone,
+  X
+} from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/Dialog';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/Alert';
+import { cn } from '@/lib/utils';
+
 
 interface Campaign {
   id: string;
@@ -49,8 +46,8 @@ export default function CampaignsPage() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
+  // Form State
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -97,7 +94,7 @@ export default function CampaignsPage() {
 
       if (response.ok) {
         setCreateDialogOpen(false);
-        setFormData({ name: '', description: '', startDate: '', endDate: '', tags: '' });
+        resetForm();
         fetchCampaigns();
       }
     } catch (error) {
@@ -124,7 +121,7 @@ export default function CampaignsPage() {
       if (response.ok) {
         setEditDialogOpen(false);
         setSelectedCampaign(null);
-        setFormData({ name: '', description: '', startDate: '', endDate: '', tags: '' });
+        resetForm();
         fetchCampaigns();
       }
     } catch (error) {
@@ -132,7 +129,8 @@ export default function CampaignsPage() {
     }
   };
 
-  const handleDeleteCampaign = async (id: string) => {
+  const handleDeleteCampaign = async (id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (!confirm('Are you sure you want to delete this campaign? QR codes will be unassigned.')) {
       return;
     }
@@ -150,7 +148,8 @@ export default function CampaignsPage() {
     }
   };
 
-  const handleEditClick = (campaign: Campaign) => {
+  const handleEditClick = (campaign: Campaign, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     setSelectedCampaign(campaign);
     setFormData({
       name: campaign.name,
@@ -160,27 +159,14 @@ export default function CampaignsPage() {
       tags: campaign.tags?.join(', ') || '',
     });
     setEditDialogOpen(true);
-    setAnchorEl(null);
   };
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, campaign: Campaign) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedCampaign(campaign);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleViewDetails = () => {
-    if (selectedCampaign) {
-      router.push(`/dashboard/campaigns/${selectedCampaign.id}`);
-    }
-    setAnchorEl(null);
+  const resetForm = () => {
+    setFormData({ name: '', description: '', startDate: '', endDate: '', tags: '' });
   };
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return '';
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -188,272 +174,232 @@ export default function CampaignsPage() {
     });
   };
 
+  const getStatus = (start: string | null, end: string | null) => {
+    const now = new Date();
+    if (start && new Date(start) > now) return { label: 'Scheduled', color: 'blue' };
+    if (end && new Date(end) < now) return { label: 'Ended', color: 'gray' };
+    return { label: 'Active', color: 'emerald' };
+  };
+
   return (
-    <Box sx={{ p: 3 }}>
+    <div className="max-w-[1600px] mx-auto p-6 space-y-8">
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" fontWeight={600}>
-          Campaigns
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setCreateDialogOpen(true)}
-        >
-          Create Campaign
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
+            Campaigns
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Organize, track, and manage your marketing campaigns.
+          </p>
+        </div>
+        <Button variant="glow" onClick={() => { resetForm(); setCreateDialogOpen(true); }}>
+          <Plus size={16} className="mr-2" /> Create Campaign
         </Button>
-      </Box>
+      </div>
 
-      {/* Search */}
-      <TextField
-        fullWidth
-        placeholder="Search campaigns..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        sx={{ mb: 3 }}
-      />
+      {/* Filters */}
+      <div className="flex items-center gap-4">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+          <Input
+            placeholder="Search campaigns..."
+            className="pl-9"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
 
-      {/* Loading State */}
+      {/* Content */}
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <CircularProgress />
-        </Box>
+        <div className="text-center py-20">
+          <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading campaigns...</p>
+        </div>
       ) : campaigns.length === 0 ? (
-        /* Empty State */
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <CampaignIcon sx={{ fontSize: 80, color: 'text.secondary', mb: 2 }} />
-          <Typography variant="h6" color="text.secondary" gutterBottom>
-            No campaigns yet
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Create your first campaign to organize and track your QR codes
-          </Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setCreateDialogOpen(true)}
-          >
-            Create Campaign
+        <Card variant="glass" className="py-20 text-center flex flex-col items-center">
+          <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
+            <Megaphone size={40} className="text-muted-foreground opacity-50" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">No campaigns found</h3>
+          <p className="text-muted-foreground max-w-md mb-6">
+            Create your first campaign to group your QR codes and track performance together.
+          </p>
+          <Button variant="outline" onClick={() => { resetForm(); setCreateDialogOpen(true); }}>
+            <Plus size={16} className="mr-2" /> Create Campaign
           </Button>
-        </Box>
+        </Card>
       ) : (
-        /* Campaigns Grid */
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-          {campaigns.map((campaign) => (
-            <Box key={campaign.id} sx={{ flex: '1 1 calc(33.333% - 18px)', minWidth: 280, maxWidth: 400 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {campaigns.map((campaign) => {
+            const status = getStatus(campaign.startDate, campaign.endDate);
+            return (
               <Card
-                sx={{
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  '&:hover': { boxShadow: 4 },
-                }}
+                key={campaign.id}
+                variant="glass"
+                className="group relative flex flex-col transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5"
               >
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                    <Typography variant="h6" fontWeight={600} sx={{ flexGrow: 1, pr: 1 }}>
-                      {campaign.name}
-                    </Typography>
-                    <IconButton
-                      size="small"
-                      onClick={(e) => handleMenuOpen(e, campaign)}
-                    >
-                      <MoreVertIcon />
-                    </IconButton>
-                  </Box>
+                <div className="p-6 flex-1 flex flex-col">
+                  {/* Card Header */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-lg line-clamp-1" title={campaign.name}>{campaign.name}</h3>
+                        <Badge variant="outline" className={cn(
+                          "text-[10px] uppercase tracking-wider",
+                          status.label === 'Active' && "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+                          status.label === 'Scheduled' && "bg-blue-500/10 text-blue-400 border-blue-500/20",
+                          status.label === 'Ended' && "text-muted-foreground border-white/10"
+                        )}>
+                          {status.label}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-2 min-h-[40px]">
+                        {campaign.description || "No description provided."}
+                      </p>
+                    </div>
+                  </div>
 
-                  {campaign.description && (
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ mb: 2, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
-                    >
-                      {campaign.description}
-                    </Typography>
-                  )}
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    <div className="bg-white/5 rounded-lg p-3 border border-white/5">
+                      <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                        <QrCode size={12} />
+                        <span>QR Codes</span>
+                      </div>
+                      <span className="text-lg font-mono font-medium">{campaign._count.qrCodes}</span>
+                    </div>
+                    <div className="bg-white/5 rounded-lg p-3 border border-white/5">
+                      <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                        <Eye size={12} />
+                        <span>Total Scans</span>
+                      </div>
+                      <span className="text-lg font-mono font-medium">{campaign.totalScans}</span>
+                    </div>
+                  </div>
 
-                  {/* Stats */}
-                  <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <QrCodeIcon fontSize="small" color="action" />
-                      <Typography variant="body2" color="text.secondary">
-                        {campaign._count.qrCodes}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <VisibilityIcon fontSize="small" color="action" />
-                      <Typography variant="body2" color="text.secondary">
-                        {campaign.totalScans}
-                      </Typography>
-                    </Box>
-                  </Box>
+                  {/* Footer Info */}
+                  <div className="mt-auto space-y-3">
+                    {(campaign.startDate || campaign.endDate) && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Calendar size={12} />
+                        <span>
+                          {formatDate(campaign.startDate) || 'Now'} - {formatDate(campaign.endDate) || 'Forever'}
+                        </span>
+                      </div>
+                    )}
 
-                  {/* Dates */}
-                  {(campaign.startDate || campaign.endDate) && (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 2 }}>
-                      <DateRangeIcon fontSize="small" color="action" />
-                      <Typography variant="caption" color="text.secondary">
-                        {formatDate(campaign.startDate ?? null)} - {formatDate(campaign.endDate ?? null)}
-                      </Typography>
-                    </Box>
-                  )}
+                    {campaign.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 pt-2 border-t border-white/5">
+                        {campaign.tags.slice(0, 3).map((tag, i) => (
+                          <span key={i} className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-muted-foreground flex items-center gap-1">
+                            <Tag size={8} /> {tag}
+                          </span>
+                        ))}
+                        {campaign.tags.length > 3 && (
+                          <span className="text-[10px] px-1.5 py-0.5 text-muted-foreground">
+                            +{campaign.tags.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-                  {/* Tags */}
-                  {campaign.tags.length > 0 && (
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {campaign.tags.slice(0, 3).map((tag, idx) => (
-                        <Chip key={idx} label={tag} size="small" />
-                      ))}
-                      {campaign.tags.length > 3 && (
-                        <Chip label={`+${campaign.tags.length - 3}`} size="small" />
-                      )}
-                    </Box>
-                  )}
-                </CardContent>
+                {/* Actions (Always visible on mobile, hover on desktop) */}
+                <div className="absolute top-4 right-4 flex gap-2 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10" onClick={(e) => handleEditClick(campaign, e)}>
+                    <Edit size={14} />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-red-500/20 hover:text-red-400" onClick={(e) => handleDeleteCampaign(campaign.id, e)}>
+                    <Trash2 size={14} />
+                  </Button>
+                </div>
               </Card>
-            </Box>
-          ))}
-        </Box>
+            );
+          })}
+        </div>
       )}
 
-      {/* Context Menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
+      {/* Create/Edit Dialog */}
+      <Dialog
+        open={createDialogOpen || editDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCreateDialogOpen(false);
+            setEditDialogOpen(false);
+          }
+        }}
       >
-        <MenuItem onClick={handleViewDetails}>View Details</MenuItem>
-        <MenuItem onClick={() => selectedCampaign && handleEditClick(selectedCampaign)}>
-          Edit
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            if (selectedCampaign) handleDeleteCampaign(selectedCampaign.id);
-            handleMenuClose();
-          }}
-          sx={{ color: 'error.main' }}
-        >
-          Delete
-        </MenuItem>
-      </Menu>
-
-      {/* Create Campaign Dialog */}
-      <Dialog open={createDialogOpen} onClose={() => setCreateDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Create Campaign</DialogTitle>
         <DialogContent>
-          <TextField
-            fullWidth
-            label="Campaign Name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            sx={{ mt: 2, mb: 2 }}
-            required
-          />
-          <TextField
-            fullWidth
-            label="Description"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            multiline
-            rows={3}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            fullWidth
-            label="Start Date"
-            type="date"
-            value={formData.startDate}
-            onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-            InputLabelProps={{ shrink: true }}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            fullWidth
-            label="End Date"
-            type="date"
-            value={formData.endDate}
-            onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-            InputLabelProps={{ shrink: true }}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            fullWidth
-            label="Tags (comma-separated)"
-            value={formData.tags}
-            onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-            helperText="e.g., marketing, summer, promo"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleCreateCampaign}
-            disabled={!formData.name}
-          >
-            Create
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <DialogHeader>
+            <DialogTitle>{editDialogOpen ? 'Edit Campaign' : 'Create New Campaign'}</DialogTitle>
+          </DialogHeader>
 
-      {/* Edit Campaign Dialog */}
-      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Edit Campaign</DialogTitle>
-        <DialogContent>
-          <TextField
-            fullWidth
-            label="Campaign Name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            sx={{ mt: 2, mb: 2 }}
-            required
-          />
-          <TextField
-            fullWidth
-            label="Description"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            multiline
-            rows={3}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            fullWidth
-            label="Start Date"
-            type="date"
-            value={formData.startDate}
-            onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-            InputLabelProps={{ shrink: true }}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            fullWidth
-            label="End Date"
-            type="date"
-            value={formData.endDate}
-            onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-            InputLabelProps={{ shrink: true }}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            fullWidth
-            label="Tags (comma-separated)"
-            value={formData.tags}
-            onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-            helperText="e.g., marketing, summer, promo"
-          />
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Campaign Name</Label>
+              <Input
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="e.g. Summer Sale 2025"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Description</Label>
+              <Textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Describe the goal of this campaign..."
+                className="resize-none"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Start Date</Label>
+                <Input
+                  type="date"
+                  value={formData.startDate}
+                  onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>End Date</Label>
+                <Input
+                  type="date"
+                  value={formData.endDate}
+                  onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Tags</Label>
+              <Input
+                value={formData.tags}
+                onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                placeholder="marketing, social, print (comma separated)"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => { setCreateDialogOpen(false); setEditDialogOpen(false); }}>
+              Cancel
+            </Button>
+            <Button
+              variant="glow"
+              onClick={editDialogOpen ? handleUpdateCampaign : handleCreateCampaign}
+              disabled={!formData.name}
+            >
+              {editDialogOpen ? 'Update Campaign' : 'Create Campaign'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleUpdateCampaign}
-            disabled={!formData.name}
-          >
-            Update
-          </Button>
-        </DialogActions>
       </Dialog>
-    </Box>
+    </div>
   );
 }

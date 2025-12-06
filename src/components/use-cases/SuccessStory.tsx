@@ -1,6 +1,9 @@
-import { Box, Card, CardContent, Typography, Chip, Button } from '@mui/material';
 import { CheckCircle, ArrowForward } from '@mui/icons-material';
 import Link from 'next/link';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { cn } from '@/lib/utils';
 
 interface SuccessStoryProps {
   title: string;
@@ -25,75 +28,66 @@ export default function SuccessStory({
   cta
 }: SuccessStoryProps) {
   return (
-    <Card
-      elevation={0}
-      sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        border: '1px solid',
-        borderColor: 'divider'
-      }}
-    >
-      <CardContent sx={{ flexGrow: 1, p: 3 }}>
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="overline" color="primary" fontWeight="bold">
+    <Card variant="glass" className="h-full flex flex-col hover:border-white/20 transition-all duration-300">
+      <CardContent className="flex-grow p-6">
+        <div className="mb-4">
+          <Badge variant="outline" className="mb-2 text-blue-400 border-blue-400/30">
             {industry}
-          </Typography>
-          <Typography variant="h6" component="h3" fontWeight="bold" sx={{ mb: 1 }}>
+          </Badge>
+          <h3 className="text-xl font-bold text-white mb-1">
             {title}
-          </Typography>
-          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 2 }}>
+          </h3>
+          <p className="text-sm font-medium text-gray-400">
             {company}
-          </Typography>
-        </Box>
+          </p>
+        </div>
 
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+        <p className="text-gray-300 mb-6 leading-relaxed">
           {summary}
-        </Typography>
+        </p>
 
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>
-            Key Achievements:
-          </Typography>
-          <Box component="ul" sx={{ m: 0, pl: 0, listStyle: 'none' }}>
+        <div className="mb-6">
+          <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-3">
+            Key Achievements
+          </h4>
+          <ul className="space-y-2">
             {achievements.map((achievement, index) => (
-              <Box
+              <li
                 key={index}
-                component="li"
-                sx={{ display: 'flex', alignItems: 'start', gap: 1, mb: 1 }}
+                className="flex items-start gap-3"
               >
                 <CheckCircle
-                  color="success"
-                  sx={{ fontSize: 18, mt: 0.25, flexShrink: 0 }}
+                  className="w-5 h-5 text-green-500 mt-0.5 shrink-0"
                 />
-                <Typography variant="body2" color="text.secondary">
+                <span className="text-sm text-gray-300">
                   {achievement}
-                </Typography>
-              </Box>
+                </span>
+              </li>
             ))}
-          </Box>
-        </Box>
+          </ul>
+        </div>
 
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: cta ? 2 : 0 }}>
+        <div className="flex flex-wrap gap-2 mb-6">
           {tags.map((tag, index) => (
-            <Chip key={index} label={tag} size="small" variant="outlined" />
+            <Badge key={index} variant="secondary" className="bg-white/5 hover:bg-white/10 text-gray-400 border-none transition-colors">
+              {tag}
+            </Badge>
           ))}
-        </Box>
+        </div>
 
         {cta && (
           <Button
-            component={Link}
-            href={cta.href}
-            variant="text"
-            endIcon={<ArrowForward />}
-            size="small"
-            sx={{ mt: 1 }}
+            variant="ghost"
+            size="sm"
+            className="mt-auto pl-0 hover:pl-2 transition-all text-blue-400 hover:text-blue-300"
+            onClick={() => window.location.href = cta.href}
           >
             {cta.text}
+            <ArrowForward className="w-4 h-4 ml-1" />
           </Button>
         )}
       </CardContent>
     </Card>
   );
 }
+

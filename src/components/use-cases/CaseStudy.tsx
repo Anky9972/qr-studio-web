@@ -1,5 +1,11 @@
-import { Box, Card, CardContent, Typography, Chip, Avatar } from '@mui/material';
 import { TrendingUp } from '@mui/icons-material';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { cn } from '@/lib/utils';
+
+// Since I haven't created a specific Avatar component in src/components/ui/Avatar.tsx yet (Wait, I haven't?), I'll assume I need to handle it or create it.
+// Actually I don't have src/components/ui/Avatar.tsx in my memory. I should check or just use standard div.
+// I'll use a simple custom implementation for now.
 
 interface CaseStudyProps {
   company: string;
@@ -29,152 +35,86 @@ export default function CaseStudy({
   quote
 }: CaseStudyProps) {
   return (
-    <Card
-      elevation={0}
-      sx={{
-        border: '1px solid',
-        borderColor: 'divider',
-        overflow: 'visible',
-        position: 'relative'
-      }}
-    >
-      <CardContent sx={{ p: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+    <Card variant="glass" className="overflow-visible border-l-4 border-l-blue-500">
+      <CardContent className="p-8">
+        <div className="flex items-center gap-4 mb-8">
           {logo ? (
-            <Avatar
+            <img
               src={logo}
               alt={company}
-              sx={{ width: 60, height: 60 }}
-              variant="rounded"
+              className="w-16 h-16 rounded-xl object-cover"
             />
           ) : (
-            <Avatar
-              sx={{
-                width: 60,
-                height: 60,
-                bgcolor: 'primary.main',
-                fontSize: '1.5rem'
-              }}
-              variant="rounded"
-            >
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-2xl font-bold text-white shadow-lg shadow-blue-500/20">
               {company.charAt(0)}
-            </Avatar>
+            </div>
           )}
-          <Box>
-            <Typography variant="h5" component="h3" fontWeight="bold">
+          <div>
+            <h3 className="text-2xl font-bold text-white mb-1">
               {company}
-            </Typography>
-            <Chip label={industry} size="small" sx={{ mt: 0.5 }} />
-          </Box>
-        </Box>
+            </h3>
+            <Badge variant="secondary" className="bg-blue-500/10 text-blue-400 border-none">
+              {industry}
+            </Badge>
+          </div>
+        </div>
 
-        <Box sx={{ mb: 3 }}>
-          <Typography
-            variant="overline"
-            color="primary"
-            fontWeight="bold"
-            sx={{ display: 'block', mb: 1 }}
-          >
-            The Challenge
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {challenge}
-          </Typography>
-        </Box>
+        <div className="grid md:grid-cols-2 gap-8 mb-8">
+          <div>
+            <h4 className="text-sm font-bold text-blue-400 uppercase tracking-wider mb-2">
+              The Challenge
+            </h4>
+            <p className="text-gray-300 leading-relaxed">
+              {challenge}
+            </p>
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-green-400 uppercase tracking-wider mb-2">
+              The Solution
+            </h4>
+            <p className="text-gray-300 leading-relaxed">
+              {solution}
+            </p>
+          </div>
+        </div>
 
-        <Box sx={{ mb: 3 }}>
-          <Typography
-            variant="overline"
-            color="primary"
-            fontWeight="bold"
-            sx={{ display: 'block', mb: 1 }}
-          >
-            The Solution
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {solution}
-          </Typography>
-        </Box>
-
-        <Box
-          sx={{
-            bgcolor: 'background.default',
-            borderRadius: 2,
-            p: 3,
-            mb: quote ? 3 : 0
-          }}
-        >
-          <Typography
-            variant="overline"
-            color="primary"
-            fontWeight="bold"
-            sx={{ display: 'block', mb: 2 }}
-          >
+        <div className="bg-white/5 rounded-2xl p-6 mb-8 border border-white/10">
+          <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-6 text-center">
             The Results
-          </Typography>
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' },
-              gap: 3
-            }}
-          >
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {results.map((result, index) => (
-              <Box key={index} sx={{ textAlign: 'center' }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 0.5,
-                    mb: 1
-                  }}
-                >
-                  <TrendingUp color="success" />
-                  <Typography
-                    variant="h4"
-                    component="div"
-                    fontWeight="bold"
-                    color="success.main"
-                  >
+              <div key={index} className="text-center">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <TrendingUp className="text-green-400 w-5 h-5" />
+                  <div className="text-3xl font-bold text-green-400">
                     {result.value}
-                  </Typography>
-                </Box>
-                <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 0.5 }}>
+                  </div>
+                </div>
+                <div className="text-sm font-bold text-white mb-1">
                   {result.metric}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
+                </div>
+                <div className="text-xs text-gray-400">
                   {result.description}
-                </Typography>
-              </Box>
+                </div>
+              </div>
             ))}
-          </Box>
-        </Box>
+          </div>
+        </div>
 
         {quote && (
-          <Box
-            sx={{
-              borderLeft: 3,
-              borderColor: 'primary.main',
-              pl: 3,
-              py: 2
-            }}
-          >
-            <Typography
-              variant="body1"
-              sx={{ fontStyle: 'italic', mb: 2, fontSize: '1.1rem' }}
-            >
+          <div className="relative pl-6 py-2 border-l-2 border-blue-500/50">
+            <p className="text-lg italic text-gray-300 mb-2">
               &quot;{quote.text}&quot;
-            </Typography>
-            <Typography variant="subtitle2" fontWeight="bold">
-              {quote.author}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {quote.role}
-            </Typography>
-          </Box>
+            </p>
+            <div>
+              <span className="font-bold text-white block">{quote.author}</span>
+              <span className="text-sm text-gray-400">{quote.role}</span>
+            </div>
+          </div>
         )}
       </CardContent>
     </Card>
   );
 }
+

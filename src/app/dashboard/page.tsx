@@ -2,36 +2,26 @@
 
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import {
-  Box,
-  Container,
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  Avatar,
-  Chip,
-  LinearProgress,
-  Paper,
-  Stack,
-  CircularProgress,
-} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import QrCode2Icon from '@mui/icons-material/QrCode2';
-import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
-import AnalyticsIcon from '@mui/icons-material/Analytics';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import SpeedIcon from '@mui/icons-material/Speed';
-import StarIcon from '@mui/icons-material/Star';
-import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+import {
+  QrCode,
+  Scan,
+  UploadCloud,
+  BarChart2,
+  ArrowUpRight,
+  MapPin,
+  Smartphone,
+  Clock,
+  Zap,
+  TrendingUp,
+  Activity as ActivityIcon,
+  HardDrive
+} from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { cn } from '@/lib/utils';
 import WelcomeBackBanner from '@/components/WelcomeBackBanner';
-
-const MotionCard = motion(Card);
-const MotionBox = motion(Box);
-const MotionPaper = motion(Paper);
 
 interface DashboardStats {
   totalQRCodes: number;
@@ -68,7 +58,6 @@ interface TodayInsights {
 }
 
 export default function DashboardPage() {
-  const theme = useTheme();
   const { data: session } = useSession();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [activity, setActivity] = useState<Activity[]>([]);
@@ -87,20 +76,12 @@ export default function DashboardPage() {
         fetch('/api/dashboard/insights'),
       ]);
 
-      if (statsRes.ok) {
-        const statsData = await statsRes.json();
-        setStats(statsData);
-      }
-
+      if (statsRes.ok) setStats(await statsRes.json());
       if (activityRes.ok) {
-        const activityData = await activityRes.json();
-        setActivity(activityData.activity);
+        const data = await activityRes.json();
+        setActivity(data.activity);
       }
-
-      if (insightsRes.ok) {
-        const insightsData = await insightsRes.json();
-        setInsights(insightsData);
-      }
+      if (insightsRes.ok) setInsights(await insightsRes.json());
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
     } finally {
@@ -125,13 +106,13 @@ export default function DashboardPage() {
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
-    
+
     if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+    if (diffMins < 60) return `${diffMins}m ago`;
     const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
     const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    return `${diffDays}d ago`;
   };
 
   const getGreeting = () => {
@@ -143,496 +124,309 @@ export default function DashboardPage() {
 
   const quickActions = [
     {
-      icon: QrCode2Icon,
-      title: 'Generate QR Code',
-      description: 'Create a new QR code with custom design',
+      icon: QrCode,
+      title: 'Generate QR',
+      description: 'Create new custom QR code',
       href: '/dashboard/generate',
-      color: theme.palette.primary.main,
-      gradient: 'linear-gradient(135deg, #1976D2 0%, #42A5F5 100%)',
+      gradient: 'from-blue-500 to-cyan-400',
     },
     {
-      icon: QrCodeScannerIcon,
-      title: 'Scan QR Code',
-      description: 'Scan QR codes using your camera',
+      icon: Scan,
+      title: 'Scan QR',
+      description: 'Scan using camera',
       href: '/dashboard/scan',
-      color: theme.palette.success.main,
-      gradient: 'linear-gradient(135deg, #006E1C 0%, #4D9C5E 100%)',
+      gradient: 'from-emerald-500 to-teal-400',
     },
     {
-      icon: CloudUploadIcon,
-      title: 'Bulk Generate',
-      description: 'Create multiple QR codes at once',
+      icon: UploadCloud,
+      title: 'Bulk Create',
+      description: 'Generate multiple codes',
       href: '/dashboard/bulk',
-      color: theme.palette.info.main,
-      gradient: 'linear-gradient(135deg, #006874 0%, #4F9BA7 100%)',
+      gradient: 'from-violet-500 to-purple-400',
     },
     {
-      icon: AnalyticsIcon,
-      title: 'View Analytics',
-      description: 'Track your QR code performance',
+      icon: BarChart2,
+      title: 'Analytics',
+      description: 'View performance stats',
       href: '/dashboard/analytics',
-      color: theme.palette.warning.main,
-      gradient: 'linear-gradient(135deg, #FF8C00 0%, #FFB74D 100%)',
+      gradient: 'from-amber-500 to-orange-400',
     },
   ];
 
   const statsData = [
-    { 
-      label: 'Total QR Codes', 
-      value: stats?.totalQRCodes.toLocaleString() || '0', 
-      icon: QrCode2Icon, 
-      change: calculateChange(stats?.qrCodesThisMonth || 0, stats?.totalQRCodes || 1), 
-      color: theme.palette.primary.main 
+    {
+      label: 'Total QR Codes',
+      value: stats?.totalQRCodes.toLocaleString() || '0',
+      icon: QrCode,
+      change: calculateChange(stats?.qrCodesThisMonth || 0, stats?.totalQRCodes || 1),
+      color: 'text-electric-blue'
     },
-    { 
-      label: 'Total Scans', 
-      value: stats?.totalScans.toLocaleString() || '0', 
-      icon: VisibilityIcon, 
-      change: calculateChange(stats?.scansThisMonth || 0, stats?.totalScans || 1), 
-      color: theme.palette.success.main 
+    {
+      label: 'Total Scans',
+      value: stats?.totalScans.toLocaleString() || '0',
+      icon: ActivityIcon,
+      change: calculateChange(stats?.scansThisMonth || 0, stats?.totalScans || 1),
+      color: 'text-electric-emerald'
     },
-    { 
-      label: 'Scan Rate', 
-      value: calculateScanRate(), 
-      icon: SpeedIcon, 
-      change: '+0%', 
-      color: theme.palette.info.main 
+    {
+      label: 'Scan Rate',
+      value: calculateScanRate(),
+      icon: Zap,
+      change: '+0%',
+      color: 'text-electric-amber'
     },
-    { 
-      label: 'Active Campaigns', 
-      value: stats?.activeCampaigns.toString() || '0', 
-      icon: TrendingUpIcon, 
-      change: '+0%', 
-      color: theme.palette.warning.main 
+    {
+      label: 'Active Campaigns',
+      value: stats?.activeCampaigns.toString() || '0',
+      icon: TrendingUp,
+      change: '+0%',
+      color: 'text-electric-cyan'
     },
   ];
 
   if (loading) {
     return (
-      <Container maxWidth="xl" sx={{ py: 4, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-        <CircularProgress />
-      </Container>
+      <div className="flex h-[60vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-electric-cyan border-t-transparent"></div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <div className="space-y-8 pb-8">
       {/* Welcome Back Banner */}
       <WelcomeBackBanner userName={session?.user?.name?.split(' ')[0]} />
 
-      {/* Welcome Section */}
-      <MotionBox
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-      >
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h3" fontWeight={700} gutterBottom>
-            {getGreeting()}, {session?.user?.name?.split(' ')[0] || 'User'}! 👋
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Here's what's happening with your QR codes today
-          </Typography>
-        </Box>
-      </MotionBox>
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-3xl md:text-4xl font-bold font-display text-gray-900 dark:text-white">
+            {getGreeting()}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-blue to-electric-cyan">{session?.user?.name?.split(' ')[0] || 'User'}</span>! 👋
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg">
+            Here's what's happening with your QR codes today.
+          </p>
+        </motion.div>
 
-      {/* Stats Cards */}
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' },
-          gap: 2.5,
-          mb: 4,
-        }}
-      >
+        <div className="flex gap-3">
+          <Link href="/dashboard/generate">
+            <Button variant="premium" size="lg" className="rounded-xl shadow-lg shadow-blue-500/20">
+              <QrCode className="w-5 h-5 mr-2" />
+              Create QR Code
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {statsData.map((stat, index) => (
-          <MotionCard
+          <motion.div
             key={stat.label}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{
-              delay: index * 0.1,
-              type: 'spring',
-              stiffness: 260,
-              damping: 20,
-            }}
-            whileHover={{
-              y: -4,
-              transition: { type: 'spring', stiffness: 400, damping: 10 },
-            }}
-            sx={{
-              height: '100%',
-              position: 'relative',
-              overflow: 'hidden',
-              background: theme.palette.mode === 'dark'
-                ? 'rgba(255, 255, 255, 0.03)'
-                : '#ffffff',
-              backdropFilter: 'blur(10px)',
-              border: `1px solid ${theme.palette.divider}`,
-              borderTop: `3px solid ${stat.color}`,
-              boxShadow: theme.palette.mode === 'dark'
-                ? '0 2px 8px rgba(0, 0, 0, 0.3)'
-                : '0 2px 8px rgba(0, 0, 0, 0.06)',
-              transition: 'box-shadow 0.3s ease',
-              '&:hover': {
-                boxShadow: theme.palette.mode === 'dark'
-                  ? `0 8px 24px ${stat.color}40`
-                  : `0 8px 24px ${stat.color}20`,
-              },
-            }}
+            transition={{ delay: index * 0.1 }}
           >
-            <CardContent sx={{ p: 2.5 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                <Box
-                  sx={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 2.5,
-                    background: `${stat.color}15`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <stat.icon sx={{ color: stat.color, fontSize: 24 }} />
-                </Box>
-                <Chip
-                  label={stat.change}
-                  size="small"
-                  color="success"
-                  sx={{
-                    height: 24,
-                    fontWeight: 600,
-                    fontSize: '0.75rem',
-                  }}
-                />
-              </Box>
-              <Typography variant="h4" fontWeight={700} gutterBottom sx={{ 
-                color: theme.palette.text.primary,
-                mb: 0.5,
-              }}>
-                {stat.value}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
-                {stat.label}
-              </Typography>
-            </CardContent>
-          </MotionCard>
+            <Card variant="glass" className="h-full relative overflow-hidden group hover:border-white/20 dark:hover:border-white/20 transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="p-5 relative z-10">
+                <div className="flex justify-between items-start mb-4">
+                  <div className={cn("p-3 rounded-xl bg-gray-50 dark:bg-white/5", stat.color)}>
+                    <stat.icon className="w-6 h-6" />
+                  </div>
+                  <span className="flex items-center text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-full">
+                    {stat.change}
+                    <ArrowUpRight className="w-3 h-3 ml-0.5" />
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
         ))}
-      </Box>
+      </div>
 
-      {/* Quick Actions */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-          Quick Actions
-        </Typography>
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' },
-            gap: 2.5,
-          }}
-        >
+      {/* Quick Actions Grid */}
+      <div>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <Zap className="w-5 h-5 text-electric-amber" /> Quick Actions
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {quickActions.map((action, index) => (
-            <Link href={action.href} key={action.title} style={{ textDecoration: 'none' }}>
-                <MotionCard
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    delay: index * 0.1,
-                    type: 'spring',
-                    stiffness: 260,
-                    damping: 20,
-                  }}
-                  whileHover={{
-                    y: -6,
-                    transition: { type: 'spring', stiffness: 400, damping: 10 },
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                  sx={{
-                    height: '100%',
-                    cursor: 'pointer',
-                    textDecoration: 'none',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    borderRadius: 2,
-                    background: theme.palette.mode === 'dark' 
-                      ? 'rgba(255, 255, 255, 0.03)' 
-                      : '#ffffff',
-                    backdropFilter: 'blur(10px)',
-                    border: `1px solid ${theme.palette.divider}`,
-                    borderLeft: `4px solid ${action.color}`,
-                    boxShadow: theme.palette.mode === 'dark'
-                      ? '0 2px 8px rgba(0, 0, 0, 0.3)'
-                      : '0 2px 8px rgba(0, 0, 0, 0.06)',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      boxShadow: theme.palette.mode === 'dark'
-                        ? `0 8px 24px ${action.color}40`
-                        : `0 8px 24px ${action.color}20`,
-                      borderLeftWidth: '6px',
-                    },
-                  }}
-                >
-                  <CardContent sx={{ p: 2.5 }}>
-                    <Box
-                      sx={{
-                        width: 56,
-                        height: 56,
-                        borderRadius: 2,
-                        background: `${action.color}15`,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        mb: 2,
-                      }}
-                    >
-                      <action.icon sx={{ color: action.color, fontSize: 28 }} />
-                    </Box>
-                    <Typography variant="h6" fontWeight={600} gutterBottom sx={{ color: theme.palette.text.primary }}>
-                      {action.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6, fontSize: '0.875rem' }}>
-                      {action.description}
-                    </Typography>
-                  </CardContent>
-                </MotionCard>
-              </Link>
+            <Link key={action.title} href={action.href}>
+              <motion.div
+                whileHover={{ y: -4 }}
+                whileTap={{ scale: 0.98 }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 + index * 0.05 }}
+              >
+                <div className="relative h-full overflow-hidden rounded-2xl bg-white dark:bg-black border border-gray-200 dark:border-white/10 p-1 group">
+                  <div className={cn("absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-gradient-to-br", action.gradient)} />
+                  <div className="relative h-full p-5 rounded-xl bg-gray-50/50 dark:bg-white/5 flex flex-col items-center text-center justify-center gap-3 transition-colors group-hover:bg-transparent">
+                    <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg bg-gradient-to-br", action.gradient)}>
+                      <action.icon className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 dark:text-white">{action.title}</h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{action.description}</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </Link>
           ))}
-        </Box>
-      </Box>
+        </div>
+      </div>
 
-      {/* Recent Activity and Insights */}
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' },
-          gap: 2.5,
-        }}
-      >
-        <MotionPaper
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3, type: 'spring', stiffness: 260, damping: 20 }}
-            sx={{ 
-              p: 3, 
-              borderRadius: 2,
-              background: theme.palette.mode === 'dark' 
-                ? 'rgba(255, 255, 255, 0.03)' 
-                : '#ffffff',
-              border: `1px solid ${theme.palette.divider}`,
-            }}
-          >
-            <Typography variant="h6" fontWeight={700} gutterBottom>
-              Recent Activity
-            </Typography>
-            <Box sx={{ mt: 2.5 }}>
+      {/* Main Content Split */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {/* Recent Activity: Takes up 2 columns */}
+        <div className="lg:col-span-2">
+          <Card variant="glass" className="h-full">
+            <div className="p-6 border-b border-gray-100 dark:border-white/10 flex justify-between items-center bg-white/50 dark:bg-white/5">
+              <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
+                <Clock className="w-5 h-5 text-electric-blue" /> Recent Activity
+              </h3>
+              <Button variant="ghost" size="sm" className="text-xs">View All</Button>
+            </div>
+            <div className="divide-y divide-gray-100 dark:divide-white/5">
               {activity.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    No recent activity yet. Start by generating your first QR code!
-                  </Typography>
-                </Box>
+                <div className="p-8 text-center">
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <ActivityIcon className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <p className="text-gray-500 dark:text-gray-400">No activity recorded recently.</p>
+                </div>
               ) : (
                 activity.map((item) => (
-                  <Box
-                    key={item.id}
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      py: 2,
-                      borderBottom: `1px solid ${theme.palette.divider}`,
-                      '&:last-child': { borderBottom: 'none' },
-                    }}
-                  >
-                    <Avatar
-                      sx={{
-                        background: '#1976D2',
-                        mr: 2,
-                        width: 40,
-                        height: 40,
-                      }}
-                    >
-                      <QrCodeScannerIcon fontSize="small" />
-                    </Avatar>
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="body2" fontWeight={600}>
-                        {item.qrCodeName || 'QR Code'} scanned
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {getTimeAgo(item.scannedAt)} • {item.location} • {item.device}
-                      </Typography>
-                    </Box>
-                    <Chip 
-                      label={item.qrType} 
-                      size="small" 
-                      color="primary" 
-                      variant="outlined"
-                    />
-                  </Box>
+                  <div key={item.id} className="p-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                      <Scan className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <p className="font-medium text-gray-900 dark:text-white text-sm truncate">
+                        {item.qrCodeName || 'Unnamed QR'}
+                      </p>
+                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                        <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {item.location}</span>
+                        <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
+                        <span className="flex items-center gap-1"><Smartphone className="w-3 h-3" /> {item.device}</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xs font-medium bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-md">
+                        {item.qrType}
+                      </span>
+                      <p className="text-[10px] text-gray-400 mt-1">{getTimeAgo(item.scannedAt)}</p>
+                    </div>
+                  </div>
                 ))
               )}
-            </Box>
-          </MotionPaper>
+            </div>
+          </Card>
+        </div>
 
-        <Box>
+        {/* Sidebar Widgets: Takes up 1 column */}
+        <div className="space-y-6">
+
           {/* Today's Insights */}
-          <MotionPaper
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4, type: 'spring', stiffness: 260, damping: 20 }}
-            sx={{ 
-              p: 3, 
-              borderRadius: 2, 
-              mb: 2.5,
-              background: theme.palette.mode === 'dark' 
-                ? 'rgba(255, 255, 255, 0.03)' 
-                : '#ffffff',
-              border: `1px solid ${theme.palette.divider}`,
-            }}
-          >
-            <Typography variant="h6" fontWeight={700} gutterBottom>
-              Today's Insights
-            </Typography>
-            <Box sx={{ mt: 2.5 }}>
-              <Box sx={{ mb: 2.5 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Scans Today
-                  </Typography>
-                  <Chip 
-                    label={`${insights?.scanTrend || '0'}%`}
-                    size="small"
-                    color={Number(insights?.scanTrend || 0) >= 0 ? 'success' : 'error'}
-                    sx={{ height: 20, fontSize: '0.7rem', fontWeight: 600 }}
-                  />
-                </Box>
-                <Typography variant="h4" fontWeight={700}>
-                  {insights?.todayScans || 0}
-                </Typography>
-              </Box>
+          <Card variant="glass" className="overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-white/10 bg-gradient-to-r from-gray-50 to-white dark:from-white/5 dark:to-transparent">
+              <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <BarChart2 className="w-5 h-5 text-electric-violet" /> Today's Insights
+              </h3>
+            </div>
+            <div className="p-5 space-y-6">
+              <div className="flex items-end justify-between">
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Scans Today</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{insights?.todayScans || 0}</p>
+                </div>
+                <div className={cn("px-2 py-1 rounded-lg text-xs font-bold", Number(insights?.scanTrend || 0) >= 0 ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500")}>
+                  {Number(insights?.scanTrend || 0) > 0 ? '+' : ''}{insights?.scanTrend || '0'}%
+                </div>
+              </div>
 
               {insights?.mostScanned && (
-                <Box sx={{ 
-                  p: 2, 
-                  borderRadius: 1.5, 
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
-                  mb: 2,
-                }}>
-                  <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
-                    Most Scanned Today
-                  </Typography>
-                  <Typography variant="body2" fontWeight={600}>
-                    {insights.mostScanned.name || 'Unnamed QR Code'}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {insights.mostScanned.scans} scans • {insights.mostScanned.type}
-                  </Typography>
-                </Box>
+                <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Most Scanned QR</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[120px]">
+                      {insights.mostScanned.name || 'Unnamed'}
+                    </span>
+                    <span className="text-xs font-bold text-electric-blue">{insights.mostScanned.scans} scans</span>
+                  </div>
+                </div>
               )}
 
               {insights?.topLocations && insights.topLocations.length > 0 && (
-                <Box>
-                  <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
-                    Top Locations Today
-                  </Typography>
-                  {insights.topLocations.map((loc, idx) => (
-                    <Box key={idx} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                      <Typography variant="body2">
-                        {loc.country}
-                      </Typography>
-                      <Typography variant="body2" fontWeight={600} color="primary">
-                        {loc.count}
-                      </Typography>
-                    </Box>
-                  ))}
-                </Box>
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Top Locations</p>
+                  <div className="space-y-2">
+                    {insights.topLocations.map((loc, idx) => (
+                      <div key={idx} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                          <span className="w-1.5 h-1.5 rounded-full bg-electric-cyan" />
+                          {loc.country}
+                        </div>
+                        <span className="font-mono text-gray-500 dark:text-gray-400">{loc.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
-            </Box>
-          </MotionPaper>
+            </div>
+          </Card>
 
-          {/* Storage Usage */}
-          <MotionPaper
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6, type: 'spring', stiffness: 260, damping: 20 }}
-            sx={{ 
-              p: 3, 
-              borderRadius: 2, 
-              mb: 2.5,
-              background: theme.palette.mode === 'dark' 
-                ? 'rgba(255, 255, 255, 0.03)' 
-                : '#ffffff',
-              border: `1px solid ${theme.palette.divider}`,
-            }}
-          >
-            <Typography variant="h6" fontWeight={700} gutterBottom>
-              Storage Usage
-            </Typography>
-            <Box sx={{ mt: 2.5 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
-                <Typography variant="body2" color="text.secondary">
-                  {stats?.totalQRCodes || 0} of 1,000 QR Codes
-                </Typography>
-                <Typography variant="body2" fontWeight={600} color="primary">
-                  {((stats?.totalQRCodes || 0) / 10).toFixed(1)}%
-                </Typography>
-              </Box>
-              <LinearProgress
-                variant="determinate"
-                value={(stats?.totalQRCodes || 0) / 10}
-                sx={{
-                  height: 8,
-                  borderRadius: 4,
-                  backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
-                  '& .MuiLinearProgress-bar': {
-                    background: '#1976D2',
-                    borderRadius: 4,
-                  },
-                }}
+          {/* Storage / Usage */}
+          <Card variant="glass" className="p-5">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-gray-100 dark:bg-white/10">
+                <HardDrive className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+              </div>
+              <div>
+                <h4 className="font-bold text-gray-900 dark:text-white">Storage</h4>
+                <p className="text-xs text-gray-500 dark:text-gray-400">QR Code Limit</p>
+              </div>
+            </div>
+            <div className="mb-2 flex justify-between text-sm">
+              <span className="text-gray-600 dark:text-gray-300 font-medium">{stats?.totalQRCodes || 0} / 1,000</span>
+              <span className="text-electric-blue font-bold">{((stats?.totalQRCodes || 0) / 10).toFixed(1)}%</span>
+            </div>
+            <div className="h-2 w-full bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-electric-blue to-electric-cyan rounded-full transition-all duration-500"
+                style={{ width: `${(stats?.totalQRCodes || 0) / 10}%` }}
               />
-            </Box>
-          </MotionPaper>
+            </div>
+          </Card>
 
-          <MotionPaper
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5, type: 'spring', stiffness: 260, damping: 20 }}
-            sx={{
-              p: 3,
-              borderRadius: 2,
-              background: 'linear-gradient(135deg, #1976D2 0%, #42A5F5 100%)',
-              color: 'white',
-              border: 'none',
-            }}
-          >
-            <StarIcon sx={{ fontSize: 32, mb: 1 }} />
-            <Typography variant="h6" fontWeight={700} gutterBottom>
-              Upgrade to Pro
-            </Typography>
-            <Typography variant="body2" sx={{ mb: 2.5, opacity: 0.95, lineHeight: 1.6 }}>
-              Get unlimited QR codes, advanced analytics, and priority support
-            </Typography>
-            <Button
-              variant="contained"
-              fullWidth
-              sx={{
-                bgcolor: 'white',
-                color: '#1976D2',
-                fontWeight: 600,
-                py: 1.2,
-                borderRadius: 2,
-                '&:hover': {
-                  bgcolor: 'rgba(255,255,255,0.95)',
-                  transform: 'translateY(-2px)',
-                },
-              }}
-            >
+          {/* Upgrade Banner */}
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-electric-blue to-electric-violet p-6 text-white shadow-lg">
+            <div className="absolute top-0 right-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+            <div className="absolute bottom-0 left-0 -ml-8 -mb-8 h-32 w-32 rounded-full bg-black/10 blur-2xl" />
+
+            <h3 className="relative z-10 text-lg font-bold mb-1">Upgrade to Pro</h3>
+            <p className="relative z-10 text-sm text-white/90 mb-4 leading-relaxed">
+              Unlock unlimited QR codes, advanced analytics, and priority support.
+            </p>
+            <Button variant="premium" className="relative z-10 w-full bg-white text-electric-blue hover:bg-white/90 border-none shadow-none">
               Upgrade Now
             </Button>
-          </MotionPaper>
-        </Box>
-      </Box>
-    </Container>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

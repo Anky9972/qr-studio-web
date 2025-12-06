@@ -1,18 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  Box,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Alert,
-  Link as MuiLink,
-} from '@mui/material'
-import QrCode2Icon from '@mui/icons-material/QrCode2'
 import Link from 'next/link'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import { QrCode, ArrowLeft, Mail } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card'
+import { Alert, AlertDescription } from '@/components/ui/Alert'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -50,94 +44,71 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        bgcolor: 'primary.main',
-        p: 2,
-      }}
-    >
-      <Paper
-        elevation={8}
-        sx={{
-          maxWidth: 440,
-          width: '100%',
-          p: 4,
-          borderRadius: 2,
-        }}
-      >
-        {/* Logo & Title */}
-        <Box sx={{ textAlign: 'center', mb: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-            <QrCode2Icon sx={{ fontSize: 48, color: 'primary.main', mr: 1 }} />
-            <Typography variant="h4" fontWeight={700} color="primary">
-              QR Studio
-            </Typography>
-          </Box>
-          <Typography variant="h5" fontWeight={600} gutterBottom>
-            Reset your password
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
+    <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/20 rounded-full blur-[100px] animate-pulse-slow" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/20 rounded-full blur-[100px] animate-pulse-slow delay-1000" />
+      </div>
+
+      <Card variant="glass" className="w-full max-w-md relative z-10 border-white/10">
+        <CardHeader className="text-center space-y-2">
+          <div className="mx-auto w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 mb-4">
+            <QrCode className="text-white" size={24} />
+          </div>
+          <CardTitle className="text-2xl font-bold text-white">Reset your password</CardTitle>
+          <CardDescription className="text-gray-400">
             Enter your email and we&apos;ll send you a link to reset your password
-          </Typography>
-        </Box>
+          </CardDescription>
+        </CardHeader>
 
-        {/* Error/Success Alert */}
-        {errorMsg && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {errorMsg}
-          </Alert>
-        )}
-        {successMsg && (
-          <Alert severity="success" sx={{ mb: 3 }}>
-            {successMsg}
-          </Alert>
-        )}
+        <CardContent className="space-y-4">
+          {errorMsg && (
+            <Alert className="bg-red-500/10 border-red-500/20 text-red-400">
+              <AlertDescription>{errorMsg}</AlertDescription>
+            </Alert>
+          )}
+          
+          {successMsg && (
+            <Alert className="bg-green-500/10 border-green-500/20 text-green-400">
+              <AlertDescription>{successMsg}</AlertDescription>
+            </Alert>
+          )}
 
-        {/* Email Form */}
-        <form onSubmit={handleSubmit}>
-          <TextField
-            fullWidth
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            sx={{ mb: 3 }}
-          />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                type="email"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                icon={<Mail size={16} />}
+              />
+            </div>
 
-          <Button
-            fullWidth
-            type="submit"
-            variant="contained"
-            size="large"
-            disabled={loading}
-            sx={{ py: 1.5, mb: 2 }}
-          >
-            {loading ? 'Sending...' : 'Send reset link'}
-          </Button>
-        </form>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading}
+              variant="premium"
+              size="lg"
+            >
+              {loading ? 'Sending...' : 'Send reset link'}
+            </Button>
+          </form>
 
-        {/* Back to Sign In */}
-        <Box sx={{ textAlign: 'center', mt: 3 }}>
-          <MuiLink
-            component={Link}
-            href="/signin"
-            sx={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              textDecoration: 'none',
-              fontWeight: 600,
-            }}
-          >
-            <ArrowBackIcon sx={{ fontSize: 18, mr: 0.5 }} />
-            Back to sign in
-          </MuiLink>
-        </Box>
-      </Paper>
-    </Box>
+          <div className="text-center pt-4 border-t border-white/10">
+            <Link 
+              href="/signin" 
+              className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
+            >
+              <ArrowLeft size={16} />
+              Back to sign in
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

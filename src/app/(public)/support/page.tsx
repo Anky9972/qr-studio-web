@@ -2,29 +2,22 @@
 
 import { useState } from 'react';
 import {
-  Box,
-  Container,
-  Typography,
-  Button,
-  Card,
-  CardContent,
-  TextField,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Alert,
-  CircularProgress
-} from '@mui/material';
-import {
-  QrCode2,
-  ExpandMore,
-  Email,
-  Chat,
+  QrCode,
+  ChevronDown,
+  Mail,
+  MessageCircle,
   Phone,
-  Description,
+  FileText,
   Send
-} from '@mui/icons-material';
+} from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
+import { cn } from '@/lib/utils';
+import { Loader2 } from 'lucide-react';
 
 export default function SupportPage() {
   const [formData, setFormData] = useState({
@@ -39,16 +32,55 @@ export default function SupportPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    
+
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
+
     setSubmitting(false);
     setSubmitted(true);
     setFormData({ name: '', email: '', subject: '', message: '' });
-    
+
     setTimeout(() => setSubmitted(false), 5000);
   };
+
+  const contactMethods = [
+    {
+      icon: <Mail className="text-4xl" />,
+      title: 'Email Support',
+      description: 'Get help via email',
+      detail: 'support@qrstudio.com',
+      availability: 'Response within 24 hours',
+      color: 'text-blue-400',
+      bg: 'bg-blue-400/10'
+    },
+    {
+      icon: <MessageCircle className="text-4xl" />,
+      title: 'Live Chat',
+      description: 'Chat with our team',
+      detail: 'Available in-app',
+      availability: 'Mon-Fri, 9am-6pm PST',
+      color: 'text-green-400',
+      bg: 'bg-green-400/10'
+    },
+    {
+      icon: <Phone className="text-4xl" />,
+      title: 'Phone Support',
+      description: 'Business & Enterprise plans',
+      detail: '+1 (555) 123-4567',
+      availability: 'Mon-Fri, 9am-6pm PST',
+      color: 'text-purple-400',
+      bg: 'bg-purple-400/10'
+    },
+    {
+      icon: <FileText className="text-4xl" />,
+      title: 'Documentation',
+      description: 'Guides and tutorials',
+      detail: 'docs.qrstudio.com',
+      availability: 'Available 24/7',
+      color: 'text-orange-400',
+      bg: 'bg-orange-400/10'
+    }
+  ];
 
   const faqs = [
     {
@@ -138,222 +170,226 @@ export default function SupportPage() {
     }
   ];
 
-  const contactMethods = [
-    {
-      icon: <Email sx={{ fontSize: 40 }} />,
-      title: 'Email Support',
-      description: 'Get help via email',
-      detail: 'support@qrstudio.com',
-      availability: 'Response within 24 hours'
-    },
-    {
-      icon: <Chat sx={{ fontSize: 40 }} />,
-      title: 'Live Chat',
-      description: 'Chat with our team',
-      detail: 'Available in-app',
-      availability: 'Mon-Fri, 9am-6pm PST'
-    },
-    {
-      icon: <Phone sx={{ fontSize: 40 }} />,
-      title: 'Phone Support',
-      description: 'Business & Enterprise plans',
-      detail: '+1 (555) 123-4567',
-      availability: 'Mon-Fri, 9am-6pm PST'
-    },
-    {
-      icon: <Description sx={{ fontSize: 40 }} />,
-      title: 'Documentation',
-      description: 'Guides and tutorials',
-      detail: 'docs.qrstudio.com',
-      availability: 'Available 24/7'
-    }
-  ];
-
   return (
-    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
-      {/* Header */}
-      <Box sx={{ bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider', py: 2 }}>
-        <Container maxWidth="lg">
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <QrCode2 sx={{ fontSize: 32, color: 'primary.main' }} />
-              <Typography variant="h6" fontWeight="bold" component={Link} href="/" sx={{ textDecoration: 'none', color: 'inherit' }}>
-                QR Studio
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button color="inherit" component={Link} href="/features">Features</Button>
-              <Button color="inherit" component={Link} href="/pricing">Pricing</Button>
-              <Button color="inherit" component={Link} href="/signin">Sign In</Button>
-              <Button variant="contained" component={Link} href="/signup">Get Started</Button>
-            </Box>
-          </Box>
-        </Container>
-      </Box>
-
+    <div className="min-h-screen bg-black text-white">
       {/* Hero Section */}
-      <Box sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', py: 8 }}>
-        <Container maxWidth="md">
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h2" fontWeight="bold" gutterBottom>
-              How Can We Help You?
-            </Typography>
-            <Typography variant="h5" sx={{ opacity: 0.9 }}>
-              Find answers in our FAQ or reach out to our support team
-            </Typography>
-          </Box>
-        </Container>
-      </Box>
+      <section className="relative py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-black pointer-events-none" />
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[100px] animate-pulse-slow" />
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <Badge variant="outline" className="mb-4 bg-white/5 border-white/10 text-blue-400">
+            SUPPORT
+          </Badge>
+          <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 mb-6">
+            How Can We Help You?
+          </h1>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            Find answers in our FAQ or reach out to our support team
+          </p>
+        </div>
+      </section>
 
       {/* Contact Methods */}
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Typography variant="h3" fontWeight="bold" align="center" gutterBottom>
-          Get in Touch
-        </Typography>
-        <Typography variant="h6" color="text.secondary" align="center" sx={{ mb: 4 }}>
-          Choose the support channel that works best for you
-        </Typography>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-          {contactMethods.map((method, index) => (
-            <Card key={index} sx={{ flex: '1 1 calc(50% - 12px)', minWidth: 280 }}>
-              <CardContent sx={{ textAlign: 'center' }}>
-                <Box sx={{ color: 'primary.main', mb: 2 }}>{method.icon}</Box>
-                <Typography variant="h6" fontWeight="bold" gutterBottom>
-                  {method.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  {method.description}
-                </Typography>
-                <Typography variant="body1" fontWeight="medium" sx={{ mt: 2 }}>
-                  {method.detail}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {method.availability}
-                </Typography>
-              </CardContent>
-            </Card>
-          ))}
-        </Box>
-      </Container>
+      <section className="py-12 border-y border-white/10 bg-white/5 backdrop-blur-sm">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {contactMethods.map((method, index) => (
+              <Card key={index} variant="glass" className="text-center group hover:border-blue-500/30 transition-colors">
+                <CardContent className="p-6">
+                  <div className={cn("w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110", method.bg, method.color)}>
+                    {method.icon}
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">
+                    {method.title}
+                  </h3>
+                  <p className="text-gray-400 text-sm mb-4">
+                    {method.description}
+                  </p>
+                  <p className="text-white font-medium mb-1">
+                    {method.detail}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {method.availability}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Contact Form */}
-      <Box sx={{ bgcolor: 'grey.50', py: 8 }}>
-        <Container maxWidth="md">
-          <Typography variant="h3" fontWeight="bold" align="center" gutterBottom>
-            Send Us a Message
-          </Typography>
-          <Typography variant="h6" color="text.secondary" align="center" sx={{ mb: 4 }}>
-            Fill out the form below and we'll get back to you within 24 hours
-          </Typography>
-          <Card>
-            <CardContent sx={{ p: 4 }}>
-              {submitted && (
-                <Alert severity="success" sx={{ mb: 3 }}>
-                  Thank you for contacting us! We'll respond to your message within 24 hours.
-                </Alert>
-              )}
-              <form onSubmit={handleSubmit}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                  <TextField
-                    label="Name"
-                    required
-                    fullWidth
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  />
-                  <TextField
-                    label="Email"
-                    type="email"
-                    required
-                    fullWidth
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  />
-                  <TextField
-                    label="Subject"
-                    required
-                    fullWidth
-                    value={formData.subject}
-                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  />
-                  <TextField
-                    label="Message"
-                    required
-                    fullWidth
-                    multiline
-                    rows={6}
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  />
+      <section className="py-24 relative">
+        <div className="container mx-auto px-4 max-w-2xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Send Us a Message</h2>
+            <p className="text-gray-400">Fill out the form below and we'll get back to you within 24 hours</p>
+          </div>
+
+          <Card variant="glass" className="p-2 border-white/10">
+            <CardContent className="p-6 md:p-8">
+              {submitted ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
+                  <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center text-green-400 mb-2">
+                    <Send className="text-3xl" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white">Message Sent!</h3>
+                  <p className="text-gray-400 max-w-sm">
+                    Thank you for contacting us! We'll respond to your message within 24 hours.
+                  </p>
+                  <Button
+                    variant="outline"
+                    className="mt-6"
+                    onClick={() => setSubmitted(false)}
+                  >
+                    Send another message
+                  </Button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-300">Name</label>
+                      <Input
+                        required
+                        placeholder="John Doe"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="bg-black/30"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-300">Email</label>
+                      <Input
+                        type="email"
+                        required
+                        placeholder="john@example.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="bg-black/30"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-300">Subject</label>
+                    <Input
+                      required
+                      placeholder="How can we help?"
+                      value={formData.subject}
+                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      className="bg-black/30"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-300">Message</label>
+                    <Textarea
+                      required
+                      placeholder="Tell us more about your inquiry..."
+                      rows={6}
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      className="bg-black/30 resize-none"
+                    />
+                  </div>
                   <Button
                     type="submit"
-                    variant="contained"
-                    size="large"
+                    variant="premium"
+                    size="lg"
+                    className="w-full"
                     disabled={submitting}
-                    endIcon={submitting ? <CircularProgress size={20} /> : <Send />}
                   >
-                    {submitting ? 'Sending...' : 'Send Message'}
+                    {submitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        Send Message
+                        <Send className="ml-2 h-4 w-4" />
+                      </>
+                    )}
                   </Button>
-                </Box>
-              </form>
+                </form>
+              )}
             </CardContent>
           </Card>
-        </Container>
-      </Box>
+        </div>
+      </section>
 
       {/* FAQ Section */}
-      <Container maxWidth="md" sx={{ py: 8 }}>
-        <Typography variant="h3" fontWeight="bold" align="center" gutterBottom>
-          Frequently Asked Questions
-        </Typography>
-        <Typography variant="h6" color="text.secondary" align="center" sx={{ mb: 4 }}>
-          Find quick answers to common questions
-        </Typography>
-        {faqs.map((category, categoryIndex) => (
-          <Box key={categoryIndex} sx={{ mb: 4 }}>
-            <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mt: 4, mb: 2 }}>
-              {category.category}
-            </Typography>
-            {category.questions.map((faq, faqIndex) => (
-              <Accordion key={faqIndex}>
-                <AccordionSummary expandIcon={<ExpandMore />}>
-                  <Typography variant="h6" fontWeight="medium">
-                    {faq.q}
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Typography color="text.secondary">
-                    {faq.a}
-                  </Typography>
-                </AccordionDetails>
-              </Accordion>
+      <section className="py-24 bg-black/50">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Frequently Asked Questions</h2>
+            <p className="text-xl text-gray-400">Find quick answers to common questions</p>
+          </div>
+
+          <div className="space-y-12">
+            {faqs.map((category, categoryIndex) => (
+              <div key={categoryIndex}>
+                <h3 className="text-xl font-bold text-white mb-6 pl-4 border-l-4 border-blue-500">
+                  {category.category}
+                </h3>
+                <div className="space-y-4">
+                  {category.questions.map((faq, faqIndex) => (
+                    <FaqItem key={faqIndex} question={faq.q} answer={faq.a} />
+                  ))}
+                </div>
+              </div>
             ))}
-          </Box>
-        ))}
-      </Container>
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
-      <Box sx={{ py: 8, bgcolor: 'primary.main', color: 'primary.contrastText' }}>
-        <Container maxWidth="md">
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h3" fontWeight="bold" gutterBottom>
-              Still Have Questions?
-            </Typography>
-            <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
-              Our team is here to help you succeed
-            </Typography>
-            <Button
-              variant="contained"
-              size="large"
-              component={Link}
-              href="mailto:support@qrstudio.com"
-              sx={{ bgcolor: 'white', color: 'primary.main', '&:hover': { bgcolor: 'grey.100' } }}
-            >
-              Contact Support
-            </Button>
-          </Box>
-        </Container>
-      </Box>
-    </Box>
+      <section className="py-24 bg-gradient-to-t from-blue-900/20 to-black border-t border-white/10">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+            Still Have Questions?
+          </h2>
+          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+            Our team is here to help you succeed
+          </p>
+          <Button
+            size="lg"
+            variant="premium"
+            className="px-8 h-14 text-lg shadow-lg shadow-blue-500/25"
+            onClick={() => window.location.href = 'mailto:support@qrstudio.com'}
+          >
+            Contact Support
+          </Button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function FaqItem({ question, answer }: { question: string, answer: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="border border-white/10 rounded-xl bg-white/5 overflow-hidden transition-all duration-300 hover:border-white/20">
+      <button
+        className="w-full text-left p-6 flex justify-between items-center text-white font-medium text-lg"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {question}
+        <ChevronDown className={cn("transition-transform duration-300 text-gray-400", isOpen && "rotate-180")} />
+      </button>
+      <div
+        className={cn(
+          "overflow-hidden transition-all duration-300 ease-in-out",
+          isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        )}
+      >
+        <div className="p-6 pt-0 text-gray-400 leading-relaxed border-t border-white/5">
+          {answer}
+        </div>
+      </div>
+    </div>
   );
 }

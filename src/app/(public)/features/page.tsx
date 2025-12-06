@@ -1,62 +1,48 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 import {
-  Box,
-  Container,
-  Typography,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  useTheme
-} from '@mui/material';
-import {
-  QrCode2,
-  Analytics,
+  QrCode,
+  BarChart3,
   Palette,
-  Speed,
-  Group,
-  Security,
+  Zap,
+  Users,
+  Shield,
   CloudUpload,
   Edit,
-  Timeline,
+  TrendingUp,
   Lock,
   Code,
-  Devices,
+  Smartphone,
   Check,
-  Close,
-  ExpandMore,
-  ArrowForward,
-  Apps,
-  Dashboard as DashboardIcon
-} from '@mui/icons-material';
+  X,
+  ChevronDown,
+  ArrowRight,
+  Grid,
+  LayoutDashboard
+} from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { cn } from '@/lib/utils';
 
 export default function FeaturesPage() {
   const { data: session } = useSession();
-  const theme = useTheme();
 
   const featureCategories = [
     {
       title: 'QR Code Generation',
-      icon: <QrCode2 sx={{ fontSize: 48 }} />,
-      color: '#FF6B6B',
+      icon: <QrCode className="text-4xl" />,
+      color: 'text-pink-500',
+      bg: 'bg-pink-500/10',
+      border: 'border-pink-500/20',
       features: [
         {
           name: '25+ QR Code Types',
           description: 'Support for URL, vCard, WiFi, Email, SMS, Phone, Calendar, Location, and more',
-          icon: <Apps />
+          icon: <Grid />
         },
         {
           name: 'Dynamic QR Codes',
@@ -66,7 +52,7 @@ export default function FeaturesPage() {
         {
           name: 'Bulk Generation',
           description: 'Generate up to 10,000 QR codes at once from CSV or Excel files',
-          icon: <Speed />
+          icon: <Zap />
         },
         {
           name: 'High Resolution Export',
@@ -77,8 +63,10 @@ export default function FeaturesPage() {
     },
     {
       title: 'Design & Customization',
-      icon: <Palette sx={{ fontSize: 48 }} />,
-      color: '#4ECDC4',
+      icon: <Palette className="text-4xl" />,
+      color: 'text-teal-400',
+      bg: 'bg-teal-400/10',
+      border: 'border-teal-400/20',
       features: [
         {
           name: 'Full Color Control',
@@ -88,12 +76,12 @@ export default function FeaturesPage() {
         {
           name: 'Logo Upload',
           description: 'Add your brand logo to the center of QR codes with automatic sizing',
-          icon: <QrCode2 />
+          icon: <QrCode />
         },
         {
           name: 'Pattern Styles',
           description: 'Choose from 10+ dot patterns and corner styles for unique designs',
-          icon: <Apps />
+          icon: <Grid />
         },
         {
           name: 'Frames & Templates',
@@ -104,40 +92,44 @@ export default function FeaturesPage() {
     },
     {
       title: 'Analytics & Tracking',
-      icon: <Analytics sx={{ fontSize: 48 }} />,
-      color: '#45B7D1',
+      icon: <BarChart3 className="text-4xl" />,
+      color: 'text-blue-400',
+      bg: 'bg-blue-400/10',
+      border: 'border-blue-400/20',
       features: [
         {
           name: 'Real-time Scan Tracking',
           description: 'Monitor scans as they happen with live dashboard updates',
-          icon: <Timeline />
+          icon: <TrendingUp />
         },
         {
           name: 'Geographic Insights',
           description: 'See where your QR codes are being scanned with interactive maps',
-          icon: <Devices />
+          icon: <Smartphone />
         },
         {
           name: 'Device Analytics',
           description: 'Track devices, browsers, and operating systems used for scanning',
-          icon: <Devices />
+          icon: <Smartphone />
         },
         {
           name: 'Custom Reports',
           description: 'Generate detailed reports and export data to CSV for further analysis',
-          icon: <Analytics />
+          icon: <BarChart3 />
         }
       ]
     },
     {
       title: 'Team Collaboration',
-      icon: <Group sx={{ fontSize: 48 }} />,
-      color: '#96CEB4',
+      icon: <Users className="text-4xl" />,
+      color: 'text-green-400',
+      bg: 'bg-green-400/10',
+      border: 'border-green-400/20',
       features: [
         {
           name: 'Team Workspaces',
           description: 'Collaborate with unlimited team members on shared QR code libraries',
-          icon: <Group />
+          icon: <Users />
         },
         {
           name: 'Role-based Access',
@@ -152,14 +144,16 @@ export default function FeaturesPage() {
         {
           name: 'Activity Logs',
           description: 'Track all team actions with detailed audit logs and timestamps',
-          icon: <Timeline />
+          icon: <TrendingUp />
         }
       ]
     },
     {
       title: 'Security & Management',
-      icon: <Security sx={{ fontSize: 48 }} />,
-      color: '#FF8C42',
+      icon: <Shield className="text-4xl" />,
+      color: 'text-orange-400',
+      bg: 'bg-orange-400/10',
+      border: 'border-orange-400/20',
       features: [
         {
           name: 'Password Protection',
@@ -169,7 +163,7 @@ export default function FeaturesPage() {
         {
           name: 'Expiration Dates',
           description: 'Set automatic expiration dates for time-sensitive campaigns',
-          icon: <Timeline />
+          icon: <TrendingUp />
         },
         {
           name: 'White-label Options',
@@ -226,225 +220,230 @@ export default function FeaturesPage() {
   ];
 
   return (
-    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+    <div className="min-h-screen bg-black text-white">
       {/* Hero Section */}
-      <Box sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', py: 8 }}>
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: 'center' }}>
-            <Chip label="FEATURES" sx={{ mb: 2, bgcolor: 'rgba(255,255,255,0.2)', color: 'inherit' }} />
-            <Typography variant="h2" fontWeight="bold" gutterBottom>
-              {session?.user ? 'All Features at Your Fingertips' : 'Everything You Need in One Platform'}
-            </Typography>
-            <Typography variant="h5" sx={{ mb: 4, opacity: 0.9 }}>
-              {session?.user 
-                ? 'Explore the full power of QR Studio to create, manage, and analyze QR codes.'
-                : 'Powerful features designed for marketers, developers, and businesses'
-              }
-            </Typography>
+      <section className="relative py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-black pointer-events-none" />
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[100px] animate-pulse-slow" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/10 rounded-full blur-[100px] animate-pulse-slow delay-1000" />
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <Badge variant="outline" className="mb-4 bg-white/5 border-white/10 text-blue-400">
+            FEATURES
+          </Badge>
+          <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 mb-6">
+            {session?.user ? 'All Features at Your Fingertips' : 'Everything You Need in One Platform'}
+          </h1>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
+            {session?.user
+              ? 'Explore the full power of QR Studio to create, manage, and analyze QR codes.'
+              : 'Powerful features designed for marketers, developers, and businesses'
+            }
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {session?.user ? (
-              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+              <>
                 <Button
-                  variant="contained"
-                  size="large"
-                  component={Link}
-                  href="/dashboard"
-                  sx={{ bgcolor: 'white', color: 'primary.main', '&:hover': { bgcolor: 'grey.100' } }}
-                  startIcon={<DashboardIcon />}
+                  size="lg"
+                  variant="premium"
+                  className="px-8 shadow-lg shadow-blue-500/25"
+                  onClick={() => window.location.href = '/dashboard'}
                 >
+                  <LayoutDashboard className="mr-2" size={20} />
                   Go to Dashboard
                 </Button>
                 <Button
-                  variant="outlined"
-                  size="large"
-                  component={Link}
-                  href="/dashboard/generate"
-                  sx={{ borderColor: 'white', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}
-                  endIcon={<QrCode2 />}
+                  size="lg"
+                  variant="outline"
+                  className="px-8 bg-white/5 border-white/10 hover:bg-white/10"
+                  onClick={() => window.location.href = '/dashboard/generate'}
                 >
+                  <QrCode className="mr-2" size={20} />
                   Create QR Code
                 </Button>
-              </Box>
+              </>
             ) : (
               <Button
-                variant="contained"
-                size="large"
-                component={Link}
-                href="/signup"
-                sx={{ bgcolor: 'white', color: 'primary.main', '&:hover': { bgcolor: 'grey.100' } }}
-                endIcon={<ArrowForward />}
+                size="lg"
+                variant="premium"
+                className="px-8 text-lg h-14 shadow-lg shadow-blue-500/25"
+                onClick={() => window.location.href = '/signup'}
               >
                 Start Free Trial
+                <ArrowRight className="ml-2" size={20} />
               </Button>
             )}
-          </Box>
-        </Container>
-      </Box>
+          </div>
+        </div>
+      </section>
 
       {/* Feature Categories */}
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        {featureCategories.map((category, catIndex) => (
-          <Box key={catIndex} sx={{ mb: 8 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
-              <Box sx={{ color: category.color }}>{category.icon}</Box>
-              <Typography variant="h3" fontWeight="bold">
-                {category.title}
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-              {category.features.map((feature, index) => (
-                <Card key={index} sx={{ flex: '1 1 calc(50% - 12px)', minWidth: 300 }}>
-                  <CardContent>
-                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-                      <Box sx={{ color: category.color, mt: 0.5 }}>
-                        {feature.icon}
-                      </Box>
-                      <Box>
-                        <Typography variant="h6" fontWeight="bold" gutterBottom>
-                          {feature.name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {feature.description}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </CardContent>
-                </Card>
-              ))}
-            </Box>
-          </Box>
-        ))}
-      </Container>
+      <section className="py-20 bg-black/50">
+        <div className="container mx-auto px-4">
+          {featureCategories.map((category, catIndex) => (
+            <div key={catIndex} className="mb-24 last:mb-0">
+              <div className="flex items-center gap-4 mb-8">
+                <div className={cn("p-3 rounded-xl", category.bg, category.color)}>
+                  {category.icon}
+                </div>
+                <h2 className="text-3xl font-bold text-white">
+                  {category.title}
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {category.features.map((feature, index) => (
+                  <Card key={index} variant="glass" className="h-full hover:border-blue-500/30 transition-colors">
+                    <CardContent className="p-6">
+                      <div className="flex gap-4 items-start">
+                        <div className={cn("mt-1", category.color)}>
+                          {feature.icon}
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-white mb-2">
+                            {feature.name}
+                          </h3>
+                          <p className="text-sm text-gray-400">
+                            {feature.description}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Comparison Table */}
-      <Box sx={{ py: 8, bgcolor: 'grey.50' }}>
-        <Container maxWidth="lg">
-          <Typography variant="h3" fontWeight="bold" align="center" gutterBottom>
-            How We Compare
-          </Typography>
-          <Typography variant="h6" color="text.secondary" align="center" sx={{ mb: 4 }}>
-            See why QR Studio is the best choice for your business
-          </Typography>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow sx={{ bgcolor: 'primary.main' }}>
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Feature</TableCell>
-                  <TableCell align="center" sx={{ color: 'white', fontWeight: 'bold' }}>QR Studio</TableCell>
-                  <TableCell align="center" sx={{ color: 'white', fontWeight: 'bold' }}>Competitor A</TableCell>
-                  <TableCell align="center" sx={{ color: 'white', fontWeight: 'bold' }}>Competitor B</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
+      <section className="py-24 bg-gradient-to-b from-black to-blue-950/20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">How We Compare</h2>
+            <p className="text-xl text-gray-400">See why QR Studio is the best choice for your business</p>
+          </div>
+
+          <div className="overflow-x-auto rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-white/10 bg-white/5">
+                  <th className="p-6 text-white font-bold text-lg">Feature</th>
+                  <th className="p-6 text-center text-blue-400 font-bold text-lg bg-blue-500/10">QR Studio</th>
+                  <th className="p-6 text-center text-gray-400 font-bold">Competitor A</th>
+                  <th className="p-6 text-center text-gray-400 font-bold">Competitor B</th>
+                </tr>
+              </thead>
+              <tbody>
                 {comparisonFeatures.map((feature, index) => (
-                  <TableRow key={index} sx={{ '&:nth-of-type(odd)': { bgcolor: 'action.hover' } }}>
-                    <TableCell component="th" scope="row" sx={{ fontWeight: 'medium' }}>
-                      {feature.name}
-                    </TableCell>
-                    <TableCell align="center">
+                  <tr key={index} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                    <td className="p-4 px-6 text-white font-medium">{feature.name}</td>
+                    <td className="p-4 px-6 text-center bg-blue-500/5">
                       {typeof feature.qrStudio === 'boolean' ? (
-                        feature.qrStudio ? (
-                          <Check sx={{ color: 'success.main' }} />
-                        ) : (
-                          <Close sx={{ color: 'error.main' }} />
-                        )
+                        feature.qrStudio ? <Check className="inline text-green-400" /> : <X className="inline text-red-400" />
                       ) : (
-                        <Typography variant="body2" fontWeight="bold" color="success.main">
-                          {feature.qrStudio}
-                        </Typography>
+                        <span className="font-bold text-green-400">{feature.qrStudio}</span>
                       )}
-                    </TableCell>
-                    <TableCell align="center">
+                    </td>
+                    <td className="p-4 px-6 text-center text-gray-400">
                       {typeof feature.competitor1 === 'boolean' ? (
-                        feature.competitor1 ? (
-                          <Check sx={{ color: 'success.main' }} />
-                        ) : (
-                          <Close sx={{ color: 'error.main' }} />
-                        )
+                        feature.competitor1 ? <Check className="inline text-green-400" /> : <X className="inline text-red-400" />
                       ) : (
-                        <Typography variant="body2" color="text.secondary">
-                          {feature.competitor1}
-                        </Typography>
+                        feature.competitor1
                       )}
-                    </TableCell>
-                    <TableCell align="center">
+                    </td>
+                    <td className="p-4 px-6 text-center text-gray-400">
                       {typeof feature.competitor2 === 'boolean' ? (
-                        feature.competitor2 ? (
-                          <Check sx={{ color: 'success.main' }} />
-                        ) : (
-                          <Close sx={{ color: 'error.main' }} />
-                        )
+                        feature.competitor2 ? <Check className="inline text-green-400" /> : <X className="inline text-red-400" />
                       ) : (
-                        <Typography variant="body2" color="text.secondary">
-                          {feature.competitor2}
-                        </Typography>
+                        feature.competitor2
                       )}
-                    </TableCell>
-                  </TableRow>
+                    </td>
+                  </tr>
                 ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Container>
-      </Box>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
       {/* FAQ Section */}
-      <Container maxWidth="md" sx={{ py: 8 }}>
-        <Typography variant="h3" fontWeight="bold" align="center" gutterBottom>
-          Frequently Asked Questions
-        </Typography>
-        <Typography variant="h6" color="text.secondary" align="center" sx={{ mb: 4 }}>
-          Everything you need to know about our features
-        </Typography>
-        {faqs.map((faq, index) => (
-          <Accordion key={index}>
-            <AccordionSummary expandIcon={<ExpandMore />}>
-              <Typography variant="h6" fontWeight="medium">
-                {faq.question}
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography color="text.secondary">
-                {faq.answer}
-              </Typography>
-            </AccordionDetails>
-          </Accordion>
-        ))}
-      </Container>
+      <section className="py-24 relative">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Frequently Asked Questions</h2>
+            <p className="text-xl text-gray-400">Everything you need to know about our features</p>
+          </div>
+
+          <div className="space-y-4">
+            {faqs.map((faq, index) => (
+              <FaqItem key={index} question={faq.question} answer={faq.answer} />
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
-      <Box sx={{ py: 8, bgcolor: 'primary.main', color: 'primary.contrastText' }}>
-        <Container maxWidth="md">
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h3" fontWeight="bold" gutterBottom>
-              Ready to Try All Features?
-            </Typography>
-            <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
-              Start your free trial today. No credit card required.
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Button
-                variant="contained"
-                size="large"
-                component={Link}
-                href="/signup"
-                sx={{ bgcolor: 'white', color: 'primary.main', '&:hover': { bgcolor: 'grey.100' } }}
-                endIcon={<ArrowForward />}
-              >
-                Start Free Trial
-              </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                component={Link}
-                href="/pricing"
-                sx={{ borderColor: 'white', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}
-              >
-                View Pricing
-              </Button>
-            </Box>
-          </Box>
-        </Container>
-      </Box>
-    </Box>
+      <section className="py-24 bg-gradient-to-t from-blue-900/20 to-black border-t border-white/10">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+            Ready to Try All Features?
+          </h2>
+          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+            Start your free trial today. No credit card required.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              size="lg"
+              variant="premium"
+              className="px-8 h-14 text-lg shadow-lg shadow-blue-500/25"
+              onClick={() => window.location.href = '/signup'}
+            >
+              Start Free Trial
+              <ArrowRight className="ml-2" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="px-8 h-14 text-lg bg-white/5 border-white/10 hover:bg-white/10"
+              onClick={() => window.location.href = '/pricing'}
+            >
+              View Pricing
+            </Button>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
+
+function FaqItem({ question, answer }: { question: string, answer: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="border border-white/10 rounded-xl bg-white/5 overflow-hidden transition-all duration-300 hover:border-white/20">
+      <button
+        className="w-full text-left p-6 flex justify-between items-center text-white font-medium text-lg"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {question}
+        <ChevronDown className={cn("transition-transform duration-300 text-gray-400", isOpen && "rotate-180")} />
+      </button>
+      <div
+        className={cn(
+          "overflow-hidden transition-all duration-300 ease-in-out",
+          isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        )}
+      >
+        <div className="p-6 pt-0 text-gray-400 leading-relaxed border-t border-white/5">
+          {answer}
+        </div>
+      </div>
+    </div>
+  );
+}
+

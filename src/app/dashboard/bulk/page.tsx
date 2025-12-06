@@ -2,38 +2,33 @@
 
 import { useState, useRef } from 'react'
 import {
-  Box,
-  Paper,
-  Typography,
-  Button,
-  LinearProgress,
-  Alert,
-  Card,
-  CardContent,
-  Chip,
-  IconButton,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  TextField,
-} from '@mui/material'
-import UploadFileIcon from '@mui/icons-material/UploadFile'
-import DownloadIcon from '@mui/icons-material/Download'
-import DeleteIcon from '@mui/icons-material/Delete'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import ErrorIcon from '@mui/icons-material/Error'
+  Upload,
+  Download,
+  Trash2,
+  CheckCircle2,
+  AlertTriangle,
+  FileSpreadsheet,
+  Settings,
+  X,
+  RefreshCw,
+  FileText,
+  Clock,
+  CheckCircle,
+  XCircle
+} from 'lucide-react'
 import Papa from 'papaparse'
 import * as XLSX from 'xlsx'
 import JSZip from 'jszip'
 import QRCodeStyling from 'qr-code-styling'
 import { jsPDF } from 'jspdf'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { Badge } from '@/components/ui/Badge'
+import { Input } from '@/components/ui/Input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select'
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/Alert'
+import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
 
 interface BulkQRData {
   id: string
@@ -52,7 +47,7 @@ export default function BulkGenerationPage() {
   const [progress, setProgress] = useState(0)
   const [errorMsg, setErrorMsg] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
-  
+
   // QR Settings
   const [qrSize, setQrSize] = useState(512)
   const [qrType, setQrType] = useState<'png' | 'svg'>('png')
@@ -65,7 +60,7 @@ export default function BulkGenerationPage() {
     if (!selectedFile) return
 
     const fileExt = selectedFile.name.split('.').pop()?.toLowerCase()
-    
+
     if (!['csv', 'xlsx', 'xls'].includes(fileExt || '')) {
       setErrorMsg('Please upload a CSV or Excel file')
       return
@@ -145,7 +140,7 @@ export default function BulkGenerationPage() {
 
     // Filter out empty content
     const validRecords = qrRecords.filter(r => r.content.trim())
-    
+
     if (validRecords.length === 0) {
       setErrorMsg('No valid content found. Ensure your file has a "content", "url", or "text" column')
       return
@@ -168,7 +163,7 @@ export default function BulkGenerationPage() {
 
     for (let i = 0; i < updatedData.length; i++) {
       const item = updatedData[i]
-      
+
       try {
         item.status = 'processing'
         setQrData([...updatedData])
@@ -215,10 +210,10 @@ export default function BulkGenerationPage() {
     }
 
     setProcessing(false)
-    
+
     const successCount = updatedData.filter(i => i.status === 'success').length
     const errorCount = updatedData.filter(i => i.status === 'error').length
-    
+
     if (errorCount === 0) {
       setSuccessMsg(`Successfully generated ${successCount} QR codes!`)
     } else {
@@ -228,7 +223,7 @@ export default function BulkGenerationPage() {
 
   const downloadAsZip = async () => {
     const successItems = qrData.filter(i => i.status === 'success' && i.blob)
-    
+
     if (successItems.length === 0) {
       setErrorMsg('No QR codes to download')
       return
@@ -254,7 +249,7 @@ export default function BulkGenerationPage() {
 
       // Generate ZIP
       const zipBlob = await zip.generateAsync({ type: 'blob' })
-      
+
       // Download
       const url = URL.createObjectURL(zipBlob)
       const a = document.createElement('a')
@@ -286,7 +281,7 @@ export default function BulkGenerationPage() {
       { content: 'Hello World', name: 'Sample Text', type: 'text' },
       { content: 'contact@example.com', name: 'Contact Email', type: 'email' },
     ]
-    
+
     const csv = Papa.unparse(template)
     const blob = new Blob([csv], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
@@ -301,7 +296,7 @@ export default function BulkGenerationPage() {
 
   const downloadAsPDF = async () => {
     const successItems = qrData.filter(item => item.status === 'success' && item.blob)
-    
+
     if (successItems.length === 0) {
       setErrorMsg('No QR codes to export')
       return
@@ -389,253 +384,291 @@ export default function BulkGenerationPage() {
   const pendingCount = qrData.filter(i => i.status === 'pending').length
 
   return (
-    <Box>
+    <div className="space-y-6 max-w-[1600px] mx-auto p-6">
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight={700} gutterBottom>
-          Bulk QR Code Generation
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Upload CSV or Excel file to generate up to 1,000 QR codes at once
-        </Typography>
-      </Box>
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+          Bulk Generation
+        </h1>
+        <p className="text-muted-foreground">
+          Generate hundreds of QR codes at once from a CSV or Excel file
+        </p>
+      </div>
 
       {/* Alerts */}
-      {errorMsg && <Alert severity="error" sx={{ mb: 3 }} onClose={() => setErrorMsg('')}>{errorMsg}</Alert>}
-      {successMsg && <Alert severity="success" sx={{ mb: 3 }} onClose={() => setSuccessMsg('')}>{successMsg}</Alert>}
+      {errorMsg && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{errorMsg}</AlertDescription>
+        </Alert>
+      )}
+      {successMsg && (
+        <Alert className="border-emerald-500/50 bg-emerald-500/10 text-emerald-500">
+          <CheckCircle2 className="h-4 w-4" />
+          <AlertTitle>Success</AlertTitle>
+          <AlertDescription>{successMsg}</AlertDescription>
+        </Alert>
+      )}
 
-      <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Upload Section */}
-        <Paper sx={{ flex: '1 1 360px', minWidth: 280, p: 3, borderRadius: 2 }}>
-          <Typography variant="h6" fontWeight={600} gutterBottom>
-            1. Upload File
-          </Typography>
-          
-          <Box sx={{ mb: 3 }}>
+        <Card variant="glass" className="lg:col-span-1 p-6 space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-electric-cyan/20 flex items-center justify-center text-electric-cyan font-bold border border-electric-cyan/30">1</div>
+            <h2 className="text-lg font-semibold">Upload File</h2>
+          </div>
+
+          <div className="space-y-4">
             <input
               ref={fileInputRef}
               type="file"
               accept=".csv,.xlsx,.xls"
               onChange={handleFileSelect}
-              style={{ display: 'none' }}
+              className="hidden"
             />
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<UploadFileIcon />}
-              onClick={() => fileInputRef.current?.click()}
-              sx={{ mb: 2, py: 2 }}
-            >
-              Choose CSV or Excel File
-            </Button>
-            
-            {file && (
-              <Chip
-                label={file.name}
-                onDelete={clearAll}
-                color="primary"
-                sx={{ maxWidth: '100%' }}
-              />
+
+            {!file ? (
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="border-2 border-dashed border-white/10 rounded-xl p-8 text-center hover:border-electric-cyan/50 hover:bg-white/5 transition-all cursor-pointer group"
+              >
+                <div className="w-16 h-16 rounded-full bg-white/5 mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <FileSpreadsheet className="w-8 h-8 text-gray-400 group-hover:text-electric-cyan transition-colors" />
+                </div>
+                <p className="font-medium mb-1">Click to upload or drag file</p>
+                <p className="text-xs text-muted-foreground">CSV, XLSX, XLS up to 5MB</p>
+              </div>
+            ) : (
+              <div className="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center justify-between">
+                <div className="flex items-center gap-3 overflow-hidden">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0">
+                    <FileSpreadsheet className="w-5 h-5 text-emerald-500" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-medium truncate">{file.name}</p>
+                    <p className="text-xs text-muted-foreground">Ready to process</p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="icon" onClick={clearAll} className="h-8 w-8 text-red-400 hover:text-red-300">
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
             )}
-          </Box>
 
-          <Button
-            fullWidth
-            variant="text"
-            size="small"
-            onClick={downloadTemplate}
-          >
-            Download CSV Template
-          </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={downloadTemplate}
+              >
+                Download Template
+              </Button>
+            </div>
 
-          <Box sx={{ mt: 3, p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
-            <Typography variant="body2" fontWeight={600} gutterBottom>
-              File Format Requirements:
-            </Typography>
-            <Typography variant="caption" component="div">
-              • Column: <strong>content</strong> (required) - URL, text, or data
-            </Typography>
-            <Typography variant="caption" component="div">
-              • Column: <strong>name</strong> (optional) - QR code label
-            </Typography>
-            <Typography variant="caption" component="div">
-              • Column: <strong>type</strong> (optional) - url, text, email, etc.
-            </Typography>
-          </Box>
-        </Paper>
+            <div className="text-xs text-muted-foreground space-y-1 bg-black/20 p-3 rounded border border-white/5">
+              <p className="font-semibold text-gray-300">Required Columns:</p>
+              <p>• content (URL/Text)</p>
+              <p>• name (Optional label)</p>
+              <p>• type (Optional: url, text, email)</p>
+            </div>
+          </div>
+        </Card>
 
         {/* Settings Section */}
-        <Paper sx={{ flex: '1 1 320px', minWidth: 260, p: 3, borderRadius: 2 }}>
-          <Typography variant="h6" fontWeight={600} gutterBottom>
-            2. QR Code Settings
-          </Typography>
+        <Card variant="glass" className="lg:col-span-1 p-6 space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-electric-cyan/20 flex items-center justify-center text-electric-cyan font-bold border border-electric-cyan/30">2</div>
+            <h2 className="text-lg font-semibold">Configuration</h2>
+          </div>
 
-          <TextField
-            fullWidth
-            label="Size (pixels)"
-            type="number"
-            value={qrSize}
-            onChange={(e) => setQrSize(Number(e.target.value))}
-            inputProps={{ min: 128, max: 2048, step: 64 }}
-            sx={{ mb: 2 }}
-          />
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Size (px)</Label>
+              <Input
+                type="number"
+                value={qrSize}
+                onChange={(e) => setQrSize(Number(e.target.value))}
+                min={128}
+                max={2048}
+                step={64}
+              />
+            </div>
 
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Format</InputLabel>
-            <Select
-              value={qrType}
-              label="Format"
-              onChange={(e) => setQrType(e.target.value as 'png' | 'svg')}
-            >
-              <MenuItem value="png">PNG</MenuItem>
-              <MenuItem value="svg">SVG</MenuItem>
-            </Select>
-          </FormControl>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Format</Label>
+                <Select value={qrType} onValueChange={(v: any) => setQrType(v)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="png">PNG (Raster)</SelectItem>
+                    <SelectItem value="svg">SVG (Vector)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <FormControl fullWidth>
-            <InputLabel>Error Correction</InputLabel>
-            <Select
-              value={errorLevel}
-              label="Error Correction"
-              onChange={(e) => setErrorLevel(e.target.value as any)}
-            >
-              <MenuItem value="L">Low (7%)</MenuItem>
-              <MenuItem value="M">Medium (15%)</MenuItem>
-              <MenuItem value="Q">Quartile (25%)</MenuItem>
-              <MenuItem value="H">High (30%)</MenuItem>
-            </Select>
-          </FormControl>
+              <div className="space-y-2">
+                <Label>Error Correction</Label>
+                <Select value={errorLevel} onValueChange={(v: any) => setErrorLevel(v)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="L">Low (7%)</SelectItem>
+                    <SelectItem value="M">Medium (15%)</SelectItem>
+                    <SelectItem value="Q">Quartile (25%)</SelectItem>
+                    <SelectItem value="H">High (30%)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        </Card>
 
-          <Box sx={{ mt: 3 }}>
-            <Button
-              fullWidth
-              variant="contained"
-              size="large"
-              onClick={generateAllQRCodes}
-              disabled={qrData.length === 0 || processing}
-              sx={{ mb: 2 }}
-            >
-              {processing ? 'Generating...' : `Generate ${qrData.length} QR Codes`}
-            </Button>
+        {/* Actions Section */}
+        <Card variant="glass" className="lg:col-span-1 p-6 space-y-6 flex flex-col">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-electric-cyan/20 flex items-center justify-center text-electric-cyan font-bold border border-electric-cyan/30">3</div>
+            <h2 className="text-lg font-semibold">Generate & Export</h2>
+          </div>
 
-            {processing && (
-              <Box sx={{ mb: 2 }}>
-                <LinearProgress variant="determinate" value={progress} />
-                <Typography variant="caption" sx={{ mt: 1, display: 'block', textAlign: 'center' }}>
-                  {Math.round(progress)}% Complete
-                </Typography>
-              </Box>
+          <div className="flex-1 flex flex-col justify-center space-y-4">
+            {processing ? (
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Processing...</span>
+                  <span>{Math.round(progress)}%</span>
+                </div>
+                <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-electric-cyan transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+                <p className="text-xs text-center text-muted-foreground animate-pulse">Generating QR codes, please wait...</p>
+              </div>
+            ) : (
+              <Button
+                variant="glow"
+                size="lg"
+                className="w-full text-lg h-14"
+                onClick={generateAllQRCodes}
+                disabled={qrData.length === 0 || processing}
+              >
+                <RefreshCw className={cn("mr-2 h-5 w-5", processing && "animate-spin")} />
+                Generate {qrData.length > 0 ? `(${qrData.length})` : ''}
+              </Button>
             )}
 
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<DownloadIcon />}
-              onClick={downloadAsZip}
-              disabled={successCount === 0}
-              sx={{ mb: 1 }}
-            >
-              Download as ZIP
-            </Button>
+            <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/10">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={downloadAsZip}
+                disabled={successCount === 0}
+              >
+                <Download className="mr-2 h-4 w-4" /> ZIP
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={downloadAsPDF}
+                disabled={successCount === 0}
+              >
+                <FileText className="mr-2 h-4 w-4" /> PDF
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
 
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<DownloadIcon />}
-              onClick={downloadAsPDF}
-              disabled={successCount === 0}
-              sx={{ mb: 1 }}
-            >
-              Download as PDF
-            </Button>
-            
-            <Button
-              fullWidth
-              variant="outlined"
-              color="error"
-              onClick={clearAll}
-            >
-              Clear All
-            </Button>
-          </Box>
-        </Paper>
-      </Box>
-
-      {/* Stats Cards */}
+      {/* Stats and Preview */}
       {qrData.length > 0 && (
-        <Box sx={{ display: 'flex', gap: 2, mt: 3, flexWrap: 'wrap' }}>
-          <Card sx={{ flex: '1 1 200px' }}>
-            <CardContent>
-              <Typography color="text.secondary" variant="body2">Total</Typography>
-              <Typography variant="h4" fontWeight={700}>{qrData.length}</Typography>
-            </CardContent>
-          </Card>
-          <Card sx={{ flex: '1 1 200px' }}>
-            <CardContent>
-              <Typography color="success.main" variant="body2">Success</Typography>
-              <Typography variant="h4" fontWeight={700} color="success.main">{successCount}</Typography>
-            </CardContent>
-          </Card>
-          <Card sx={{ flex: '1 1 200px' }}>
-            <CardContent>
-              <Typography color="error.main" variant="body2">Failed</Typography>
-              <Typography variant="h4" fontWeight={700} color="error.main">{errorCount}</Typography>
-            </CardContent>
-          </Card>
-          <Card sx={{ flex: '1 1 200px' }}>
-            <CardContent>
-              <Typography color="text.secondary" variant="body2">Pending</Typography>
-              <Typography variant="h4" fontWeight={700}>{pendingCount}</Typography>
-            </CardContent>
-          </Card>
-        </Box>
-      )}
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-5">
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card variant="glass" className="p-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                <FileSpreadsheet className="text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Total</p>
+                <p className="text-2xl font-bold">{qrData.length}</p>
+              </div>
+            </Card>
+            <Card variant="glass" className="p-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                <CheckCircle className="text-emerald-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Success</p>
+                <p className="text-2xl font-bold text-emerald-500">{successCount}</p>
+              </div>
+            </Card>
+            <Card variant="glass" className="p-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
+                <XCircle className="text-red-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Failed</p>
+                <p className="text-2xl font-bold text-red-500">{errorCount}</p>
+              </div>
+            </Card>
+            <Card variant="glass" className="p-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                <Clock className="text-blue-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Pending</p>
+                <p className="text-2xl font-bold text-blue-500">{pendingCount}</p>
+              </div>
+            </Card>
+          </div>
 
-      {/* Data Table */}
-      {qrData.length > 0 && (
-        <Paper sx={{ mt: 3, borderRadius: 2 }}>
-          <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h6" fontWeight={600}>
-              QR Codes Preview
-            </Typography>
-            <IconButton onClick={clearAll} color="error">
-              <DeleteIcon />
-            </IconButton>
-          </Box>
-          
-          <TableContainer sx={{ maxHeight: 500 }}>
-            <Table stickyHeader>
-              <TableHead>
-                <TableRow>
-                  <TableCell width={60}>Status</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Content</TableCell>
-                  <TableCell>Type</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {qrData.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>
-                      {item.status === 'success' && <CheckCircleIcon color="success" />}
-                      {item.status === 'error' && <ErrorIcon color="error" />}
-                      {item.status === 'pending' && <Chip label="Pending" size="small" />}
-                      {item.status === 'processing' && <Chip label="..." size="small" color="primary" />}
-                    </TableCell>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell sx={{ maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {item.content}
-                    </TableCell>
-                    <TableCell>
-                      <Chip label={item.type} size="small" />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
+          {/* Preview Table */}
+          <Card variant="glass" className="overflow-hidden">
+            <div className="p-4 border-b border-white/10 flex items-center justify-between">
+              <h3 className="font-semibold flex items-center gap-2"><Settings size={16} /> Data Preview</h3>
+              <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300" onClick={clearAll}>
+                <Trash2 className="w-4 h-4 mr-2" /> Clear Table
+              </Button>
+            </div>
+
+            <div className="overflow-x-auto max-h-[500px]">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs uppercase bg-white/5 sticky top-0 backdrop-blur-md z-10">
+                  <tr>
+                    <th className="px-6 py-3">Status</th>
+                    <th className="px-6 py-3">Name</th>
+                    <th className="px-6 py-3">Content</th>
+                    <th className="px-6 py-3">Type</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {qrData.map((item) => (
+                    <tr key={item.id} className="hover:bg-white/5 transition-colors">
+                      <td className="px-6 py-3">
+                        {item.status === 'success' && <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">Success</Badge>}
+                        {item.status === 'error' && <Badge variant="destructive">Error</Badge>}
+                        {item.status === 'pending' && <Badge variant="outline" className="text-muted-foreground">Pending</Badge>}
+                        {item.status === 'processing' && <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20 animate-pulse">Processing</Badge>}
+                      </td>
+                      <td className="px-6 py-3 font-medium">{item.name}</td>
+                      <td className="px-6 py-3 text-muted-foreground max-w-xs truncate">{item.content}</td>
+                      <td className="px-6 py-3">
+                        <Badge variant="secondary" className="uppercase text-[10px]">{item.type}</Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
       )}
-    </Box>
+    </div>
   )
 }

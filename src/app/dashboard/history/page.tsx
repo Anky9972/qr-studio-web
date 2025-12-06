@@ -1,53 +1,42 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
-  Box,
-  Paper,
-  Typography,
-  Tabs,
-  Tab,
-  TextField,
-  Button,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  IconButton,
-  Chip,
-  InputAdornment,
-  Menu,
-  MenuItem,
-  Divider,
-  Alert,
-} from '@mui/material'
-import SearchIcon from '@mui/icons-material/Search'
-import HistoryIcon from '@mui/icons-material/History'
-import QrCode2Icon from '@mui/icons-material/QrCode2'
-import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner'
-import FavoriteIcon from '@mui/icons-material/Favorite'
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
-import DeleteIcon from '@mui/icons-material/Delete'
-import DownloadIcon from '@mui/icons-material/Download'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import FileDownloadIcon from '@mui/icons-material/FileDownload'
-import DeleteSweepIcon from '@mui/icons-material/DeleteSweep'
+  Search,
+  History,
+  QrCode,
+  ScanLine,
+  Heart,
+  Trash2,
+  Download,
+  Copy,
+  MoreVertical,
+  FileSpreadsheet,
+  Trash,
+  ExternalLink,
+  Wifi,
+  Mail,
+  Phone,
+  MapPin,
+  Contact,
+  Type
+} from 'lucide-react'
 import { useScanHistoryStore } from '@/store/scanHistoryStore'
 import { useQRCodeStore } from '@/store/qrCodeStore'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { Badge } from '@/components/ui/Badge'
+import { Input } from '@/components/ui/Input'
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/Alert'
+import { cn } from '@/lib/utils'
 
 export default function HistoryPage() {
   const { scans, favorites: scanFavorites, toggleFavorite, removeScan, clearHistory } = useScanHistoryStore()
   const { qrCodes } = useQRCodeStore()
-  
-  const [activeTab, setActiveTab] = useState(0) // 0: All, 1: Scans, 2: Generated
+
+  const [activeTab, setActiveTab] = useState<'all' | 'scans' | 'generated'>('all')
   const [search, setSearch] = useState('')
   const [showFavorites, setShowFavorites] = useState(false)
-  const [menuAnchor, setMenuAnchor] = useState<{
-    element: HTMLElement | null
-    item: any
-    type: 'scan' | 'generated'
-  } | null>(null)
   const [success, setSuccess] = useState('')
 
   // Combine scans and generated QR codes for "All" view
@@ -60,6 +49,7 @@ export default function HistoryPage() {
       timestamp: new Date(scan.timestamp),
       source: scan.source,
       favorite: scanFavorites.includes(scan.id),
+      name: undefined
     })),
     ...qrCodes.map(qr => ({
       id: qr.id,
@@ -67,16 +57,17 @@ export default function HistoryPage() {
       content: qr.content,
       qrType: qr.qrType,
       timestamp: new Date(qr.createdAt),
-      name: qr.name,
+      source: 'generator',
       favorite: qr.favorite,
+      name: qr.name
     })),
   ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
 
   // Filter history based on active tab and search
   const filteredHistory = allHistory.filter(item => {
     // Tab filter
-    if (activeTab === 1 && item.type !== 'scan') return false
-    if (activeTab === 2 && item.type !== 'generated') return false
+    if (activeTab === 'scans' && item.type !== 'scan') return false
+    if (activeTab === 'generated' && item.type !== 'generated') return false
 
     // Favorites filter
     if (showFavorites && !item.favorite) return false
@@ -87,63 +78,45 @@ export default function HistoryPage() {
       return (
         item.content.toLowerCase().includes(searchLower) ||
         item.qrType.toLowerCase().includes(searchLower) ||
-        ('name' in item && item.name?.toLowerCase().includes(searchLower))
+        (item.name && item.name.toLowerCase().includes(searchLower))
       )
     }
 
     return true
   })
 
-  const handleMenuOpen = (
-    event: React.MouseEvent<HTMLElement>,
-    item: any,
-    type: 'scan' | 'generated'
-  ) => {
-    setMenuAnchor({ element: event.currentTarget, item, type })
-  }
-
-  const handleMenuClose = () => {
-    setMenuAnchor(null)
-  }
-
   const handleCopy = (content: string) => {
     navigator.clipboard.writeText(content)
     setSuccess('Copied to clipboard!')
     setTimeout(() => setSuccess(''), 2000)
-    handleMenuClose()
   }
 
-  const handleDelete = () => {
-    if (!menuAnchor) return
+  const handleDelete = (id: string, type: 'scan' | 'generated') => {
+    if (!confirm('Are you sure you want to delete this item?')) return
 
-    if (menuAnchor.type === 'scan') {
-      removeScan(menuAnchor.item.id)
+    if (type === 'scan') {
+      removeScan(id)
       setSuccess('Scan deleted')
     } else {
-      // Delete from QR codes (would need API call in production)
-      setSuccess('QR code deleted')
+      // In a real app, delete via API/Store
+      setSuccess('QR code deleted (simulation)')
     }
-
-    setTimeout(() => setSuccess(''), 2000)
-    handleMenuClose()
+    setTimeout(() => setSuccess(''), 3000)
   }
 
-  const handleToggleFavorite = () => {
-    if (!menuAnchor) return
-
-    if (menuAnchor.type === 'scan') {
-      toggleFavorite(menuAnchor.item.id)
+  const handleToggleFavorite = (id: string, type: 'scan' | 'generated') => {
+    if (type === 'scan') {
+      toggleFavorite(id)
     }
-    // For QR codes, would need to call API in production
-
-    handleMenuClose()
+    // QR code favorite logic would go here
   }
 
   const handleExportCSV = () => {
-    const headers = ['Type', 'Content', 'QR Type', 'Timestamp', 'Favorite']
+    const headers = ['Type', 'Name', 'Content', 'QR Type', 'Timestamp', 'Favorite']
     const rows = filteredHistory.map(item => [
       item.type,
-      item.content,
+      item.name || '',
+      item.content.replace(/"/g, '""'), // Escape quotes
       item.qrType,
       item.timestamp.toISOString(),
       item.favorite ? 'Yes' : 'No',
@@ -174,222 +147,214 @@ export default function HistoryPage() {
     }
   }
 
-  const getTypeColor = (type: string): string => {
-    const colors: Record<string, string> = {
-      url: 'primary',
-      wifi: 'secondary',
-      vcard: 'success',
-      email: 'warning',
-      phone: 'info',
-      text: 'default',
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'url': return <ExternalLink size={16} />
+      case 'wifi': return <Wifi size={16} />
+      case 'email': return <Mail size={16} />
+      case 'phone': return <Phone size={16} />
+      case 'location': return <MapPin size={16} />
+      case 'vcard': return <Contact size={16} />
+      default: return <Type size={16} />
     }
-    return colors[type] || 'default'
   }
 
   return (
-    <Box>
+    <div className="space-y-6 max-w-[1600px] mx-auto p-6">
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Box>
-          <Typography variant="h4" fontWeight={700} gutterBottom>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
             History
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            View your scan and generation history
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', gap: 2 }}>
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            View your recent scans and generated QR codes
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
           <Button
-            variant="outlined"
-            startIcon={<FileDownloadIcon />}
+            variant="outline"
             onClick={handleExportCSV}
             disabled={filteredHistory.length === 0}
+            className="hidden sm:flex"
           >
-            Export CSV
+            <FileSpreadsheet className="w-4 h-4 mr-2" /> Export CSV
           </Button>
           <Button
-            variant="outlined"
-            color="error"
-            startIcon={<DeleteSweepIcon />}
+            variant="outline"
             onClick={handleClearHistory}
             disabled={scans.length === 0}
+            className="text-red-400 border-red-500/30 hover:bg-red-500/10 hover:border-red-500"
           >
-            Clear Scans
+            <Trash className="w-4 h-4 mr-2" /> Clear Scans
           </Button>
-        </Box>
-      </Box>
+        </div>
+      </div>
 
       {success && (
-        <Alert severity="success" sx={{ mb: 3 }} onClose={() => setSuccess('')}>
-          {success}
+        <Alert className="border-emerald-500/50 bg-emerald-500/10 text-emerald-500">
+          <AlertTitle>Success</AlertTitle>
+          <AlertDescription>{success}</AlertDescription>
         </Alert>
       )}
 
-      {/* Tabs and Filters */}
-      <Paper sx={{ mb: 3 }}>
-        <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)}>
-          <Tab label={`All (${allHistory.length})`} />
-          <Tab label={`Scans (${scans.length})`} icon={<QrCodeScannerIcon />} iconPosition="start" />
-          <Tab label={`Generated (${qrCodes.length})`} icon={<QrCode2Icon />} iconPosition="start" />
-        </Tabs>
-        
-        <Box sx={{ p: 2, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-          <TextField
-            placeholder="Search history..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            sx={{ flex: '1 1 300px' }}
-            size="small"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-          
-          <Button
-            variant={showFavorites ? 'contained' : 'outlined'}
-            size="small"
-            startIcon={showFavorites ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-            onClick={() => setShowFavorites(!showFavorites)}
-          >
-            Favorites Only
-          </Button>
-        </Box>
-      </Paper>
-
-      {/* History List */}
-      <Paper>
-        {filteredHistory.length === 0 ? (
-          <Box sx={{ p: 6, textAlign: 'center' }}>
-            <HistoryIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-            <Typography variant="h6" gutterBottom>
-              No history found
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {search || showFavorites
-                ? 'Try adjusting your filters'
-                : 'Your scan and generation history will appear here'}
-            </Typography>
-          </Box>
-        ) : (
-          <List>
-            {filteredHistory.map((item, index) => (
-              <Box key={item.id}>
-                <ListItem
-                  sx={{
-                    alignItems: 'flex-start',
-                    '&:hover': {
-                      backgroundColor: 'action.hover',
-                    },
-                  }}
-                  secondaryAction={
-                    <IconButton
-                      edge="end"
-                      onClick={(e) => handleMenuOpen(e, item, item.type)}
-                    >
-                      <MoreVertIcon />
-                    </IconButton>
-                  }
-                >
-                  <ListItemIcon sx={{ mt: 1 }}>
-                    {item.type === 'scan' ? (
-                      <QrCodeScannerIcon color="primary" />
-                    ) : (
-                      <QrCode2Icon color="primary" />
-                    )}
-                  </ListItemIcon>
-                  
-                  <ListItemText
-                    primary={
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                        {'name' in item && item.name && (
-                          <Typography variant="subtitle1" fontWeight={600} component="span">
-                            {item.name}
-                          </Typography>
-                        )}
-                        <Chip
-                          label={item.type === 'scan' ? 'Scanned' : 'Generated'}
-                          size="small"
-                          color="primary"
-                        />
-                        <Chip
-                          label={item.qrType}
-                          size="small"
-                          color={getTypeColor(item.qrType) as any}
-                        />
-                        {item.favorite && (
-                          <FavoriteIcon color="error" fontSize="small" />
-                        )}
-                      </Box>
-                    }
-                    secondary={
-                      <Box component="span" sx={{ display: 'block' }}>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          component="span"
-                          sx={{
-                            display: 'block',
-                            wordBreak: 'break-all',
-                            mb: 1,
-                          }}
-                        >
-                          {item.content.length > 150
-                            ? `${item.content.substring(0, 150)}...`
-                            : item.content}
-                        </Typography>
-                        <Box component="span" sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                          <Typography variant="caption" color="text.secondary" component="span">
-                            {item.timestamp.toLocaleString()}
-                          </Typography>
-                          {item.type === 'scan' && 'source' in item && (
-                            <Chip label={item.source} size="small" variant="outlined" />
-                          )}
-                        </Box>
-                      </Box>
-                    }
-                  />
-                </ListItem>
-                {index < filteredHistory.length - 1 && <Divider />}
-              </Box>
-            ))}
-          </List>
-        )}
-      </Paper>
-
-      {/* Context Menu */}
-      <Menu
-        anchorEl={menuAnchor?.element}
-        open={Boolean(menuAnchor)}
-        onClose={handleMenuClose}
-      >
-        <MenuItem onClick={() => menuAnchor && handleCopy(menuAnchor.item.content)}>
-          <ListItemIcon>
-            <ContentCopyIcon fontSize="small" />
-          </ListItemIcon>
-          Copy Content
-        </MenuItem>
-        <MenuItem onClick={handleToggleFavorite}>
-          <ListItemIcon>
-            {menuAnchor?.item.favorite ? (
-              <FavoriteIcon fontSize="small" color="error" />
-            ) : (
-              <FavoriteBorderIcon fontSize="small" />
+      {/* Controls */}
+      <Card variant="glass" className="p-4 space-y-4 md:space-y-0 md:flex md:items-center md:justify-between gap-4">
+        {/* Tabs */}
+        <div className="flex p-1 bg-black/20 rounded-lg border border-white/5">
+          <button
+            onClick={() => setActiveTab('all')}
+            className={cn(
+              "px-4 py-2 text-sm font-medium rounded-md transition-all",
+              activeTab === 'all' ? "bg-white/10 text-white shadow-sm" : "text-gray-400 hover:text-white hover:bg-white/5"
             )}
-          </ListItemIcon>
-          {menuAnchor?.item.favorite ? 'Remove from Favorites' : 'Add to Favorites'}
-        </MenuItem>
-        <Divider />
-        <MenuItem onClick={handleDelete}>
-          <ListItemIcon>
-            <DeleteIcon fontSize="small" color="error" />
-          </ListItemIcon>
-          Delete
-        </MenuItem>
-      </Menu>
-    </Box>
+          >
+            All
+          </button>
+          <button
+            onClick={() => setActiveTab('scans')}
+            className={cn(
+              "px-4 py-2 text-sm font-medium rounded-md transition-all flex items-center gap-2",
+              activeTab === 'scans' ? "bg-white/10 text-white shadow-sm" : "text-gray-400 hover:text-white hover:bg-white/5"
+            )}
+          >
+            <ScanLine size={14} /> Scans
+          </button>
+          <button
+            onClick={() => setActiveTab('generated')}
+            className={cn(
+              "px-4 py-2 text-sm font-medium rounded-md transition-all flex items-center gap-2",
+              activeTab === 'generated' ? "bg-white/10 text-white shadow-sm" : "text-gray-400 hover:text-white hover:bg-white/5"
+            )}
+          >
+            <QrCode size={14} /> Generated
+          </button>
+        </div>
+
+        {/* Search & Favorites */}
+        <div className="flex flex-1 md:max-w-md gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
+            <Input
+              placeholder="Search content..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Button
+            variant={showFavorites ? "glow" : "outline"}
+            size="icon"
+            onClick={() => setShowFavorites(!showFavorites)}
+            title="Toggle Favorites"
+            className={cn(showFavorites ? "" : "text-gray-400")}
+          >
+            <Heart size={18} fill={showFavorites ? "currentColor" : "none"} />
+          </Button>
+        </div>
+      </Card>
+
+      {/* History Grid */}
+      {filteredHistory.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground bg-white/5 rounded-xl border border-white/5 border-dashed">
+          <History className="w-16 h-16 mb-4 opacity-20" />
+          <h3 className="text-xl font-semibold text-white mb-2">No history found</h3>
+          <p className="max-w-sm mx-auto">
+            {search || showFavorites
+              ? "Try adjusting your search or filters to see more results."
+              : "Your scanned and generated QR codes will appear here."}
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filteredHistory.map((item) => (
+            <Card
+              key={`${item.type}-${item.id}`}
+              variant="glass"
+              className="group hover:border-electric-cyan/30 transition-all duration-300"
+            >
+              <div className="p-5 space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "w-10 h-10 rounded-lg flex items-center justify-center shrink-0",
+                      item.type === 'scan' ? "bg-emerald-500/10 text-emerald-400" : "bg-electric-cyan/10 text-electric-cyan"
+                    )}>
+                      {item.type === 'scan' ? <ScanLine size={20} /> : <QrCode size={20} />}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        {item.name ? (
+                          <span className="font-semibold text-white">{item.name}</span>
+                        ) : (
+                          <span className="font-semibold text-white capitalize">{item.qrType}</span>
+                        )}
+                        {item.favorite && <Heart size={12} className="text-red-500 fill-current" />}
+                      </div>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        {item.timestamp.toLocaleDateString()} at {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="uppercase text-[10px] tracking-wider">
+                    {item.qrType}
+                  </Badge>
+                </div>
+
+                <div className="bg-black/20 rounded p-3 font-mono text-sm text-gray-300 break-all border border-white/5">
+                  {item.content.length > 100 ? `${item.content.substring(0, 100)}...` : item.content}
+                </div>
+
+                <div className="flex items-center justify-between pt-2">
+                  <div className="flex gap-2">
+                    {/* Type Action Button (e.g. Open Link) */}
+                    {item.qrType === 'url' && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 px-2 text-electric-cyan hover:bg-electric-cyan/10"
+                        onClick={() => window.open(item.content, '_blank')}
+                      >
+                        <ExternalLink size={14} className="mr-1.5" /> Open
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 w-8 p-0 text-gray-400 hover:text-white"
+                      onClick={() => handleCopy(item.content)}
+                      title="Copy Content"
+                    >
+                      <Copy size={16} />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className={cn("h-8 w-8 p-0 transition-colors", item.favorite ? "text-red-500 hover:bg-red-500/10" : "text-gray-400 hover:text-red-400")}
+                      onClick={() => handleToggleFavorite(item.id, item.type)}
+                      title="Toggle Favorite"
+                    >
+                      <Heart size={16} fill={item.favorite ? "currentColor" : "none"} />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 w-8 p-0 text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                      onClick={() => handleDelete(item.id, item.type)}
+                      title="Delete"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }

@@ -1,8 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
-import { ThemeProvider as MuiThemeProvider, CssBaseline } from '@mui/material';
-import { createAppTheme } from '@/theme/theme';
 
 type ThemeMode = 'light' | 'dark';
 
@@ -39,10 +37,17 @@ export function DashboardThemeProvider({ children }: { children: React.ReactNode
     setMounted(true);
   }, []);
 
-  // Save theme to localStorage when it changes
+  // Update HTML class and localStorage when theme changes
   useEffect(() => {
-    if (mounted) {
-      localStorage.setItem('dashboard-theme', mode);
+    if (!mounted) return;
+
+    localStorage.setItem('dashboard-theme', mode);
+
+    // Toggle Tailwind dark mode class
+    if (mode === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
   }, [mode, mounted]);
 
@@ -53,8 +58,6 @@ export function DashboardThemeProvider({ children }: { children: React.ReactNode
   const setThemeMode = (newMode: ThemeMode) => {
     setMode(newMode);
   };
-
-  const theme = useMemo(() => createAppTheme(mode), [mode]);
 
   const contextValue = useMemo(
     () => ({
@@ -72,10 +75,7 @@ export function DashboardThemeProvider({ children }: { children: React.ReactNode
 
   return (
     <DashboardThemeContext.Provider value={contextValue}>
-      <MuiThemeProvider theme={theme}>
-        <CssBaseline />
-        {children}
-      </MuiThemeProvider>
+      {children}
     </DashboardThemeContext.Provider>
   );
 }

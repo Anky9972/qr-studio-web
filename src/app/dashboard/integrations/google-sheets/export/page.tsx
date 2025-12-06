@@ -1,33 +1,26 @@
-/**
- * Google Sheets Export Component
- * Export QR codes or analytics to Google Sheets
- */
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  Radio,
-  RadioGroup,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  Alert,
-  CircularProgress,
-  TextField,
-  Checkbox,
-  FormGroup,
-  List,
-  ListItem,
-  ListItemText,
-  Divider,
-} from '@mui/material';
-import { FileDownload as ExportIcon } from '@mui/icons-material';
+  FileSpreadsheet,
+  Download,
+  CheckCircle,
+  AlertCircle,
+  QrCode,
+  BarChart2,
+  CheckSquare,
+  Square,
+  ArrowRight,
+  Filter
+} from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { Alert, AlertDescription } from '@/components/ui/Alert';
+import { cn } from '@/lib/utils'; // Assuming this utility exists, otherwise standard string interpolation
+import { Badge } from '@/components/ui/Badge';
 
 interface QRCode {
   id: string;
@@ -42,7 +35,7 @@ export default function GoogleSheetsExport() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [exportUrl, setExportUrl] = useState('');
-  
+
   const [sheetName, setSheetName] = useState('');
   const [qrCodes, setQrCodes] = useState<QRCode[]>([]);
   const [selectedQrCodes, setSelectedQrCodes] = useState<string[]>([]);
@@ -87,9 +80,7 @@ export default function GoogleSheetsExport() {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to export to Google Sheets');
-      }
+      if (!response.ok) throw new Error(data.error || 'Failed to export to Google Sheets');
 
       setSuccess(`Successfully exported ${data.exported} items!`);
       setExportUrl(data.url);
@@ -102,131 +93,150 @@ export default function GoogleSheetsExport() {
 
   const handleSelectAllChange = (checked: boolean) => {
     setSelectAll(checked);
-    if (checked) {
-      setSelectedQrCodes([]);
-    }
+    if (checked) setSelectedQrCodes([]);
   };
 
-  const handleQrCodeToggle = (id: string) => {
+  const handleQrCodeToggle = (id: string, checked: boolean) => {
     setSelectAll(false);
-    setSelectedQrCodes((prev) =>
-      prev.includes(id) ? prev.filter((qrId) => qrId !== id) : [...prev, id]
-    );
+    setSelectedQrCodes((prev) => checked ? [...prev, id] : prev.filter((qrId) => qrId !== id));
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Export to Google Sheets
-      </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-        Export your QR codes or analytics data to Google Sheets
-      </Typography>
+    <div className="max-w-4xl mx-auto p-6 space-y-8">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center border border-green-500/20">
+          <FileSpreadsheet className="text-green-500" size={24} />
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold">Export to Sheets</h1>
+          <p className="text-muted-foreground">Send your QR data directly to Google Spreadsheets.</p>
+        </div>
+      </div>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
-          {error}
-        </Alert>
-      )}
+      <Card variant="glass" className="p-8">
+        {/* Success/Error Messages */}
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle size={16} />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
-      {success && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          {success}
-          {exportUrl && (
-            <Box sx={{ mt: 1 }}>
-              <Button
-                variant="outlined"
-                size="small"
-                href={exportUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Open Spreadsheet
+        {success && (
+          <div className="mb-8 p-4 bg-green-500/10 border border-green-500/20 rounded-lg flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <CheckCircle className="text-green-500" size={20} />
+              <div>
+                <p className="font-medium text-white">{success}</p>
+                <p className="text-xs text-green-400">Data has been pushed to your Google Sheet.</p>
+              </div>
+            </div>
+            {exportUrl && (
+              <Button variant="outline" size="sm" onClick={() => window.open(exportUrl, '_blank')}>
+                Open Sheet
               </Button>
-            </Box>
-          )}
-        </Alert>
-      )}
+            )}
+          </div>
+        )}
 
-      <Card>
-        <CardContent>
-          <FormControl component="fieldset" sx={{ mb: 3 }}>
-            <FormLabel component="legend">What do you want to export?</FormLabel>
-            <RadioGroup
-              value={exportType}
-              onChange={(e) => setExportType(e.target.value as 'qr-codes' | 'analytics')}
+        {/* Step 1: Export Type */}
+        <div className="space-y-4 mb-8">
+          <Label className="text-base">What would you like to export?</Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div
+              onClick={() => setExportType('qr-codes')}
+              className={cn(
+                "p-4 rounded-xl border cursor-pointer transition-all flex items-center gap-4",
+                exportType === 'qr-codes' ? "bg-primary/20 border-primary shadow-lg shadow-primary/10" : "bg-white/5 border-white/10 hover:bg-white/10"
+              )}
             >
-              <FormControlLabel value="qr-codes" control={<Radio />} label="QR Codes" />
-              <FormControlLabel value="analytics" control={<Radio />} label="Analytics/Scans" />
-            </RadioGroup>
-          </FormControl>
+              <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", exportType === 'qr-codes' ? "bg-primary text-white" : "bg-white/10 text-muted-foreground")}>
+                <QrCode size={20} />
+              </div>
+              <div>
+                <h3 className="font-medium">QR Codes Data</h3>
+                <p className="text-xs text-muted-foreground">Export links, types, and customization details.</p>
+              </div>
+              {exportType === 'qr-codes' && <CheckCircle className="text-primary ml-auto" size={18} />}
+            </div>
 
-          <TextField
-            fullWidth
-            label="Sheet Name (optional)"
-            placeholder={exportType === 'qr-codes' ? 'QR Codes' : 'Analytics'}
-            value={sheetName}
-            onChange={(e) => setSheetName(e.target.value)}
-            sx={{ mb: 3 }}
-          />
+            <div
+              onClick={() => setExportType('analytics')}
+              className={cn(
+                "p-4 rounded-xl border cursor-pointer transition-all flex items-center gap-4",
+                exportType === 'analytics' ? "bg-primary/20 border-primary shadow-lg shadow-primary/10" : "bg-white/5 border-white/10 hover:bg-white/10"
+              )}
+            >
+              <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", exportType === 'analytics' ? "bg-primary text-white" : "bg-white/10 text-muted-foreground")}>
+                <BarChart2 size={20} />
+              </div>
+              <div>
+                <h3 className="font-medium">Analytics & Scans</h3>
+                <p className="text-xs text-muted-foreground">Export detailed scan logs and device data.</p>
+              </div>
+              {exportType === 'analytics' && <CheckCircle className="text-primary ml-auto" size={18} />}
+            </div>
+          </div>
+        </div>
 
+        {/* Step 2: Details */}
+        <div className="space-y-6 mb-8">
+          <div className="space-y-2">
+            <Label>Sheet Name (Optional)</Label>
+            <Input
+              placeholder={exportType === 'qr-codes' ? 'My QR Codes' : 'Scan Analytics'}
+              value={sheetName}
+              onChange={(e) => setSheetName(e.target.value)}
+            />
+          </div>
+
+          {/* QR Selection */}
           {exportType === 'qr-codes' && qrCodes.length > 0 && (
-            <Box sx={{ mb: 3 }}>
-              <FormControl component="fieldset">
-                <FormLabel component="legend">Select QR Codes</FormLabel>
-                <FormGroup>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={selectAll}
-                        onChange={(e) => handleSelectAllChange(e.target.checked)}
-                      />
-                    }
-                    label="Export All QR Codes"
-                  />
-                </FormGroup>
-              </FormControl>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label>Select QR Codes</Label>
+                <div className="flex items-center gap-2">
+                  <Checkbox id="select-all" checked={selectAll} onCheckedChange={handleSelectAllChange} />
+                  <Label htmlFor="select-all" className="text-sm cursor-pointer">Export All ({qrCodes.length})</Label>
+                </div>
+              </div>
 
               {!selectAll && (
-                <Box sx={{ maxHeight: 300, overflow: 'auto', border: '1px solid #e0e0e0', mt: 2 }}>
-                  <List dense>
-                    {qrCodes.map((qr, idx) => (
-                      <React.Fragment key={qr.id}>
-                        {idx > 0 && <Divider />}
-                        <ListItem>
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                checked={selectedQrCodes.includes(qr.id)}
-                                onChange={() => handleQrCodeToggle(qr.id)}
-                              />
-                            }
-                            label={
-                              <ListItemText
-                                primary={qr.name || 'Unnamed'}
-                                secondary={`Type: ${qr.type} | Scans: ${qr.scanCount}`}
-                              />
-                            }
-                          />
-                        </ListItem>
-                      </React.Fragment>
-                    ))}
-                  </List>
-                </Box>
+                <div className="max-h-60 overflow-y-auto border border-white/10 rounded-lg bg-black/20 p-2 space-y-1">
+                  {qrCodes.map((qr) => (
+                    <div key={qr.id} className="flex items-center gap-3 p-2 rounded hover:bg-white/5 transition-colors">
+                      <Checkbox
+                        id={`qr-${qr.id}`}
+                        checked={selectedQrCodes.includes(qr.id)}
+                        onCheckedChange={(c) => handleQrCodeToggle(qr.id, !!c)}
+                      />
+                      <Label htmlFor={`qr-${qr.id}`} className="flex-1 cursor-pointer flex justify-between">
+                        <span className="truncate max-w-[200px]">{qr.name || 'Unnamed QR'}</span>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Badge variant="outline" className="text-[10px] h-5">{qr.type}</Badge>
+                          <span>{qr.scanCount} scans</span>
+                        </div>
+                      </Label>
+                    </div>
+                  ))}
+                </div>
               )}
-            </Box>
+            </div>
           )}
+        </div>
 
-          <Button
-            variant="contained"
-            startIcon={<ExportIcon />}
-            onClick={handleExport}
-            disabled={loading || (!selectAll && selectedQrCodes.length === 0 && exportType === 'qr-codes')}
-          >
-            {loading ? <CircularProgress size={24} /> : 'Export to Google Sheets'}
-          </Button>
-        </CardContent>
+        {/* Action */}
+        <Button
+          variant="glow"
+          size="lg"
+          className="w-full"
+          onClick={handleExport}
+          disabled={loading || (exportType === 'qr-codes' && !selectAll && selectedQrCodes.length === 0)}
+        >
+          {loading ? "Exporting..." : "Start Export"} <ArrowRight size={16} className="ml-2" />
+        </Button>
       </Card>
-    </Box>
+    </div>
   );
 }

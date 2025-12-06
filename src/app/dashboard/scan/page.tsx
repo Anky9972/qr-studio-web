@@ -2,44 +2,40 @@
 
 import { useState, useRef, useEffect } from 'react'
 import {
-  Box,
-  Paper,
-  Typography,
-  Button,
-  Tabs,
-  Tab,
-  Alert,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  IconButton,
-  Chip,
-  CircularProgress,
-  Switch,
-  FormControlLabel,
-} from '@mui/material'
-import CameraAltIcon from '@mui/icons-material/CameraAlt'
-import UploadFileIcon from '@mui/icons-material/UploadFile'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import OpenInNewIcon from '@mui/icons-material/OpenInNew'
-import DeleteIcon from '@mui/icons-material/Delete'
-import FavoriteIcon from '@mui/icons-material/Favorite'
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
+  Camera,
+  Upload,
+  Copy,
+  ExternalLink,
+  Trash2,
+  Heart,
+  Maximize2,
+  X,
+  RefreshCw,
+  Image as ImageIcon,
+  CheckCircle2,
+  AlertTriangle
+} from 'lucide-react'
 import jsQR from 'jsqr'
 import { BrowserMultiFormatReader, DecodeHintType, BarcodeFormat } from '@zxing/library'
 import { useScanHistoryStore, ScanResult } from '@/store/scanHistoryStore'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { Badge } from '@/components/ui/Badge'
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/Alert'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
 
 export default function ScanPage() {
   const { addScan, scans, favorites, toggleFavorite, removeScan } = useScanHistoryStore()
-  
-  const [activeTab, setActiveTab] = useState(0)
+
+  const [activeTab, setActiveTab] = useState<'camera' | 'upload'>('camera')
   const [scanning, setScanning] = useState(false)
   const [lastScan, setLastScan] = useState<ScanResult | null>(null)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [barcodeMode, setBarcodeMode] = useState(false) // QR mode vs Barcode mode
-  
+
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -62,7 +58,7 @@ export default function ScanPage() {
       BarcodeFormat.CODABAR,
     ])
     barcodeReaderRef.current = new BrowserMultiFormatReader(hints)
-    
+
     return () => {
       stopCamera()
     }
@@ -74,12 +70,12 @@ export default function ScanPage() {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' },
       })
-      
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream
         streamRef.current = stream
         setScanning(true)
-        
+
         if (barcodeMode) {
           // Use ZXing for barcode scanning
           scanWithZXing()
@@ -102,11 +98,11 @@ export default function ScanPage() {
         undefined,
         videoRef.current
       )
-      
+
       if (result) {
         const format = result.getBarcodeFormat()
         const formatName = BarcodeFormat[format]
-        
+
         handleScanResult(
           result.getText(),
           'camera',
@@ -189,7 +185,7 @@ export default function ScanPage() {
         : 'QR code scanned successfully!'
     )
     setTimeout(() => setSuccess(''), 3000)
-    
+
     if (source === 'camera') {
       stopCamera()
     }
@@ -213,7 +209,7 @@ export default function ScanPage() {
 
           if (ctx) {
             ctx.drawImage(image, 0, 0)
-            
+
             if (barcodeMode) {
               // Try ZXing first for barcodes
               try {
@@ -221,7 +217,7 @@ export default function ScanPage() {
                   const result = await barcodeReaderRef.current.decodeFromImageElement(image)
                   const format = result.getBarcodeFormat()
                   const formatName = BarcodeFormat[format]
-                  
+
                   handleScanResult(
                     result.getText(),
                     'upload',
@@ -234,7 +230,7 @@ export default function ScanPage() {
                 // Fall through to try jsQR
               }
             }
-            
+
             // Try jsQR for QR codes
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
             const code = jsQR(imageData.data, imageData.width, imageData.height)
@@ -285,278 +281,283 @@ export default function ScanPage() {
   }
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Box>
-          <Typography variant="h4" fontWeight={700} gutterBottom>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
             {barcodeMode ? 'Scan Barcode' : 'Scan QR Code'}
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {barcodeMode 
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            {barcodeMode
               ? 'Scan UPC, EAN-13, Code128, and other barcode formats'
               : 'Use your camera or upload an image to scan QR codes'
             }
-          </Typography>
-        </Box>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={barcodeMode}
-              onChange={(e) => {
-                setBarcodeMode(e.target.checked)
-                if (scanning) {
-                  stopCamera()
-                }
-              }}
-            />
-          }
-          label="Barcode Mode"
-        />
-      </Box>
+          </p>
+        </div>
+        <div className="flex items-center gap-3 bg-white/5 p-2 rounded-xl border border-white/10">
+          <Label htmlFor="mode-switch" className="text-sm font-medium cursor-pointer">Barcode Mode</Label>
+          <Switch
+            id="mode-switch"
+            checked={barcodeMode}
+            onCheckedChange={(checked) => {
+              setBarcodeMode(checked)
+              if (scanning) {
+                stopCamera()
+              }
+            }}
+          />
+        </div>
+      </div>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError('')}>
-          {error}
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       {success && (
-        <Alert severity="success" sx={{ mb: 3 }} onClose={() => setSuccess('')}>
-          {success}
+        <Alert variant="default" className="border-emerald-500/50 bg-emerald-500/10 text-emerald-500">
+          <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+          <AlertTitle>Success</AlertTitle>
+          <AlertDescription>{success}</AlertDescription>
         </Alert>
       )}
 
-      <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* Scanner Panel */}
-        <Box sx={{ flex: '1 1 60%', minWidth: 300 }}>
-          <Paper sx={{ p: 3, borderRadius: 2 }}>
-            <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} sx={{ mb: 3 }}>
-              <Tab label="Camera" icon={<CameraAltIcon />} iconPosition="start" />
-              <Tab label="Upload" icon={<UploadFileIcon />} iconPosition="start" />
-            </Tabs>
+        <div className="flex-1 min-w-0">
+          <Card variant="glass" className="h-full flex flex-col overflow-hidden">
+            {/* Custom Tabs */}
+            <div className="flex border-b border-white/10">
+              <button
+                onClick={() => setActiveTab('camera')}
+                className={cn(
+                  "flex-1 py-4 px-6 text-sm font-medium transition-all flex items-center justify-center gap-2",
+                  activeTab === 'camera'
+                    ? "bg-white/5 text-electric-cyan border-b-2 border-electric-cyan"
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                )}
+              >
+                <Camera className="w-4 h-4" /> Camera
+              </button>
+              <button
+                onClick={() => setActiveTab('upload')}
+                className={cn(
+                  "flex-1 py-4 px-6 text-sm font-medium transition-all flex items-center justify-center gap-2",
+                  activeTab === 'upload'
+                    ? "bg-white/5 text-electric-cyan border-b-2 border-electric-cyan"
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                )}
+              >
+                <Upload className="w-4 h-4" /> Upload Image
+              </button>
+            </div>
 
-            {/* Camera Tab */}
-            {activeTab === 0 && (
-              <Box>
-                <Box
-                  sx={{
-                    position: 'relative',
-                    backgroundColor: 'background.default',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                    minHeight: 400,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  {!scanning && (
-                    <Box sx={{ textAlign: 'center', p: 4 }}>
-                      <CameraAltIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-                      <Typography variant="body1" color="text.secondary" gutterBottom>
-                        Click the button below to start scanning
-                      </Typography>
-                    </Box>
-                  )}
-                  
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                    style={{
-                      width: '100%',
-                      height: 'auto',
-                      display: scanning ? 'block' : 'none',
-                    }}
-                  />
-                  <canvas ref={canvasRef} style={{ display: 'none' }} />
-                </Box>
+            <div className="p-6 flex-1 flex flex-col">
+              {/* Camera Tab */}
+              {activeTab === 'camera' && (
+                <div className="flex-1 flex flex-col gap-4">
+                  <div className="relative flex-1 bg-black rounded-lg overflow-hidden min-h-[400px] flex items-center justify-center border border-white/10 group">
+                    {!scanning && (
+                      <div className="text-center p-8 space-y-4">
+                        <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10 shadow-[0_0_30px_rgba(6,182,212,0.1)] group-hover:shadow-[0_0_50px_rgba(6,182,212,0.3)] transition-all">
+                          <Camera className="w-10 h-10 text-gray-400 group-hover:text-electric-cyan transition-colors" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-white mb-2">Camera Access Required</h3>
+                          <p className="text-gray-400 max-w-xs mx-auto text-sm">
+                            Click the button below to start your camera and scan a QR code.
+                          </p>
+                        </div>
+                      </div>
+                    )}
 
-                <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
-                  {!scanning ? (
-                    <Button
-                      variant="contained"
-                      size="large"
-                      fullWidth
-                      startIcon={<CameraAltIcon />}
-                      onClick={startCamera}
-                    >
-                      Start Camera
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="outlined"
-                      size="large"
-                      fullWidth
-                      onClick={stopCamera}
-                    >
-                      Stop Camera
-                    </Button>
-                  )}
-                </Box>
-              </Box>
-            )}
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                      className={cn(
+                        "w-full h-full object-cover absolute inset-0",
+                        scanning ? "opacity-100" : "opacity-0"
+                      )}
+                    />
 
-            {/* Upload Tab */}
-            {activeTab === 1 && (
-              <Box>
-                <Box
-                  sx={{
-                    border: 2,
-                    borderColor: 'divider',
-                    borderStyle: 'dashed',
-                    borderRadius: 2,
-                    p: 6,
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    '&:hover': {
-                      borderColor: 'primary.main',
-                      backgroundColor: 'action.hover',
-                    },
-                  }}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <UploadFileIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-                  <Typography variant="h6" gutterBottom>
-                    Upload QR Code Image
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Click to browse or drag and drop
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                    Supports: JPG, PNG, WEBP
-                  </Typography>
-                </Box>
+                    {scanning && (
+                      <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute inset-0 border-[40px] border-black/50"></div>
+                        <div className="absolute inset-[40px] border-2 border-electric-cyan/50 shadow-[0_0_20px_rgba(6,182,212,0.5)]">
+                          <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-electric-cyan -mt-1 -ml-1"></div>
+                          <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-electric-cyan -mt-1 -mr-1"></div>
+                          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-electric-cyan -mb-1 -ml-1"></div>
+                          <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-electric-cyan -mb-1 -mr-1"></div>
+                          <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-electric-cyan/80 animate-scan"></div>
+                        </div>
+                      </div>
+                    )}
 
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  style={{ display: 'none' }}
-                />
-              </Box>
-            )}
+                    <canvas ref={canvasRef} className="hidden" />
+                  </div>
 
-            {/* Last Scan Result */}
-            {lastScan && (
-              <Paper sx={{ mt: 3, p: 2, backgroundColor: 'success.light', color: 'success.contrastText' }}>
-                <Typography variant="subtitle2" gutterBottom>
-                  Last Scanned:
-                </Typography>
-                <Typography variant="body2" sx={{ wordBreak: 'break-all', mb: 2 }}>
-                  {lastScan.content}
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button
-                    size="small"
-                    variant="contained"
-                    onClick={() => handleCopy(lastScan.content)}
-                    startIcon={<ContentCopyIcon />}
+                  <div className="flex gap-4">
+                    {!scanning ? (
+                      <Button
+                        variant="glow"
+                        size="lg"
+                        onClick={startCamera}
+                        className="w-full"
+                      >
+                        <Camera className="w-5 h-5 mr-2" /> Start Camera
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        onClick={stopCamera}
+                        className="w-full border-red-500/50 text-red-500 hover:bg-red-500/10 hover:border-red-500 hover:text-red-400"
+                      >
+                        <X className="w-5 h-5 mr-2" /> Stop Camera
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Upload Tab */}
+              {activeTab === 'upload' && (
+                <div className="flex-1 flex flex-col justify-center">
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex-1 min-h-[300px] border-2 border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center p-8 hover:border-electric-cyan/50 hover:bg-white/5 transition-all cursor-pointer group"
                   >
-                    Copy
-                  </Button>
-                  {lastScan.type === 'url' && (
-                    <Button
-                      size="small"
-                      variant="contained"
-                      onClick={() => handleOpen(lastScan.content)}
-                      startIcon={<OpenInNewIcon />}
-                    >
-                      Open
+                    <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                      <ImageIcon className="w-10 h-10 text-gray-400 group-hover:text-electric-cyan transition-colors" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-2">Upload QR Image</h3>
+                    <p className="text-muted-foreground text-center max-w-sm mb-4">
+                      Drag and drop your image here, or click to browse files.
+                      Supports JPG, PNG, WEBP.
+                    </p>
+                    <Button variant="outline" className="pointer-events-none">
+                      Select File
                     </Button>
-                  )}
-                </Box>
-              </Paper>
-            )}
-          </Paper>
-        </Box>
+                  </div>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                </div>
+              )}
+
+              {/* Last Scan Result */}
+              {lastScan && (
+                <div className="mt-6 pt-6 border-t border-white/10 animate-in slide-in-from-bottom-5 fade-in">
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Last Scanned Result</h3>
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-1 overflow-hidden">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-emerald-400 border-emerald-500/30">{lastScan.type.toUpperCase()}</Badge>
+                          <span className="text-xs text-emerald-500/70">{new Date(lastScan.timestamp).toLocaleTimeString()}</span>
+                        </div>
+                        <p className="font-mono text-sm text-emerald-100 break-all">{lastScan.content}</p>
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <Button size="sm" variant="outline" onClick={() => handleCopy(lastScan.content)} className="h-8 w-8 p-0 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20">
+                          <Copy className="w-4 h-4" />
+                        </Button>
+                        {lastScan.type === 'url' && (
+                          <Button size="sm" variant="outline" onClick={() => handleOpen(lastScan.content)} className="h-8 w-8 p-0 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20">
+                            <ExternalLink className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Card>
+        </div>
 
         {/* History Panel */}
-        <Box sx={{ flex: '1 1 35%', minWidth: 300 }}>
-          <Paper sx={{ p: 3, maxHeight: 600, overflow: 'auto' }}>
-            <Typography variant="h6" fontWeight={600} gutterBottom>
-              Scan History ({scans.length})
-            </Typography>
+        <div className="w-full lg:w-[400px]">
+          <Card variant="glass" className="h-[calc(100vh-200px)] min-h-[500px] flex flex-col">
+            <div className="p-6 border-b border-white/10 flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold">Recent Scans</h2>
+                <p className="text-sm text-muted-foreground">Your recent activity</p>
+              </div>
+              <Badge variant="outline">{scans.length}</Badge>
+            </div>
 
-            {scans.length === 0 ? (
-              <Box sx={{ textAlign: 'center', py: 4 }}>
-                <Typography variant="body2" color="text.secondary">
-                  No scans yet. Start scanning to see history.
-                </Typography>
-              </Box>
-            ) : (
-              <List>
-                {scans.map((scan) => (
-                  <ListItem
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {scans.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-muted-foreground">
+                  <RefreshCw className="w-12 h-12 mb-4 opacity-20" />
+                  <p>No scans yet.</p>
+                  <p className="text-sm">Start scanning to build your history.</p>
+                </div>
+              ) : (
+                scans.map((scan) => (
+                  <div
                     key={scan.id}
-                    sx={{
-                      border: 1,
-                      borderColor: 'divider',
-                      borderRadius: 1,
-                      mb: 1,
-                      flexDirection: 'column',
-                      alignItems: 'flex-start',
-                    }}
-                    secondaryAction={
-                      <Box>
-                        <IconButton
-                          size="small"
-                          onClick={() => toggleFavorite(scan.id)}
-                        >
-                          {favorites.includes(scan.id) ? (
-                            <FavoriteIcon color="error" />
-                          ) : (
-                            <FavoriteBorderIcon />
-                          )}
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          onClick={() => removeScan(scan.id)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Box>
-                    }
+                    className="group bg-white/5 hover:bg-white/10 border border-white/5 hover:border-electric-cyan/30 rounded-lg p-3 transition-all duration-200"
                   >
-                    <Box sx={{ width: '100%', pr: 8 }}>
-                      <Box sx={{ display: 'flex', gap: 1, mb: 1, flexWrap: 'wrap' }}>
-                        <Chip label={scan.type} size="small" color="primary" />
-                        <Chip label={scan.source} size="small" />
-                        {scan.barcodeType && (
-                          <Chip 
-                            label={scan.barcodeType} 
-                            size="small" 
-                            color="primary"
-                            variant="outlined"
-                          />
-                        )}
-                      </Box>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          wordBreak: 'break-all',
-                          mb: 1,
-                          cursor: 'pointer',
-                        }}
-                        onClick={() => handleCopy(scan.content)}
-                      >
-                        {scan.content.length > 100
-                          ? `${scan.content.substring(0, 100)}...`
-                          : scan.content}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {new Date(scan.timestamp).toLocaleString()}
-                      </Typography>
-                    </Box>
-                  </ListItem>
-                ))}
-              </List>
-            )}
-          </Paper>
-        </Box>
-      </Box>
-    </Box>
+                    <div className="flex items-start gap-3">
+                      <div className={cn(
+                        "w-10 h-10 rounded-lg flex items-center justify-center shrink-0",
+                        scan.type === 'url' ? 'bg-blue-500/20 text-blue-400' :
+                          scan.type === 'wifi' ? 'bg-purple-500/20 text-purple-400' :
+                            'bg-gray-500/20 text-gray-400'
+                      )}>
+                        {scan.type === 'url' ? <ExternalLink size={18} /> :
+                          scan.type === 'wifi' ? <Maximize2 size={18} /> :
+                            <Copy size={18} />}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs font-semibold text-muted-foreground uppercase">{scan.type}</span>
+                          <span className="text-[10px] text-gray-500">{new Date(scan.timestamp).toLocaleDateString()}</span>
+                        </div>
+                        <p
+                          onClick={() => handleCopy(scan.content)}
+                          className="text-sm font-medium text-white truncate cursor-pointer hover:text-electric-cyan transition-colors"
+                        >
+                          {scan.content}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => toggleFavorite(scan.id)}
+                          className={cn("p-1.5 rounded hover:bg-white/10 transition-colors", favorites.includes(scan.id) ? "text-red-500" : "text-gray-400")}
+                        >
+                          <Heart size={14} fill={favorites.includes(scan.id) ? "currentColor" : "none"} />
+                        </button>
+                        <button
+                          onClick={() => removeScan(scan.id)}
+                          className="p-1.5 rounded hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition-colors"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </Card>
+        </div>
+      </div>
+    </div>
   )
 }

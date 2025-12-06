@@ -1,154 +1,161 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'; // Removed MUI imports
 import {
-  Box,
-  Tabs,
-  Tab,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Avatar,
-  Switch,
-  FormControlLabel,
-  Card,
-  CardContent,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
-  Tooltip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Alert,
-  AlertTitle,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
-  Chip,
-} from '@mui/material'
-import DeleteIcon from '@mui/icons-material/Delete'
-import KeyIcon from '@mui/icons-material/Key'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import WarningIcon from '@mui/icons-material/Warning'
-import { usePreferencesStore } from '@/store/preferencesStore'
+  User,
+  Lock,
+  Key,
+  Webhook,
+  Settings as SettingsIcon,
+  CreditCard,
+  Upload,
+  Save,
+  Trash2,
+  Copy,
+  Plus,
+  AlertTriangle,
+  CheckCircle,
+  Activity,
+  History,
+  Bell
+} from 'lucide-react';
+import { usePreferencesStore } from '@/store/preferencesStore';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/Dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
+import { cn } from '@/lib/utils';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/Alert';
 
-function a11yProps(index: number) {
-  return {
-    id: `settings-tab-${index}`,
-    'aria-controls': `settings-tabpanel-${index}`,
-  }
-}
+// Mock Alert component if not exists, or just use div. 
+// I'll create a simple inline Alert for now since I don't have proper Alert component in ui folder yet (only reviewed basics).
+// Actually, I'll allow the import but if it fails I'll fallback to div in my mind, but for code I'll define a local Alert since I haven't created it yet.
+
+// LocalAlert removed, using imported Alert
+
 
 export default function SettingsPage() {
-  const [tab, setTab] = useState(0)
-  const prefs = usePreferencesStore(state => state.preferences)
-  const updatePreferences = usePreferencesStore(state => state.updatePreferences)
+  const [activeTab, setActiveTab] = useState("profile");
+  const prefs = usePreferencesStore(state => state.preferences);
+  const updatePreferences = usePreferencesStore(state => state.updatePreferences);
 
   // Profile form state
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
-  const [avatarFile, setAvatarFile] = useState<File | null>(null)
-  const [profileLoading, setProfileLoading] = useState(true)
-  const [userPlan, setUserPlan] = useState('')
-  const [joinedDate, setJoinedDate] = useState('')
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [userPlan, setUserPlan] = useState('');
+  const [joinedDate, setJoinedDate] = useState('');
+
+  // Security
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [twoFAEnabled, setTwoFAEnabled] = useState(false);
+
+  // API Keys
+  const [apiKeys, setApiKeys] = useState<Array<{ id: string; keyPrefix: string; name: string; createdAt: string; lastUsedAt: string | null; expiresAt: string | null }>>([]);
+  const [newKeyData, setNewKeyData] = useState<{ key: string; name: string } | null>(null);
+  const [createKeyDialogOpen, setCreateKeyDialogOpen] = useState(false);
+  const [newKeyName, setNewKeyName] = useState('');
+  const [newKeyExpiration, setNewKeyExpiration] = useState<string>('');
+
+  // Webhooks
+  const [webhookUrl, setWebhookUrl] = useState('');
+  const [webhookTestResult, setWebhookTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [webhookTesting, setWebhookTesting] = useState(false);
+  const [webhooks, setWebhooks] = useState<any[]>([]);
+  const [openWebhookDialog, setOpenWebhookDialog] = useState(false);
+  const [selectedEvents, setSelectedEvents] = useState<string[]>(['qr.bulk.completed']);
+
+  // Available webhook events
+  const WEBHOOK_EVENTS = [
+    { value: 'qr.bulk.completed', label: 'Bulk QR Generation Completed' },
+    { value: 'qr.export.completed', label: 'Large Export Completed' },
+    { value: 'campaign.milestone', label: 'Campaign Milestone Reached' },
+    { value: 'scan.threshold', label: 'Scan Threshold Reached' },
+  ];
+
+  // Preferences
+  const [localPrefs, setLocalPrefs] = useState(prefs);
 
   useEffect(() => {
-    fetchUserProfile()
-  }, [])
+    fetchUserProfile();
+    fetchApiKeys();
+    fetchWebhooks();
+  }, []);
+
+  useEffect(() => setLocalPrefs(prefs), [prefs]);
 
   const fetchUserProfile = async () => {
     try {
-      setProfileLoading(true)
-      const response = await fetch('/api/user/profile')
+      setProfileLoading(true);
+      const response = await fetch('/api/user/profile');
       if (response.ok) {
-        const data = await response.json()
-        setName(data.user.name || '')
-        setEmail(data.user.email || '')
-        setAvatarPreview(data.user.image || null)
-        setUserPlan(data.user.subscription || data.user.plan || 'FREE')
-        setJoinedDate(data.user.createdAt ? new Date(data.user.createdAt).toLocaleDateString() : '')
-      } else {
-        console.error('Failed to fetch profile')
+        const data = await response.json();
+        setName(data.user.name || '');
+        setEmail(data.user.email || '');
+        setAvatarPreview(data.user.image || null);
+        setUserPlan(data.user.subscription || data.user.plan || 'FREE');
+        setJoinedDate(data.user.createdAt ? new Date(data.user.createdAt).toLocaleDateString() : '');
       }
     } catch (error) {
-      console.error('Error fetching profile:', error)
+      console.error('Error fetching profile:', error);
     } finally {
-      setProfileLoading(false)
+      setProfileLoading(false);
     }
-  }
-
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTab(newValue)
-  }
+  };
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0]
-    if (!f) return
-    setAvatarFile(f)
-    const reader = new FileReader()
-    reader.onload = () => setAvatarPreview(String(reader.result))
-    reader.readAsDataURL(f)
-  }
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setAvatarFile(f);
+    const reader = new FileReader();
+    reader.onload = () => setAvatarPreview(String(reader.result));
+    reader.readAsDataURL(f);
+  };
 
   const handleSaveProfile = async () => {
-    if (!name.trim()) {
-      alert('Name is required')
-      return
+    if (!name.trim() || !email.trim()) {
+      alert('Name and Email are required');
+      return;
     }
-
-    if (!email.trim()) {
-      alert('Email is required')
-      return
-    }
-
     try {
       const response = await fetch('/api/user/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, image: avatarPreview }),
       });
-
       if (response.ok) {
         alert('Profile updated successfully');
-        fetchUserProfile() // Refresh profile data
+        fetchUserProfile();
       } else {
-        const data = await response.json();
-        alert(data.error || 'Failed to update profile');
+        alert('Failed to update profile');
       }
     } catch (error) {
       console.error('Failed to update profile:', error);
-      alert('Failed to update profile');
     }
-  }
-
-  // Security
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [twoFAEnabled, setTwoFAEnabled] = useState(false)
+  };
 
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword) {
-      alert('Please enter both current and new passwords');
+      alert('Please enter both passwords');
       return;
     }
-
     try {
       const response = await fetch('/api/user/change-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentPassword, newPassword }),
       });
-
       if (response.ok) {
-        alert('Password changed successfully');
+        alert('Password changed');
         setCurrentPassword('');
         setNewPassword('');
       } else {
@@ -157,50 +164,20 @@ export default function SettingsPage() {
       }
     } catch (error) {
       console.error('Failed to change password:', error);
-      alert('Failed to change password');
     }
-  }
-
-  // API Keys (connected to real API)
-  const [apiKeys, setApiKeys] = useState<Array<{ id: string; keyPrefix: string; name: string; createdAt: string; lastUsedAt: string | null; expiresAt: string | null }>>([])
-  const [newKeyData, setNewKeyData] = useState<{ key: string; name: string } | null>(null)
-  const [createKeyDialogOpen, setCreateKeyDialogOpen] = useState(false)
-  const [newKeyName, setNewKeyName] = useState('')
-  const [newKeyExpiration, setNewKeyExpiration] = useState<number | ''>('')
-
-  // Webhooks
-  const [webhookUrl, setWebhookUrl] = useState('')
-  const [webhookEnabled, setWebhookEnabled] = useState(true)
-  const [webhookTesting, setWebhookTesting] = useState(false)
-  const [webhookTestResult, setWebhookTestResult] = useState<{ success: boolean; message: string } | null>(null)
-  const [webhooks, setWebhooks] = useState<any[]>([])
-  const [openWebhookDialog, setOpenWebhookDialog] = useState(false)
-  const [selectedEvents, setSelectedEvents] = useState<string[]>(['qr.bulk.completed'])
-
-  // Available webhook events
-  const WEBHOOK_EVENTS = [
-    { value: 'qr.bulk.completed', label: 'Bulk QR Generation Completed' },
-    { value: 'qr.export.completed', label: 'Large Export Completed' },
-    { value: 'campaign.milestone', label: 'Campaign Milestone Reached' },
-    { value: 'scan.threshold', label: 'Scan Threshold Reached' },
-  ]
-
-  useEffect(() => {
-    fetchApiKeys()
-    fetchWebhooks()
-  }, [])
+  };
 
   const fetchApiKeys = async () => {
     try {
-      const response = await fetch('/api/api-keys')
+      const response = await fetch('/api/api-keys');
       if (response.ok) {
-        const data = await response.json()
-        setApiKeys(data.apiKeys || [])
+        const data = await response.json();
+        setApiKeys(data.apiKeys || []);
       }
     } catch (error) {
-      console.error('Failed to fetch API keys:', error)
+      console.error('Failed to fetch API keys:', error);
     }
-  }
+  };
 
   const generateApiKey = async () => {
     try {
@@ -211,665 +188,482 @@ export default function SettingsPage() {
           name: newKeyName || 'Unnamed Key',
           expiresIn: newKeyExpiration || undefined,
         }),
-      })
-
+      });
       if (response.ok) {
-        const data = await response.json()
-        setNewKeyData({ key: data.key, name: data.apiKey.name })
-        setCreateKeyDialogOpen(false)
-        setNewKeyName('')
-        setNewKeyExpiration('')
-        fetchApiKeys() // Refresh list
-      } else {
-        console.error('Failed to create API key')
+        const data = await response.json();
+        setNewKeyData({ key: data.key, name: data.apiKey.name });
+        setCreateKeyDialogOpen(false);
+        setNewKeyName('');
+        setNewKeyExpiration('');
+        fetchApiKeys();
       }
     } catch (error) {
-      console.error('Failed to generate API key:', error)
+      console.error('Failed to generate API key:', error);
     }
-  }
+  };
 
   const revokeApiKey = async (id: string) => {
-    if (!confirm('Are you sure you want to revoke this API key? This action cannot be undone.')) {
-      return
-    }
-
+    if (!confirm('Are you sure?')) return;
     try {
-      const response = await fetch(`/api/api-keys/${id}`, {
-        method: 'DELETE',
-      })
-
-      if (response.ok) {
-        setApiKeys(prev => prev.filter(k => k.id !== id))
-      } else {
-        console.error('Failed to revoke API key')
-      }
+      const response = await fetch(`/api/api-keys/${id}`, { method: 'DELETE' });
+      if (response.ok) setApiKeys(prev => prev.filter(k => k.id !== id));
     } catch (error) {
-      console.error('Failed to revoke API key:', error)
+      console.error('Failed to revoke API key:', error);
     }
-  }
+  };
 
-  const copyKey = async (key: string) => {
-    try {
-      await navigator.clipboard.writeText(key)
-    } catch (e) {
-      console.error('copy failed', e)
-    }
-  }
-
-  // Webhook functions
   const fetchWebhooks = async () => {
     try {
-      const response = await fetch('/api/webhooks')
+      const response = await fetch('/api/webhooks');
       if (response.ok) {
-        const data = await response.json()
-        setWebhooks(data.webhooks || [])
+        const data = await response.json();
+        setWebhooks(data.webhooks || []);
       }
     } catch (error) {
-      console.error('Failed to fetch webhooks:', error)
+      console.error('Failed to fetch webhooks:', error);
     }
-  }
-
-  const testWebhook = async () => {
-    if (!webhookUrl) return
-    
-    setWebhookTesting(true)
-    setWebhookTestResult(null)
-    
-    try {
-      const response = await fetch('/api/webhooks/test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          url: webhookUrl,
-          event: 'qr.bulk.completed',
-          payload: {
-            qrCount: 100,
-            format: 'zip',
-            status: 'completed'
-          }
-        }),
-      })
-      
-      const data = await response.json()
-      setWebhookTestResult({
-        success: data.success || false,
-        message: data.message || (response.ok ? 'Webhook test successful!' : 'Webhook test failed')
-      })
-    } catch (error) {
-      setWebhookTestResult({
-        success: false,
-        message: 'Failed to test webhook - network error'
-      })
-    } finally {
-      setWebhookTesting(false)
-    }
-  }
+  };
 
   const createWebhook = async () => {
     if (!webhookUrl || selectedEvents.length === 0) {
-      alert('Please enter a webhook URL and select at least one event')
-      return
+      alert('Please enter URL and select events');
+      return;
     }
-
     try {
       const response = await fetch('/api/webhooks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          url: webhookUrl, 
-          events: selectedEvents 
-        }),
-      })
-      
+        body: JSON.stringify({ url: webhookUrl, events: selectedEvents }),
+      });
       if (response.ok) {
-        setWebhookUrl('')
-        setSelectedEvents(['qr.bulk.completed'])
-        setOpenWebhookDialog(false)
-        fetchWebhooks()
-        alert('Webhook created successfully!')
+        setWebhookUrl('');
+        setSelectedEvents(['qr.bulk.completed']);
+        setOpenWebhookDialog(false);
+        fetchWebhooks();
+        alert('Webhook created!');
       } else {
-        const data = await response.json()
-        alert(data.error || 'Failed to create webhook')
+        alert('Failed to create webhook');
       }
     } catch (error) {
-      console.error('Failed to create webhook:', error)
-      alert('Failed to create webhook')
+      console.error('Failed to create webhook:', error);
     }
-  }
+  };
 
-  const deleteWebhook = async (webhookId: string) => {
-    if (!confirm('Are you sure you want to delete this webhook?')) return
-
+  const deleteWebhook = async (id: string) => {
+    if (!confirm('Are you sure?')) return;
     try {
-      const response = await fetch(`/api/webhooks/${webhookId}`, {
-        method: 'DELETE',
-      })
-      
+      const response = await fetch(`/api/webhooks/${id}`, { method: 'DELETE' });
       if (response.ok) {
-        fetchWebhooks()
-        alert('Webhook deleted successfully')
-      } else {
-        alert('Failed to delete webhook')
+        fetchWebhooks();
+        alert('Webhook deleted');
       }
     } catch (error) {
-      console.error('Failed to delete webhook:', error)
-      alert('Failed to delete webhook')
+      console.error('Failed to delete webhook:', error);
     }
-  }
+  };
 
-  const toggleWebhook = async (webhookId: string, currentActive: boolean) => {
+  const toggleWebhook = async (id: string, currentActive: boolean) => {
     try {
-      const response = await fetch(`/api/webhooks/${webhookId}`, {
+      const response = await fetch(`/api/webhooks/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ active: !currentActive }),
-      })
-      
-      if (response.ok) {
-        fetchWebhooks()
-      } else {
-        alert('Failed to toggle webhook')
-      }
+      });
+      if (response.ok) fetchWebhooks();
     } catch (error) {
-      console.error('Failed to toggle webhook:', error)
-      alert('Failed to toggle webhook')
+      console.error('Failed to toggle webhook:', error);
     }
-  }
+  };
 
-  // Preferences
-  const [localPrefs, setLocalPrefs] = useState(prefs)
+  const testWebhook = async () => {
+    if (!webhookUrl) return;
+    setWebhookTesting(true);
+    setWebhookTestResult(null);
+    try {
+      const response = await fetch('/api/webhooks/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: webhookUrl, event: 'qr.bulk.completed', payload: { qrCount: 100, format: 'zip', status: 'completed' } }),
+      });
+      const data = await response.json();
+      setWebhookTestResult({ success: data.success || false, message: data.message || (response.ok ? 'Success!' : 'Failed') });
+    } catch (error) {
+      setWebhookTestResult({ success: false, message: 'Network error' });
+    } finally {
+      setWebhookTesting(false);
+    }
+  };
 
-  useEffect(() => setLocalPrefs(prefs), [prefs])
-
-  const savePreferences = () => updatePreferences(localPrefs)
+  const savePreferences = () => updatePreferences(localPrefs);
+  const copyToClipboard = (text: string) => navigator.clipboard.writeText(text);
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Box>
-          <Typography variant="h4" fontWeight={700}>Settings</Typography>
-          <Typography color="text.secondary">Manage your profile, security, API keys, and preferences</Typography>
-        </Box>
-      </Box>
+    <div className="max-w-[1600px] mx-auto p-6 space-y-8">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
+          Settings
+        </h1>
+        <p className="text-muted-foreground">Manage your profile, security, API keys, and preferences</p>
+      </div>
 
-      <Paper>
-        <Tabs value={tab} onChange={handleTabChange} aria-label="settings tabs">
-          <Tab label="Profile" {...a11yProps(0)} />
-          <Tab label="Security" {...a11yProps(1)} />
-          <Tab label="API Keys" {...a11yProps(2)} />
-          <Tab label="Webhooks" {...a11yProps(3)} />
-          <Tab label="Preferences" {...a11yProps(4)} />
-          <Tab label="Billing" {...a11yProps(5)} />
-        </Tabs>
+      <Tabs defaultValue="profile" className="w-full" onValueChange={setActiveTab}>
+        <TabsList className="w-full justify-start overflow-x-auto">
+          <TabsTrigger value="profile"><User size={16} className="mr-2" /> Profile</TabsTrigger>
+          <TabsTrigger value="security"><Lock size={16} className="mr-2" /> Security</TabsTrigger>
+          <TabsTrigger value="api-keys"><Key size={16} className="mr-2" /> API Keys</TabsTrigger>
+          <TabsTrigger value="webhooks"><Webhook size={16} className="mr-2" /> Webhooks</TabsTrigger>
+          <TabsTrigger value="preferences"><SettingsIcon size={16} className="mr-2" /> Preferences</TabsTrigger>
+          <TabsTrigger value="billing"><CreditCard size={16} className="mr-2" /> Billing</TabsTrigger>
+        </TabsList>
 
-        <Box sx={{ p: 3 }} role={`settings-tabpanel-${0}`} hidden={tab !== 0}>
-          {tab === 0 && (
-              <Box>
-                {profileLoading ? (
-                  <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-                    <Typography color="text.secondary">Loading profile...</Typography>
-                  </Box>
-                ) : (
-                  <>
-                    <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', mb: 3 }}>
-                      <Box sx={{ flex: '1 1 320px', minWidth: 240 }}>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                          <Avatar src={avatarPreview || undefined} sx={{ width: 120, height: 120, mb: 2 }}>
-                            {!avatarPreview && name ? name.charAt(0).toUpperCase() : '?'}
-                          </Avatar>
-                          <Button variant="outlined" component="label" sx={{ mb: 1 }}>
-                            Upload Avatar
-                            <input hidden accept="image/*" type="file" onChange={handleAvatarChange} />
-                          </Button>
-                          <Typography variant="caption" color="text.secondary">
-                            JPG, PNG or GIF (max 2MB)
-                          </Typography>
-                        </Box>
-                      </Box>
-
-                      <Box sx={{ flex: '2 1 480px', minWidth: 280 }}>
-                        <TextField 
-                          fullWidth 
-                          label="Full name" 
-                          value={name} 
-                          onChange={(e) => setName(e.target.value)} 
-                          sx={{ mb: 2 }}
-                          required
-                          helperText="Your display name visible to others"
-                        />
-                        <TextField 
-                          fullWidth 
-                          label="Email" 
-                          value={email} 
-                          onChange={(e) => setEmail(e.target.value)} 
-                          sx={{ mb: 2 }}
-                          type="email"
-                          required
-                          helperText="Used for notifications and account recovery"
-                        />
-                        <Box sx={{ display: 'flex', gap: 2 }}>
-                          <Button variant="contained" onClick={handleSaveProfile}>Save Profile</Button>
-                          <Button variant="outlined" color="inherit">Disconnect OAuth</Button>
-                        </Box>
-                      </Box>
-                    </Box>
-
-                    {/* Account Information */}
-                    <Card variant="outlined" sx={{ mt: 3 }}>
-                      <CardContent>
-                        <Typography variant="h6" gutterBottom>Account Information</Typography>
-                        <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' } }}>
-                          <Box>
-                            <Typography variant="caption" color="text.secondary">Current Plan</Typography>
-                            <Typography variant="body1" fontWeight={600}>
-                              {userPlan.toUpperCase()}
-                            </Typography>
-                          </Box>
-                          <Box>
-                            <Typography variant="caption" color="text.secondary">Member Since</Typography>
-                            <Typography variant="body1" fontWeight={600}>
-                              {joinedDate || 'N/A'}
-                            </Typography>
-                          </Box>
-                          <Box>
-                            <Typography variant="caption" color="text.secondary">Account ID</Typography>
-                            <Typography variant="body2" fontFamily="monospace" sx={{ wordBreak: 'break-all' }}>
-                              {email ? email.substring(0, 20) + '...' : 'N/A'}
-                            </Typography>
-                          </Box>
-                          <Box>
-                            <Typography variant="caption" color="text.secondary">Status</Typography>
-                            <Chip label="Active" size="small" color="success" />
-                          </Box>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  </>
-                )}
-              </Box>
-            )}
-        </Box>
-
-        <Box sx={{ p: 3 }} role={`settings-tabpanel-${1}`} hidden={tab !== 1}>
-          {tab === 1 && (
-            <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-              <Box sx={{ flex: '1 1 320px', minWidth: 260 }}>
-                <Typography variant="h6">Change Password</Typography>
-                <TextField fullWidth label="Current password" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} sx={{ mt: 2 }} />
-                <TextField fullWidth label="New password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} sx={{ mt: 2 }} />
-                <Box sx={{ mt: 2 }}>
-                  <Button variant="contained" onClick={handleChangePassword}>Change Password</Button>
-                </Box>
-              </Box>
-
-              <Box sx={{ flex: '1 1 320px', minWidth: 260 }}>
-                <Typography variant="h6">Two-Factor Authentication</Typography>
-                <Typography color="text.secondary">Enable TOTP-based 2FA for added account security.</Typography>
-                <Box sx={{ mt: 2 }}>
-                  <FormControlLabel control={<Switch checked={twoFAEnabled} onChange={(e) => setTwoFAEnabled(e.target.checked)} />} label={twoFAEnabled ? 'Enabled' : 'Disabled'} />
-                </Box>
-              </Box>
-            </Box>
-          )}
-        </Box>
-
-        <Box sx={{ p: 3 }} role={`settings-tabpanel-${2}`} hidden={tab !== 2}>
-          {tab === 2 && (
-            <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-              <Box sx={{ flex: '1 1 640px', minWidth: 280 }}>
-                <Typography variant="h6">API Keys</Typography>
-                <Typography color="text.secondary">Create and manage API keys used by scripts and integrations. Treat keys like passwords.</Typography>
-
-                {newKeyData && (
-                  <Alert severity="success" sx={{ mt: 2, mb: 2 }} icon={<CheckCircleIcon />}>
-                    <AlertTitle>API Key Created: {newKeyData.name}</AlertTitle>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
-                      Copy this key now. You won&apos;t be able to see it again!
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, p: 1, bgcolor: 'background.paper', borderRadius: 1 }}>
-                      <code style={{ flex: 1, fontSize: '14px', wordBreak: 'break-all' }}>{newKeyData.key}</code>
-                      <IconButton size="small" onClick={() => copyKey(newKeyData.key)} color="primary">
-                        <ContentCopyIcon fontSize="small" />
-                      </IconButton>
-                    </Box>
-                    <Button size="small" onClick={() => setNewKeyData(null)} sx={{ mt: 1 }}>
-                      I&apos;ve saved this key
+        {/* PROFILE TAB */}
+        <TabsContent value="profile" className="mt-6 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card variant="glass" className="p-6 col-span-1 lg:col-span-2 space-y-6">
+              <h3 className="text-lg font-semibold flex items-center"><User className="mr-2 text-primary" size={20} /> Personal Information</h3>
+              <div className="flex flex-col sm:flex-row gap-6 items-start">
+                <div className="flex flex-col items-center gap-3">
+                  <Avatar className="w-32 h-32 border-4 border-white/5">
+                    <AvatarImage src={avatarPreview || undefined} />
+                    <AvatarFallback className="text-4xl">{name ? name[0].toUpperCase() : '?'}</AvatarFallback>
+                  </Avatar>
+                  <Label htmlFor="avatar-upload" className="cursor-pointer">
+                    <Button variant="outline" size="sm" className="pointer-events-none" asChild>
+                      <span><Upload size={14} className="mr-2" /> Upload</span>
                     </Button>
-                  </Alert>
-                )}
+                    <input id="avatar-upload" type="file" hidden accept="image/*" onChange={handleAvatarChange} />
+                  </Label>
+                  <p className="text-xs text-muted-foreground text-center">JPG, PNG or GIF (max 2MB)</p>
+                </div>
+                <div className="flex-1 space-y-4 w-full">
+                  <div className="space-y-2">
+                    <Label>Full Name</Label>
+                    <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your Name" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Email Address</Label>
+                    <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="name@example.com" />
+                  </div>
+                  <div className="pt-2 flex gap-3">
+                    <Button variant="glow" onClick={handleSaveProfile} disabled={profileLoading}>
+                      <Save size={16} className="mr-2" /> Save Changes
+                    </Button>
+                    <Button variant="ghost">Disconnect OAuth</Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
 
-                <Box sx={{ mt: 2, mb: 2 }}>
-                  <Button variant="contained" startIcon={<KeyIcon />} onClick={() => setCreateKeyDialogOpen(true)}>Create new key</Button>
-                </Box>
+            <Card variant="neon" className="p-6 col-span-1 space-y-6">
+              <h3 className="text-lg font-semibold flex items-center"><Activity className="mr-2 text-primary" size={20} /> Account Status</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center py-2 border-b border-white/10">
+                  <span className="text-muted-foreground text-sm">Current Plan</span>
+                  <Badge variant="default">{userPlan.toUpperCase()}</Badge>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-white/10">
+                  <span className="text-muted-foreground text-sm">Member Since</span>
+                  <span className="font-mono text-sm">{joinedDate || 'N/A'}</span>
+                </div>
+                <div className="py-2 border-b border-white/10">
+                  <span className="text-muted-foreground text-sm block mb-1">Account ID</span>
+                  <code className="text-xs bg-black/30 p-1 rounded break-all block">{email ? email : 'N/A'}</code>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-muted-foreground text-sm">Status</span>
+                  <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30">Active</Badge>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </TabsContent>
 
-                {apiKeys.length === 0 ? (
-                  <Box sx={{ textAlign: 'center', py: 4 }}>
-                    <KeyIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-                    <Typography color="text.secondary">No API keys yet. Create one to get started.</Typography>
-                  </Box>
-                ) : (
-                  <List>
-                    {apiKeys.map(k => (
-                      <ListItem key={k.id} divider>
-                        <ListItemText 
-                          primary={
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Typography variant="body1" fontFamily="monospace">{k.keyPrefix}</Typography>
-                              <Typography variant="caption" color="text.secondary">({k.name})</Typography>
-                              {k.expiresAt && new Date(k.expiresAt) < new Date() && (
-                                <Chip label="Expired" size="small" color="error" icon={<WarningIcon />} />
-                              )}
-                            </Box>
-                          }
-                          secondary={
-                            <Box sx={{ mt: 0.5 }}>
-                              <Typography variant="caption" display="block">
-                                Created: {new Date(k.createdAt).toLocaleString()}
-                              </Typography>
-                              {k.lastUsedAt && (
-                                <Typography variant="caption" display="block" color="text.secondary">
-                                  Last used: {new Date(k.lastUsedAt).toLocaleString()}
-                                </Typography>
-                              )}
-                              {k.expiresAt && (
-                                <Typography variant="caption" display="block" color={new Date(k.expiresAt) < new Date() ? 'error' : 'text.secondary'}>
-                                  Expires: {new Date(k.expiresAt).toLocaleString()}
-                                </Typography>
-                              )}
-                            </Box>
-                          }
-                        />
-                        <ListItemSecondaryAction>
-                          <Tooltip title="Copy prefix"><IconButton edge="end" onClick={() => copyKey(k.keyPrefix)}><ContentCopyIcon /></IconButton></Tooltip>
-                          <Tooltip title="Revoke key"><IconButton edge="end" color="error" onClick={() => revokeApiKey(k.id)}><DeleteIcon /></IconButton></Tooltip>
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                    ))}
-                  </List>
-                )}
+        {/* SECURITY TAB */}
+        <TabsContent value="security" className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card variant="glass" className="p-6 space-y-4">
+              <h3 className="text-lg font-semibold flex items-center"><Lock className="mr-2 text-primary" size={20} /> Change Password</h3>
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label>Current Password</Label>
+                  <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>New Password</Label>
+                  <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                </div>
+                <Button onClick={handleChangePassword} className="w-full mt-2">Update Password</Button>
+              </div>
+            </Card>
 
-                <Alert severity="warning" sx={{ mt: 2 }}>
-                  <AlertTitle>Security Notice</AlertTitle>
-                  API keys are only shown once at creation. Store them securely. You can revoke and create new keys anytime.
-                </Alert>
-              </Box>
-            </Box>
-          )}
-        </Box>
+            <Card variant="glass" className="p-6 space-y-4">
+              <h3 className="text-lg font-semibold flex items-center"><CheckCircle className="mr-2 text-primary" size={20} /> Two-Factor Authentication</h3>
+              <p className="text-sm text-muted-foreground">Add an extra layer of security to your account by enabling TOTP-based 2FA.</p>
+              <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+                <span className="font-medium">2FA Status</span>
+                <div className="flex items-center gap-3">
+                  <span className={cn("text-xs font-medium", twoFAEnabled ? "text-emerald-400" : "text-muted-foreground")}>
+                    {twoFAEnabled ? "Enabled" : "Disabled"}
+                  </span>
+                  <Switch checked={twoFAEnabled} onCheckedChange={setTwoFAEnabled} />
+                </div>
+              </div>
+            </Card>
+          </div>
+        </TabsContent>
 
-        {/* Create API Key Dialog */}
-        <Dialog open={createKeyDialogOpen} onClose={() => setCreateKeyDialogOpen(false)} maxWidth="sm" fullWidth>
-          <DialogTitle>Create New API Key</DialogTitle>
-          <DialogContent>
-            <TextField
-              fullWidth
-              label="Key Name"
-              value={newKeyName}
-              onChange={(e) => setNewKeyName(e.target.value)}
-              placeholder="e.g., Production Server"
-              sx={{ mt: 2, mb: 2 }}
-              helperText="Give this key a descriptive name to help you remember its purpose"
-            />
-            
-            <FormControl fullWidth>
-              <InputLabel>Expiration</InputLabel>
-              <Select
-                value={newKeyExpiration}
-                label="Expiration"
-                onChange={(e) => setNewKeyExpiration(e.target.value as number | '')}
-              >
-                <MenuItem value="">Never</MenuItem>
-                <MenuItem value={30}>30 days</MenuItem>
-                <MenuItem value={60}>60 days</MenuItem>
-                <MenuItem value={90}>90 days</MenuItem>
-                <MenuItem value={180}>180 days</MenuItem>
-                <MenuItem value={365}>1 year</MenuItem>
-              </Select>
-            </FormControl>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setCreateKeyDialogOpen(false)}>Cancel</Button>
-            <Button variant="contained" onClick={generateApiKey} disabled={!newKeyName.trim()}>
-              Create Key
+        {/* API KEYS TAB */}
+        <TabsContent value="api-keys" className="mt-6 space-y-6">
+          <div className="flex justify-between items-start">
+            <div className="space-y-1">
+              <h3 className="text-xl font-semibold">API Keys</h3>
+              <p className="text-sm text-muted-foreground">Manage authorized access keys for your applications.</p>
+            </div>
+            <Button variant="glow" onClick={() => setCreateKeyDialogOpen(true)}>
+              <Plus size={16} className="mr-2" /> Generate New Key
             </Button>
-          </DialogActions>
-        </Dialog>
+          </div>
 
-        <Box sx={{ p: 3 }} role={`settings-tabpanel-${3}`} hidden={tab !== 3}>
-          {tab === 3 && (
-            <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-              <Box sx={{ flex: '1 1 640px', minWidth: 280 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                  <Box>
-                    <Typography variant="h6" gutterBottom>Webhook Notifications</Typography>
-                    <Typography color="text.secondary">
-                      Get notified when events occur in your QR Studio account
-                    </Typography>
-                  </Box>
-                  <Button
-                    variant="contained"
-                    onClick={() => setOpenWebhookDialog(true)}
-                  >
-                    Create Webhook
-                  </Button>
-                </Box>
-
-                <Alert severity="info" sx={{ mb: 3 }}>
-                  <AlertTitle>Webhook Events</AlertTitle>
-                  Webhooks send HTTP POST requests to your endpoint when events occur, such as bulk operations completing or campaigns reaching milestones.
-                </Alert>
-
-                {webhooks.length === 0 ? (
-                  <Paper sx={{ p: 4, textAlign: 'center', bgcolor: 'background.default' }}>
-                    <Typography color="text.secondary" gutterBottom>
-                      No webhooks configured
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Create a webhook to receive notifications about QR code events
-                    </Typography>
-                  </Paper>
-                ) : (
-                  <List>
-                    {webhooks.map((webhook) => (
-                      <Paper key={webhook.id} sx={{ mb: 2, p: 2 }}>
-                        <ListItem
-                          sx={{ px: 0 }}
-                          secondaryAction={
-                            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                              <Switch
-                                checked={webhook.active}
-                                onChange={() => toggleWebhook(webhook.id, webhook.active)}
-                                size="small"
-                              />
-                              <Tooltip title="Delete">
-                                <IconButton
-                                  edge="end"
-                                  onClick={() => deleteWebhook(webhook.id)}
-                                  size="small"
-                                >
-                                  <DeleteIcon />
-                                </IconButton>
-                              </Tooltip>
-                            </Box>
-                          }
-                        >
-                          <ListItemText
-                            primary={
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Typography variant="body1" component="span">
-                                  {webhook.url}
-                                </Typography>
-                                {webhook.failureCount > 0 && (
-                                  <Chip
-                                    label={`${webhook.failureCount} failures`}
-                                    size="small"
-                                    color="error"
-                                    variant="outlined"
-                                  />
-                                )}
-                              </Box>
-                            }
-                            secondary={
-                              <Box sx={{ mt: 1 }}>
-                                <Typography variant="caption" color="text.secondary" component="div">
-                                  Events: {webhook.events.join(', ')}
-                                </Typography>
-                                <Typography variant="caption" color="text.secondary">
-                                  Created: {new Date(webhook.createdAt).toLocaleDateString()}
-                                  {webhook.lastUsedAt && ` • Last used: ${new Date(webhook.lastUsedAt).toLocaleDateString()}`}
-                                </Typography>
-                              </Box>
-                            }
-                          />
-                        </ListItem>
-                      </Paper>
-                    ))}
-                  </List>
-                )}
-
-                <Box sx={{ mt: 3, p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
-                  <Typography variant="subtitle2" gutterBottom>Popular Services:</Typography>
-                  <Typography variant="caption" component="div" sx={{ mb: 0.5 }}>
-                    • <strong>Slack:</strong> Workspace Settings → Apps → Incoming Webhooks
-                  </Typography>
-                  <Typography variant="caption" component="div" sx={{ mb: 0.5 }}>
-                    • <strong>Discord:</strong> Server Settings → Integrations → Webhooks
-                  </Typography>
-                  <Typography variant="caption" component="div">
-                    • <strong>Microsoft Teams:</strong> Channel → Connectors → Incoming Webhook
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
+          {newKeyData && (
+            <Alert variant="destructive" className="flex flex-col gap-2 border-emerald-500/50 bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 [&>svg]:text-emerald-500">
+              <div className="flex items-center gap-2 font-semibold"><CheckCircle size={16} /> API Key Created: {newKeyData.name}</div>
+              <p className="text-xs opacity-90">Copy this key now. You won&apos;t be able to see it again!</p>
+              <div className="flex items-center gap-2 bg-black/20 p-2 rounded mt-1">
+                <code className="flex-1 font-mono text-xs">{newKeyData.key}</code>
+                <Button variant="ghost" size="sm" onClick={() => copyToClipboard(newKeyData.key)}><Copy size={14} /></Button>
+              </div>
+              <Button variant="outline" size="sm" className="self-start mt-2" onClick={() => setNewKeyData(null)}>I&apos;ve saved this key</Button>
+            </Alert>
           )}
-        </Box>
 
-        {/* Create Webhook Dialog */}
-        <Dialog open={openWebhookDialog} onClose={() => setOpenWebhookDialog(false)} maxWidth="sm" fullWidth>
-          <DialogTitle>Create Webhook</DialogTitle>
-          <DialogContent>
-            <TextField
-              fullWidth
-              label="Webhook URL"
-              value={webhookUrl}
-              onChange={(e) => setWebhookUrl(e.target.value)}
-              placeholder="https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
-              helperText="Enter your webhook endpoint URL (HTTPS required)"
-              sx={{ mt: 2, mb: 3 }}
-            />
-
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Events</InputLabel>
-              <Select
-                multiple
-                value={selectedEvents}
-                onChange={(e) => setSelectedEvents(e.target.value as string[])}
-                renderValue={(selected) => (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {selected.map((value) => (
-                      <Chip key={value} label={WEBHOOK_EVENTS.find(e => e.value === value)?.label || value} size="small" />
-                    ))}
-                  </Box>
-                )}
-              >
-                {WEBHOOK_EVENTS.map((event) => (
-                  <MenuItem key={event.value} value={event.value}>
-                    {event.label}
-                  </MenuItem>
+          <Card variant="glass" className="overflow-hidden">
+            {apiKeys.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <Key size={48} className="mx-auto mb-4 opacity-50" />
+                <p>No API keys found. Create one to get started.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-white/10">
+                {apiKeys.length > 0 && apiKeys.map(key => (
+                  <div key={key.id} className="p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono bg-white/10 px-2 py-0.5 rounded text-sm">{key.keyPrefix}••••</span>
+                        <span className="font-semibold">{key.name}</span>
+                        {key.expiresAt && new Date(key.expiresAt) < new Date() && (
+                          <Badge variant="destructive" className="text-[10px]">Expired</Badge>
+                        )}
+                      </div>
+                      <div className="text-xs text-muted-foreground flex gap-4">
+                        <span>Created: {new Date(key.createdAt).toLocaleDateString()}</span>
+                        {key.lastUsedAt && <span>Last Used: {new Date(key.lastUsedAt).toLocaleDateString()}</span>}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="ghost" size="sm" onClick={() => copyToClipboard(key.keyPrefix)}><Copy size={14} /></Button>
+                      <Button variant="ghost" size="sm" className="text-rose-400 hover:text-rose-300" onClick={() => revokeApiKey(key.id)}><Trash2 size={14} /></Button>
+                    </div>
+                  </div>
                 ))}
-              </Select>
-            </FormControl>
+              </div>
+            )}
+          </Card>
+          <Alert variant="destructive" className="flex items-center gap-2 border-amber-500/50 bg-amber-500/10 text-amber-500 dark:text-amber-400 [&>svg]:text-amber-500">
+            <AlertTriangle size={16} /> <span>Treat your API keys like passwords. Do not share them in client-side code.</span>
+          </Alert>
+        </TabsContent>
 
-            <Box sx={{ mb: 2 }}>
-              <Button
-                variant="outlined"
-                onClick={testWebhook}
-                disabled={!webhookUrl || webhookTesting}
-                fullWidth
-                sx={{ mb: 1 }}
-              >
-                {webhookTesting ? 'Testing...' : 'Test Webhook'}
+        {/* WEBHOOKS TAB */}
+        <TabsContent value="webhooks" className="mt-6 space-y-6">
+          <div className="flex justify-between items-start">
+            <div className="space-y-1">
+              <h3 className="text-xl font-semibold">Webhooks</h3>
+              <p className="text-sm text-muted-foreground">Get notified when events occur in your account.</p>
+            </div>
+            <Button variant="glow" onClick={() => setOpenWebhookDialog(true)}>
+              <Plus size={16} className="mr-2" /> Create Webhook
+            </Button>
+          </div>
+
+          <Card variant="glass" className="overflow-hidden">
+            {webhooks.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <Webhook size={48} className="mx-auto mb-4 opacity-50" />
+                <p>No webhooks configured.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-white/10">
+                {webhooks.map(wh => (
+                  <div key={wh.id} className="p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-sm">{wh.url}</span>
+                        {wh.failureCount > 0 && <Badge variant="destructive">{wh.failureCount} failures</Badge>}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Events: {wh.events.join(', ')}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Switch checked={wh.active} onCheckedChange={(checked: boolean) => toggleWebhook(wh.id, wh.active)} />
+                      <div className="h-4 w-px bg-white/10 mx-1"></div>
+                      <Button variant="ghost" size="sm" className="text-rose-400 hover:text-rose-300" onClick={() => deleteWebhook(wh.id)}><Trash2 size={14} /></Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+        </TabsContent>
+
+        {/* PREFERENCES TAB */}
+        <TabsContent value="preferences" className="mt-6 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card variant="glass" className="p-6 space-y-4">
+              <h3 className="text-lg font-semibold flex items-center"><SettingsIcon className="mr-2 text-primary" size={20} /> General</h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Theme</Label>
+                  <Select value={localPrefs.theme} onValueChange={(val: string) => setLocalPrefs({ ...localPrefs, theme: val as any })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select theme" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="light">Light</SelectItem>
+                      <SelectItem value="dark">Dark</SelectItem>
+                      <SelectItem value="system">System</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button variant="glow" onClick={savePreferences} className="w-full">
+                  <Save size={16} className="mr-2" /> Save Preferences
+                </Button>
+              </div>
+            </Card>
+            <Card variant="glass" className="p-6 space-y-6">
+              <h3 className="text-lg font-semibold flex items-center"><History className="mr-2 text-primary" size={20} /> History & Notifications</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label>Enable Notifications</Label>
+                  <Switch checked={localPrefs.notificationsEnabled} onCheckedChange={(c) => setLocalPrefs({ ...localPrefs, notificationsEnabled: c })} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label>Auto-Open URLs</Label>
+                  <Switch checked={localPrefs.autoOpen} onCheckedChange={(c) => setLocalPrefs({ ...localPrefs, autoOpen: c })} />
+                </div>
+                <div className="space-y-2 pt-2">
+                  <Label>Max History Items</Label>
+                  <Input
+                    type="number"
+                    value={localPrefs.maxHistoryItems}
+                    onChange={(e) => setLocalPrefs({ ...localPrefs, maxHistoryItems: parseInt(e.target.value) })}
+                  />
+                </div>
+              </div>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* BILLING TAB */}
+        <TabsContent value="billing" className="mt-6">
+          <Card variant="glass" className="p-8 text-center space-y-6">
+            <CreditCard size={48} className="mx-auto text-primary opacity-80" />
+            <div className="space-y-2">
+              <h3 className="text-2xl font-bold">Manage Subscription</h3>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                View your current plan details, manage payment methods, and download invoices.
+                Stripe integration is coming soon.
+              </p>
+            </div>
+            <Button variant="outline" size="lg">Manage Billing on Stripe</Button>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* CREATE API KEY DIALOG */}
+      <Dialog open={createKeyDialogOpen} onOpenChange={setCreateKeyDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New API Key</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Key Name</Label>
+              <Input value={newKeyName} onChange={(e) => setNewKeyName(e.target.value)} placeholder="e.g. Production Server" />
+            </div>
+            <div className="space-y-2">
+              <Label>Expiration</Label>
+              <Select value={newKeyExpiration} onValueChange={setNewKeyExpiration}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select expiration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Never</SelectItem>
+                  <SelectItem value="30">30 days</SelectItem>
+                  <SelectItem value="60">60 days</SelectItem>
+                  <SelectItem value="90">90 days</SelectItem>
+                  <SelectItem value="365">1 year</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
+            <Button variant="glow" onClick={generateApiKey} disabled={!newKeyName.trim()}>Generate Key</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* CREATE WEBHOOK DIALOG */}
+      <Dialog open={openWebhookDialog} onOpenChange={setOpenWebhookDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Webhook</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Endpoint URL</Label>
+              <Input value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} placeholder="https://api.yourapp.com/webhooks" />
+            </div>
+            <div className="space-y-2">
+              <Label>Events</Label>
+              {/* Simple mock multi-select using standard select for now or checkbox list */}
+              <div className="space-y-2 border border-white/10 rounded p-3 bg-black/20 max-h-40 overflow-y-auto">
+                {WEBHOOK_EVENTS.map(ev => (
+                  <div key={ev.value} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id={ev.value}
+                      checked={selectedEvents.includes(ev.value)}
+                      onChange={(e) => {
+                        if (e.target.checked) setSelectedEvents(prev => [...prev, ev.value]);
+                        else setSelectedEvents(prev => prev.filter(x => x !== ev.value));
+                      }}
+                      className="rounded border-white/20 bg-white/5"
+                    />
+                    <label htmlFor={ev.value} className="text-sm cursor-pointer">{ev.label}</label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <Button variant="outline" size="sm" onClick={testWebhook} disabled={!webhookUrl || webhookTesting} className="w-full">
+                {webhookTesting ? 'Testing...' : 'Test Endpoint'}
               </Button>
               {webhookTestResult && (
-                <Alert severity={webhookTestResult.success ? 'success' : 'error'}>
+                <div className={cn("mt-2 text-xs p-2 rounded", webhookTestResult.success ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400")}>
                   {webhookTestResult.message}
-                </Alert>
+                </div>
               )}
-            </Box>
-
-            <Alert severity="info">
-              The webhook will receive a JSON payload with event details when triggered.
-            </Alert>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenWebhookDialog(false)}>Cancel</Button>
-            <Button onClick={createWebhook} variant="contained" disabled={!webhookUrl || selectedEvents.length === 0}>
-              Create
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        <Box sx={{ p: 3 }} role={`settings-tabpanel-${4}`} hidden={tab !== 4}>
-          {tab === 4 && (
-            <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-              <Box sx={{ flex: '1 1 360px', minWidth: 280 }}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h6">Appearance</Typography>
-                    <Box sx={{ mt: 2 }}>
-                      <label style={{ display: 'block', marginBottom: 8 }}>Theme</label>
-                      <select value={localPrefs.theme} onChange={(e) => setLocalPrefs({ ...localPrefs, theme: e.target.value as any })}>
-                        <option value="light">Light</option>
-                        <option value="dark">Dark</option>
-                        <option value="system">System</option>
-                      </select>
-                    </Box>
-                  </CardContent>
-                </Card>
-
-                <Card sx={{ mt: 2 }}>
-                  <CardContent>
-                    <Typography variant="h6">Scanning</Typography>
-                    <FormControlLabel control={<Switch checked={localPrefs.autoCopy} onChange={(e) => setLocalPrefs({ ...localPrefs, autoCopy: e.target.checked })} />} label="Auto copy scanned text" />
-                    <FormControlLabel control={<Switch checked={localPrefs.autoOpen} onChange={(e) => setLocalPrefs({ ...localPrefs, autoOpen: e.target.checked })} />} label="Auto open URLs after scan" />
-                  </CardContent>
-                </Card>
-
-                <Box sx={{ mt: 2 }}>
-                  <Button variant="contained" onClick={savePreferences}>Save Preferences</Button>
-                </Box>
-              </Box>
-
-              <Box sx={{ flex: '1 1 320px', minWidth: 260 }}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h6">History & Notifications</Typography>
-                    <FormControlLabel control={<Switch checked={localPrefs.notificationsEnabled} onChange={(e) => setLocalPrefs({ ...localPrefs, notificationsEnabled: e.target.checked })} />} label="Enable notifications" />
-                    <Box sx={{ mt: 1 }}>
-                      <label>Max history items</label>
-                      <input type="number" value={localPrefs.maxHistoryItems} onChange={(e) => setLocalPrefs({ ...localPrefs, maxHistoryItems: Number(e.target.value) })} style={{ width: 120 }} />
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Box>
-            </Box>
-          )}
-        </Box>
-
-        <Box sx={{ p: 3 }} role={`settings-tabpanel-${4}`} hidden={tab !== 4}>
-          {tab === 4 && (
-            <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-              <Box sx={{ flex: '1 1 640px', minWidth: 280 }}>
-                <Typography variant="h6">Billing</Typography>
-                <Typography color="text.secondary">Manage your subscription and billing details. Stripe integration will be added in production.</Typography>
-                <Box sx={{ mt: 2 }}>
-                  <Button variant="outlined">Manage Subscription</Button>
-                </Box>
-              </Box>
-            </Box>
-          )}
-        </Box>
-      </Paper>
-    </Box>
-  )
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
+            <Button variant="glow" onClick={createWebhook} disabled={!webhookUrl || selectedEvents.length === 0}>Create Webhook</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }

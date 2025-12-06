@@ -1,19 +1,14 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import {
-  Box,
-  Container,
-  Typography,
-  Grid,
-  Button,
-  Alert
-} from '@mui/material';
-import { QrCode2, ArrowForward, TrendingUp } from '@mui/icons-material';
+import { QrCode, ArrowRight, TrendingUp, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import TemplateCard from '@/components/templates/TemplateCard';
 import TemplateFilter from '@/components/templates/TemplateFilter';
 import TemplatePreview from '@/components/templates/TemplatePreview';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
 
 // Mock templates data - in production, this would come from API
 const TEMPLATES = [
@@ -227,94 +222,87 @@ export default function TemplatesPage() {
   }, []);
 
   return (
-    <Box>
+    <div className="min-h-screen bg-black text-white">
       {/* Hero Section */}
-      <Box sx={{ bgcolor: 'background.default', py: { xs: 6, md: 10 } }}>
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Typography
-              variant="overline"
-              color="primary"
-              fontWeight="bold"
-              sx={{ display: 'block', mb: 2 }}
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-black pointer-events-none" />
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute top-[20%] left-[20%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[100px] animate-pulse-slow" />
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <Badge variant="outline" className="mb-6 text-blue-400 border-blue-400/30 bg-blue-400/10">
+            READY-TO-USE TEMPLATES
+          </Badge>
+
+          <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 mb-6">
+            QR Code Templates
+          </h1>
+
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
+            Choose from professionally designed templates and start creating in seconds.
+            No design skills required.
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Button
+              size="lg"
+              variant="premium"
+              className="text-lg px-8 py-6"
+              asChild
             >
-              Ready-to-Use Templates
-            </Typography>
-            <Typography
-              variant="h2"
-              component="h1"
-              fontWeight="bold"
-              sx={{
-                mb: 3,
-                fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' }
-              }}
-            >
-              QR Code Templates
-            </Typography>
-            <Typography
-              variant="h6"
-              color="text.secondary"
-              sx={{ maxWidth: 700, mx: 'auto', mb: 4 }}
-            >
-              Choose from professionally designed templates and start creating in seconds.
-              No design skills required.
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Button
-                component={Link}
-                href="/signup"
-                variant="contained"
-                size="large"
-                endIcon={<ArrowForward />}
-              >
+              <Link href="/signup">
                 Get Started Free
-              </Button>
-              <Button
-                component={Link}
-                href="/use-cases"
-                variant="outlined"
-                size="large"
-              >
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
+            </Button>
+
+            <Button
+              size="lg"
+              variant="outline"
+              className="text-lg px-8 py-6 bg-transparent border-white/20 text-white hover:bg-white/10"
+              asChild
+            >
+              <Link href="/use-cases">
                 View Use Cases
-              </Button>
-            </Box>
-          </Box>
-        </Container>
-      </Box>
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
 
       {/* Popular Templates Section */}
-      <Container maxWidth="lg" sx={{ py: { xs: 6, md: 8 } }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 4 }}>
-          <TrendingUp color="primary" />
-          <Typography variant="h4" component="h2" fontWeight="bold">
+      <section className="py-16 container mx-auto px-4">
+        <div className="flex items-center gap-2 mb-8 border-b border-white/10 pb-4">
+          <TrendingUp className="text-blue-500 w-6 h-6" />
+          <h2 className="text-2xl font-bold">
             Popular Templates
-          </Typography>
-        </Box>
+          </h2>
+        </div>
 
-        <Grid container spacing={3} sx={{ mb: 8 }}>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {popularTemplates.map(template => (
-            <Grid item xs={12} sm={6} md={3} key={template.id}>
-              <Box onClick={() => setPreviewTemplate(template)} sx={{ cursor: 'pointer' }}>
-                <TemplateCard {...template} isAuthenticated={isAuthenticated} />
-              </Box>
-            </Grid>
+            <div key={template.id} onClick={() => setPreviewTemplate(template)} className="cursor-pointer">
+              <TemplateCard {...template} isAuthenticated={isAuthenticated} />
+            </div>
           ))}
-        </Grid>
+        </div>
 
         {!isAuthenticated && (
-          <Alert severity="info" sx={{ mb: 6 }}>
-            <Typography variant="body2">
+          <div className="mb-12 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg flex items-start gap-3 text-blue-200">
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-blue-400" />
+            <p className="text-sm">
               <strong>Sign up for free</strong> to use any template and create unlimited QR codes.
               No credit card required.
-            </Typography>
-          </Alert>
+            </p>
+          </div>
         )}
 
         {/* All Templates Section */}
-        <Box>
-          <Typography variant="h4" component="h2" fontWeight="bold" sx={{ mb: 4 }}>
-            All Templates ({filteredTemplates.length})
-          </Typography>
+        <div>
+          <h2 className="text-2xl font-bold mb-6">
+            All Templates <span className="text-gray-500 text-lg font-normal ml-2">({filteredTemplates.length})</span>
+          </h2>
 
           <TemplateFilter
             selectedCategory={selectedCategory}
@@ -325,71 +313,54 @@ export default function TemplatesPage() {
           />
 
           {filteredTemplates.length === 0 ? (
-            <Box
-              sx={{
-                textAlign: 'center',
-                py: 8,
-                bgcolor: 'background.default',
-                borderRadius: 2
-              }}
-            >
-              <QrCode2 sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }} />
-              <Typography variant="h6" color="text.secondary">
+            <div className="text-center py-20 bg-white/5 rounded-xl border border-white/10">
+              <QrCode className="w-16 h-16 text-gray-500 mx-auto mb-4 opacity-50" />
+              <h3 className="text-xl font-medium text-white mb-2">
                 No templates found
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
+              </h3>
+              <p className="text-gray-400">
                 Try adjusting your filters or search query
-              </Typography>
-            </Box>
+              </p>
+            </div>
           ) : (
-            <Grid container spacing={3}>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredTemplates.map(template => (
-                <Grid item xs={12} sm={6} md={4} key={template.id}>
-                  <Box onClick={() => setPreviewTemplate(template)} sx={{ cursor: 'pointer' }}>
-                    <TemplateCard {...template} isAuthenticated={isAuthenticated} />
-                  </Box>
-                </Grid>
+                <div key={template.id} onClick={() => setPreviewTemplate(template)} className="cursor-pointer">
+                  <TemplateCard {...template} isAuthenticated={isAuthenticated} />
+                </div>
               ))}
-            </Grid>
+            </div>
           )}
-        </Box>
-      </Container>
+        </div>
+      </section>
 
       {/* CTA Section */}
-      <Box sx={{ bgcolor: 'background.default', py: { xs: 6, md: 8 } }}>
-        <Container maxWidth="md">
-          <Box
-            sx={{
-              bgcolor: 'primary.main',
-              color: 'primary.contrastText',
-              borderRadius: 4,
-              p: { xs: 4, md: 6 },
-              textAlign: 'center'
-            }}
-          >
-            <Typography variant="h4" component="h2" fontWeight="bold" sx={{ mb: 2 }}>
-              Ready to Create Your QR Code?
-            </Typography>
-            <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
-              Sign up for free and start using any template in seconds
-            </Typography>
-            <Button
-              component={Link}
-              href="/signup"
-              variant="contained"
-              size="large"
-              endIcon={<ArrowForward />}
-              sx={{
-                bgcolor: 'background.paper',
-                color: 'text.primary',
-                '&:hover': { bgcolor: 'background.default' }
-              }}
-            >
-              Get Started Free
-            </Button>
-          </Box>
-        </Container>
-      </Box>
+      <section className="py-20 border-t border-white/10">
+        <div className="container mx-auto px-4">
+          <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-3xl p-12 text-center border border-white/10 relative overflow-hidden max-w-4xl mx-auto">
+            <div className="absolute inset-0 bg-grid-white/[0.05] bg-[length:30px_30px]" />
+            <div className="relative z-10">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Ready to Create Your QR Code?
+              </h2>
+              <p className="text-xl text-gray-300 mb-8 max-w-xl mx-auto">
+                Sign up for free and start using any template in seconds
+              </p>
+              <Button
+                size="lg"
+                variant="premium"
+                className="px-8 h-12 text-lg"
+                asChild
+              >
+                <Link href="/signup">
+                  Get Started Free
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Template Preview Modal */}
       <TemplatePreview
@@ -398,6 +369,6 @@ export default function TemplatesPage() {
         template={previewTemplate}
         isAuthenticated={isAuthenticated}
       />
-    </Box>
+    </div>
   );
 }

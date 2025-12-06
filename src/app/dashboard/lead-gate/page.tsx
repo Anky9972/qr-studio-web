@@ -1,50 +1,41 @@
 'use client';
 
-import { Box, Typography, Button, Container } from '@mui/material';
 import { useState } from 'react';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Plus, Lock, Key } from 'lucide-react';
 import LeadGateBuilder from '@/components/qr/LeadGateBuilder';
-import AddIcon from '@mui/icons-material/Add';
 
 export default function LeadGatePage() {
   const [showBuilder, setShowBuilder] = useState(false);
 
   return (
-    <Container maxWidth="xl">
-      <Box sx={{ py: 4 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Box>
-            <Typography variant="h4" fontWeight={700} gutterBottom>
-              Lead Gate
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Capture leads by gating content behind custom forms
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            size="large"
-            startIcon={<AddIcon />}
-            onClick={() => setShowBuilder(true)}
-            sx={{
-              borderRadius: 2,
-              px: 4,
-              py: 1.5,
-              background: 'linear-gradient(135deg, #1976D2 0%, #42A5F5 100%)',
-              boxShadow: '0px 4px 12px rgba(25, 118, 210, 0.3)',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #1565C0 0%, #1976D2 100%)',
-                transform: 'translateY(-2px)',
-                boxShadow: '0px 6px 16px rgba(25, 118, 210, 0.4)',
-              },
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-          >
-            Create New
+    <div className="max-w-[1600px] mx-auto p-6 space-y-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
+            Lead Gate
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Gate your content behind lead capture forms. Grow your email list on autopilot.
+          </p>
+        </div>
+        {!showBuilder && (
+          <Button variant="glow" onClick={() => setShowBuilder(true)}>
+            <Plus size={16} className="mr-2" /> Create Lead Gate
           </Button>
-        </Box>
+        )}
+        {showBuilder && (
+          <Button variant="ghost" onClick={() => setShowBuilder(false)}>
+            Cancel
+          </Button>
+        )}
+      </div>
 
-        {showBuilder ? (
-          <LeadGateBuilder 
+      {showBuilder ? (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <LeadGateBuilder
             onSave={async (data) => {
               // Save to API
               await fetch('/api/lead-gate', {
@@ -55,36 +46,24 @@ export default function LeadGatePage() {
               setShowBuilder(false);
             }}
           />
-        ) : (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minHeight: '400px',
-              border: '2px dashed',
-              borderColor: 'divider',
-              borderRadius: 3,
-              p: 4,
-            }}
-          >
-            <Typography variant="h6" color="text.secondary" gutterBottom>
-              No lead gates yet
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              Create your first lead capture form to get started
-            </Typography>
-            <Button
-              variant="outlined"
-              startIcon={<AddIcon />}
-              onClick={() => setShowBuilder(true)}
-            >
-              Create Your First Lead Gate
-            </Button>
-          </Box>
-        )}
-      </Box>
-    </Container>
+        </div>
+      ) : (
+        <Card variant="glass" className="py-20 text-center flex flex-col items-center">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center mb-6 relative group">
+            <Lock size={48} className="text-purple-400 group-hover:scale-110 transition-transform duration-500" />
+            <div className="absolute -bottom-2 -right-2 bg-purple-500 p-1.5 rounded-full shadow-lg border-4 border-[#0f0f0f]">
+              <Key size={18} className="text-white" />
+            </div>
+          </div>
+          <h3 className="text-2xl font-bold mb-3">Capture More Leads</h3>
+          <p className="text-muted-foreground max-w-md mb-8 px-4">
+            Create beautiful forms that unlock content after submission. Perfect for ebooks, webinars, and exclusive offers.
+          </p>
+          <Button variant="glow" size="lg" onClick={() => setShowBuilder(true)} className="px-8">
+            <Plus size={18} className="mr-2" /> Create First Gate
+          </Button>
+        </Card>
+      )}
+    </div>
   );
 }

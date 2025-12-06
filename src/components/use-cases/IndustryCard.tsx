@@ -1,7 +1,10 @@
-import { Box, Card, CardContent, Typography, Chip, Button } from '@mui/material';
-import { ArrowForward } from '@mui/icons-material';
 import Link from 'next/link';
 import { ReactNode } from 'react';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { ArrowForward } from '@mui/icons-material';
+import { cn } from '@/lib/utils';
 
 interface IndustryCardProps {
   title: string;
@@ -24,96 +27,62 @@ export default function IndustryCard({
   cta
 }: IndustryCardProps) {
   return (
-    <Card
-      elevation={0}
-      sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        border: '1px solid',
-        borderColor: 'divider',
-        transition: 'all 0.3s ease',
-        '&:hover': {
-          borderColor: 'primary.main',
-          transform: 'translateY(-4px)',
-          boxShadow: 4
-        }
-      }}
-    >
-      <CardContent sx={{ flexGrow: 1, p: 3 }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            mb: 2
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 60,
-              height: 60,
-              borderRadius: 2,
-              bgcolor: 'primary.main',
-              color: 'primary.contrastText'
-            }}
-          >
+    <Card variant="glass" className="h-full flex flex-col group hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300">
+      <CardContent className="flex-grow p-6">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-500/10 text-blue-400 group-hover:scale-110 transition-transform duration-300">
             {icon}
-          </Box>
-          <Typography variant="h5" component="h3" fontWeight="bold">
+          </div>
+          <h3 className="text-xl font-bold text-white">
             {title}
-          </Typography>
-        </Box>
+          </h3>
+        </div>
 
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+        <p className="text-gray-400 mb-6 leading-relaxed">
           {description}
-        </Typography>
+        </p>
 
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>
-            Common Use Cases:
-          </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+        <div className="mb-6">
+          <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-3">
+            Common Use Cases
+          </h4>
+          <div className="flex flex-wrap gap-2">
             {useCases.map((useCase, index) => (
-              <Chip key={index} label={useCase} size="small" variant="outlined" />
+              <Badge key={index} variant="outline" className="bg-white/5 border-white/10 text-gray-300">
+                {useCase}
+              </Badge>
             ))}
-          </Box>
-        </Box>
+          </div>
+        </div>
 
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>
-            Key Benefits:
-          </Typography>
-          <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
+        <div className="mb-6">
+          <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-3">
+            Key Benefits
+          </h4>
+          <ul className="space-y-2">
             {benefits.map((benefit, index) => (
-              <Typography
-                key={index}
-                component="li"
-                variant="body2"
-                color="text.secondary"
-                sx={{ mb: 0.5 }}
-              >
+              <li key={index} className="text-sm text-gray-400 flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
                 {benefit}
-              </Typography>
+              </li>
             ))}
-          </Box>
-        </Box>
+          </ul>
+        </div>
 
         {cta && (
-          <Button
-            component={Link}
-            href={cta.href}
-            variant="outlined"
-            endIcon={<ArrowForward />}
-            fullWidth
-          >
-            {cta.text}
-          </Button>
+          <div className="mt-auto pt-4 border-t border-white/10">
+            <Button
+              className="w-full justify-between group-hover:translate-x-1 transition-transform"
+              variant="ghost"
+              onClick={() => window.location.href = cta.href}
+            >
+              {cta.text}
+              <ArrowForward className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </div>
         )}
       </CardContent>
     </Card>
   );
 }
+

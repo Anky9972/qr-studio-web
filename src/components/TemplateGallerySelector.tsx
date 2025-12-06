@@ -1,23 +1,13 @@
 import React, { useState } from 'react';
 import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  Chip,
-  Tabs,
-  Tab,
-  alpha,
-  useTheme,
-} from '@mui/material';
-import {
-  AutoAwesome,
-  Gradient,
-  Pattern,
-  Animation,
-  Star,
-} from '@mui/icons-material';
+  Sparkles,
+  Grid3X3,
+  Palette,
+  Zap,
+  Crown
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { QRTemplate, QR_TEMPLATES, getTemplatesByCategory } from '@/lib/qr-templates';
 
 interface TemplateGallerySelectorProps {
@@ -31,24 +21,22 @@ export const TemplateGallerySelector: React.FC<TemplateGallerySelectorProps> = (
   selectedTemplateId,
   showPremium = true,
 }) => {
-  const theme = useTheme();
-  const [selectedCategory, setSelectedCategory] = useState<number>(0);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const categories = [
-    { label: 'All', value: 'all', icon: <AutoAwesome /> },
-    { label: 'Minimal', value: 'minimal', icon: <Pattern /> },
-    { label: 'Gradient', value: 'gradient', icon: <Gradient /> },
-    { label: 'Pattern', value: 'pattern', icon: <Pattern /> },
-    { label: 'Animated', value: 'animated', icon: <Animation /> },
-    { label: 'Premium', value: 'premium', icon: <Star /> },
+    { label: 'All', value: 'all', icon: Sparkles },
+    { label: 'Minimal', value: 'minimal', icon: Grid3X3 },
+    { label: 'Gradient', value: 'gradient', icon: Palette },
+    { label: 'Pattern', value: 'pattern', icon: Grid3X3 },
+    { label: 'Animated', value: 'animated', icon: Zap },
+    { label: 'Premium', value: 'premium', icon: Crown },
   ];
 
   const getFilteredTemplates = () => {
-    const category = categories[selectedCategory].value;
-    if (category === 'all') {
+    if (selectedCategory === 'all') {
       return showPremium ? QR_TEMPLATES : QR_TEMPLATES.filter(t => !t.premium);
     }
-    const templates = getTemplatesByCategory(category as any);
+    const templates = getTemplatesByCategory(selectedCategory as any);
     return showPremium ? templates : templates.filter(t => !t.premium);
   };
 
@@ -59,7 +47,7 @@ export const TemplateGallerySelector: React.FC<TemplateGallerySelectorProps> = (
       const stops = template.gradient.colorStops
         .map((stop) => `${stop.color} ${stop.offset * 100}%`)
         .join(', ');
-      
+
       if (template.gradient.type === 'linear') {
         return `linear-gradient(${template.gradient.rotation || 0}deg, ${stops})`;
       } else {
@@ -70,144 +58,102 @@ export const TemplateGallerySelector: React.FC<TemplateGallerySelectorProps> = (
   };
 
   return (
-    <Box>
-      <Tabs
-        value={selectedCategory}
-        onChange={(_, newValue) => setSelectedCategory(newValue)}
-        variant="scrollable"
-        scrollButtons="auto"
-        sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
-      >
-        {categories.map((cat, index) => (
-          <Tab
-            key={cat.value}
-            label={cat.label}
-            icon={cat.icon}
-            iconPosition="start"
-            sx={{ minHeight: 48 }}
-          />
-        ))}
-      </Tabs>
-
-      <Grid container spacing={2}>
-        {templates.map((template) => (
-          <Grid item xs={6} sm={4} md={3} key={template.id}>
-            <Card
-              onClick={() => onSelectTemplate(template)}
-              sx={{
-                cursor: 'pointer',
-                border: 2,
-                borderColor:
-                  selectedTemplateId === template.id
-                    ? 'primary.main'
-                    : 'transparent',
-                transition: 'all 0.3s',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: 4,
-                  borderColor: 'primary.light',
-                },
-              }}
+    <div className="space-y-6">
+      {/* Category Tabs */}
+      <div className="flex overflow-x-auto pb-2 gap-2 scrollbar-thin scrollbar-thumb-white/10">
+        {categories.map((cat) => {
+          const Icon = cat.icon;
+          const isSelected = selectedCategory === cat.value;
+          return (
+            <button
+              key={cat.value}
+              onClick={() => setSelectedCategory(cat.value)}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap",
+                isSelected
+                  ? "bg-primary text-primary-foreground shadow-[0_0_15px_rgba(var(--primary),0.4)]"
+                  : "bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-foreground"
+              )}
             >
-              <Box
-                sx={{
-                  height: 120,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: template.background,
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
+              <Icon size={16} />
+              {cat.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Templates Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <AnimatePresence mode="popLayout">
+          {templates.map((template) => (
+            <motion.div
+              key={template.id}
+              layout
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
+            >
+              <button
+                onClick={() => onSelectTemplate(template)}
+                className={cn(
+                  "w-full group relative flex flex-col items-center overflow-hidden rounded-xl border transition-all duration-300",
+                  selectedTemplateId === template.id
+                    ? "border-primary ring-1 ring-primary shadow-[0_0_20px_rgba(var(--primary),0.3)] bg-primary/5"
+                    : "border-white/10 hover:border-primary/50 bg-white/5 hover:bg-white/10"
+                )}
               >
-                {/* Mini QR Preview */}
-                <Box
-                  sx={{
-                    width: 80,
-                    height: 80,
-                    background: getGradientPreview(template),
-                    borderRadius: template.pattern === 'dots' ? '50%' : 
-                                 template.pattern === 'rounded' ? '12px' : 
-                                 template.pattern === 'extra-rounded' ? '20px' : '4px',
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(8, 1fr)',
-                    gridTemplateRows: 'repeat(8, 1fr)',
-                    gap: '2px',
-                    p: 1,
-                  }}
+                {/* Preview Area */}
+                <div
+                  className="w-full h-32 flex items-center justify-center relative bg-black/20"
+                  style={{ background: template.background }}
                 >
-                  {[...Array(64)].map((_, i) => (
-                    <Box
-                      key={i}
-                      sx={{
-                        background: Math.random() > 0.5 ? 'currentColor' : 'transparent',
-                        borderRadius: template.pattern === 'dots' ? '50%' : 
-                                     template.pattern.includes('rounded') ? '2px' : 0,
-                        opacity: 0.3,
+                  <div className="relative z-10 w-20 h-20 shadow-lg">
+                    <div
+                      className="w-full h-full rounded-lg"
+                      style={{
+                        background: getGradientPreview(template),
+                        maskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='black' d='M10,10 h30 v30 h-30 z M60,10 h30 v30 h-30 z M10,60 h30 v30 h-30 z'/%3E%3C/svg%3E")`,
+                        WebkitMaskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='black' d='M10,10 h30 v30 h-30 z M60,10 h30 v30 h-30 z M10,60 h30 v30 h-30 z'/%3E%3C/svg%3E")`,
+                        WebkitMaskSize: 'contain',
+                        maskSize: 'contain',
+                        opacity: 0.8
                       }}
                     />
-                  ))}
-                </Box>
+                  </div>
 
-                {/* Badges */}
-                {template.animated && (
-                  <Chip
-                    label="Animated"
-                    size="small"
-                    color="primary"
-                    icon={<Animation fontSize="small" />}
-                    sx={{
-                      position: 'absolute',
-                      top: 8,
-                      right: 8,
-                      fontSize: '10px',
-                    }}
-                  />
-                )}
-                {template.premium && (
-                  <Chip
-                    label="Premium"
-                    size="small"
-                    color="warning"
-                    icon={<Star fontSize="small" />}
-                    sx={{
-                      position: 'absolute',
-                      top: 8,
-                      left: 8,
-                      fontSize: '10px',
-                    }}
-                  />
-                )}
-              </Box>
+                  {/* Badges */}
+                  <div className="absolute top-2 right-2 flex gap-1">
+                    {template.animated && (
+                      <span className="flex items-center gap-1 bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-500/30">
+                        <Zap size={10} /> AB
+                      </span>
+                    )}
+                    {template.premium && (
+                      <span className="flex items-center gap-1 bg-amber-500/20 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-500/30">
+                        <Crown size={10} /> PRO
+                      </span>
+                    )}
+                  </div>
+                </div>
 
-              <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-                <Typography variant="body2" fontWeight={600} noWrap>
-                  {template.name}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" noWrap>
-                  {template.pattern}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+                {/* Info Area */}
+                <div className="w-full p-3 text-left border-t border-white/5">
+                  <h4 className="font-semibold text-sm truncate">{template.name}</h4>
+                  <p className="text-xs text-muted-foreground capitalize">{template.pattern}</p>
+                </div>
+              </button>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
 
       {templates.length === 0 && (
-        <Box
-          sx={{
-            textAlign: 'center',
-            py: 8,
-            color: 'text.secondary',
-          }}
-        >
-          <Typography variant="h6">No templates found</Typography>
-          <Typography variant="body2">
-            Try selecting a different category
-          </Typography>
-        </Box>
+        <div className="text-center py-12 text-muted-foreground">
+          <p>No templates found in this category.</p>
+        </div>
       )}
-    </Box>
+    </div>
   );
 };
 

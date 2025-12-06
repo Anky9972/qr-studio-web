@@ -1,161 +1,207 @@
 'use client';
 
-import { Box, Container, Typography, Button } from '@mui/material';
-import { QrCode2, ArrowBack } from '@mui/icons-material';
+import { QrCode, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/Button';
+import { cn } from '@/lib/utils';
 
 export default function CookiesPage() {
   return (
-    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+    <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <Box sx={{ bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider', py: 2 }}>
-        <Container maxWidth="lg">
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <QrCode2 sx={{ fontSize: 32, color: 'primary.main' }} />
-              <Typography variant="h6" fontWeight="bold" component={Link} href="/" sx={{ textDecoration: 'none', color: 'inherit' }}>
-                QR Studio
-              </Typography>
-            </Box>
-            <Button startIcon={<ArrowBack />} component={Link} href="/">Back to Home</Button>
-          </Box>
-        </Container>
-      </Box>
+      <div className="bg-white/5 border-b border-white/10 py-4 sticky top-0 z-50 backdrop-blur-xl">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center">
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="p-2 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg group-hover:shadow-lg group-hover:shadow-blue-500/20 transition-all">
+                <QrCode className="text-white h-6 w-6" />
+              </div>
+              <span className="font-bold text-xl tracking-tight">QR Studio</span>
+            </Link>
+            <Button variant="ghost" className="text-gray-400 hover:text-white" onClick={() => window.location.href = '/'}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Home
+            </Button>
+          </div>
+        </div>
+      </div>
 
-      <Container maxWidth="md" sx={{ py: 8 }}>
-        <Typography variant="h2" fontWeight="bold" gutterBottom>Cookie Policy</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>Last updated: December 2, 2025</Typography>
+      <div className="container mx-auto px-4 py-12 max-w-4xl">
+        <div className="mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
+            Cookie Policy
+          </h1>
+          <p className="text-gray-400">Last updated: December 2, 2025</p>
+        </div>
 
-        <Box sx={{ '& h3': { mt: 4, mb: 2, fontWeight: 'bold' }, '& p': { mb: 2 } }}>
-          <Typography variant="h5" fontWeight="bold" gutterBottom>What Are Cookies</Typography>
-          <Typography paragraph>
-            Cookies are small text files that are stored on your device (computer, tablet, or mobile) when you visit a website. They help websites remember information about your visit, making your next visit easier and the site more useful to you.
-          </Typography>
+        <div className="space-y-12 text-gray-300 leading-relaxed">
+          <section>
+            <h2 className="text-2xl font-bold text-white mb-4">What Are Cookies</h2>
+            <p>
+              Cookies are small text files that are stored on your device (computer, tablet, or mobile) when you visit a website. They help websites remember information about your visit, making your next visit easier and the site more useful to you.
+            </p>
+          </section>
 
-          <Typography variant="h5" fontWeight="bold" gutterBottom>How We Use Cookies</Typography>
-          <Typography paragraph>
-            QR Studio uses cookies to enhance your experience, improve our services, and provide functionality. We use the following types of cookies:
-          </Typography>
+          <section>
+            <h2 className="text-2xl font-bold text-white mb-4">How We Use Cookies</h2>
+            <p className="mb-4">
+              QR Studio uses cookies to enhance your experience, improve our services, and provide functionality. We use the following types of cookies:
+            </p>
 
-          <Typography variant="h6" fontWeight="bold" gutterBottom>1. Essential Cookies</Typography>
-          <Typography paragraph>
-            These cookies are necessary for the website to function properly. Without these cookies, services you have requested cannot be provided.
-          </Typography>
-          <Box component="ul" sx={{ pl: 4, mb: 2 }}>
-            <li><strong>Authentication:</strong> Keep you logged in to your account</li>
-            <li><strong>Security:</strong> Protect against cross-site request forgery (CSRF) attacks</li>
-            <li><strong>Session Management:</strong> Maintain your session state across pages</li>
-            <li><strong>Load Balancing:</strong> Distribute traffic across our servers</li>
-          </Box>
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-2">1. Essential Cookies</h3>
+                <p className="mb-2">
+                  These cookies are necessary for the website to function properly. Without these cookies, services you have requested cannot be provided.
+                </p>
+                <ul className="list-disc pl-6 space-y-1 text-gray-400">
+                  <li><strong className="text-gray-200">Authentication:</strong> Keep you logged in to your account</li>
+                  <li><strong className="text-gray-200">Security:</strong> Protect against cross-site request forgery (CSRF) attacks</li>
+                  <li><strong className="text-gray-200">Session Management:</strong> Maintain your session state across pages</li>
+                  <li><strong className="text-gray-200">Load Balancing:</strong> Distribute traffic across our servers</li>
+                </ul>
+              </div>
 
-          <Typography variant="h6" fontWeight="bold" gutterBottom>2. Functional Cookies</Typography>
-          <Typography paragraph>
-            These cookies enable enhanced functionality and personalization, such as remembering your preferences.
-          </Typography>
-          <Box component="ul" sx={{ pl: 4, mb: 2 }}>
-            <li><strong>Preferences:</strong> Remember your language, theme, and display settings</li>
-            <li><strong>UI State:</strong> Remember sidebar collapse state, tab selections</li>
-            <li><strong>Recently Used:</strong> Store recently accessed QR codes for quick access</li>
-          </Box>
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-2">2. Functional Cookies</h3>
+                <p className="mb-2">
+                  These cookies enable enhanced functionality and personalization, such as remembering your preferences.
+                </p>
+                <ul className="list-disc pl-6 space-y-1 text-gray-400">
+                  <li><strong className="text-gray-200">Preferences:</strong> Remember your language, theme, and display settings</li>
+                  <li><strong className="text-gray-200">UI State:</strong> Remember sidebar collapse state, tab selections</li>
+                  <li><strong className="text-gray-200">Recently Used:</strong> Store recently accessed QR codes for quick access</li>
+                </ul>
+              </div>
 
-          <Typography variant="h6" fontWeight="bold" gutterBottom>3. Analytics Cookies</Typography>
-          <Typography paragraph>
-            These cookies help us understand how visitors interact with our website by collecting and reporting information anonymously.
-          </Typography>
-          <Box component="ul" sx={{ pl: 4, mb: 2 }}>
-            <li><strong>Usage Patterns:</strong> Track which features are most used</li>
-            <li><strong>Performance:</strong> Measure page load times and errors</li>
-            <li><strong>Traffic Sources:</strong> Understand how you found our website</li>
-          </Box>
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-2">3. Analytics Cookies</h3>
+                <p className="mb-2">
+                  These cookies help us understand how visitors interact with our website by collecting and reporting information anonymously.
+                </p>
+                <ul className="list-disc pl-6 space-y-1 text-gray-400">
+                  <li><strong className="text-gray-200">Usage Patterns:</strong> Track which features are most used</li>
+                  <li><strong className="text-gray-200">Performance:</strong> Measure page load times and errors</li>
+                  <li><strong className="text-gray-200">Traffic Sources:</strong> Understand how you found our website</li>
+                </ul>
+              </div>
 
-          <Typography variant="h6" fontWeight="bold" gutterBottom>4. Marketing Cookies</Typography>
-          <Typography paragraph>
-            These cookies may be set through our site by our advertising partners to build a profile of your interests.
-          </Typography>
-          <Box component="ul" sx={{ pl: 4, mb: 2 }}>
-            <li><strong>Advertising:</strong> Show relevant ads across other websites</li>
-            <li><strong>Campaign Tracking:</strong> Measure effectiveness of marketing campaigns</li>
-          </Box>
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-2">4. Marketing Cookies</h3>
+                <p className="mb-2">
+                  These cookies may be set through our site by our advertising partners to build a profile of your interests.
+                </p>
+                <ul className="list-disc pl-6 space-y-1 text-gray-400">
+                  <li><strong className="text-gray-200">Advertising:</strong> Show relevant ads across other websites</li>
+                  <li><strong className="text-gray-200">Campaign Tracking:</strong> Measure effectiveness of marketing campaigns</li>
+                </ul>
+              </div>
+            </div>
+          </section>
 
-          <Typography variant="h5" fontWeight="bold" gutterBottom>Third-Party Cookies</Typography>
-          <Typography paragraph>
-            We use the following third-party services that may set cookies:
-          </Typography>
-          <Box component="ul" sx={{ pl: 4, mb: 2 }}>
-            <li><strong>Google Analytics:</strong> Website traffic analysis</li>
-            <li><strong>Stripe:</strong> Payment processing</li>
-            <li><strong>Intercom:</strong> Customer support chat</li>
-          </Box>
+          <section>
+            <h2 className="text-2xl font-bold text-white mb-4">Third-Party Cookies</h2>
+            <p className="mb-4">
+              We use the following third-party services that may set cookies:
+            </p>
+            <ul className="list-disc pl-6 space-y-1 text-gray-400">
+              <li><strong className="text-gray-200">Google Analytics:</strong> Website traffic analysis</li>
+              <li><strong className="text-gray-200">Stripe:</strong> Payment processing</li>
+              <li><strong className="text-gray-200">Intercom:</strong> Customer support chat</li>
+            </ul>
+          </section>
 
-          <Typography variant="h5" fontWeight="bold" gutterBottom>Managing Cookies</Typography>
-          <Typography paragraph>
-            You have several options for managing cookies:
-          </Typography>
+          <section>
+            <h2 className="text-2xl font-bold text-white mb-4">Managing Cookies</h2>
+            <p className="mb-4">
+              You have several options for managing cookies:
+            </p>
 
-          <Typography variant="h6" fontWeight="bold" gutterBottom>Browser Settings</Typography>
-          <Typography paragraph>
-            Most browsers allow you to control cookies through their settings. You can:
-          </Typography>
-          <Box component="ul" sx={{ pl: 4, mb: 2 }}>
-            <li>Block all cookies</li>
-            <li>Block third-party cookies only</li>
-            <li>Delete cookies when you close your browser</li>
-            <li>View and delete individual cookies</li>
-          </Box>
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-2">Browser Settings</h3>
+                <p className="mb-2">
+                  Most browsers allow you to control cookies through their settings. You can:
+                </p>
+                <ul className="list-disc pl-6 space-y-1 text-gray-400">
+                  <li>Block all cookies</li>
+                  <li>Block third-party cookies only</li>
+                  <li>Delete cookies when you close your browser</li>
+                  <li>View and delete individual cookies</li>
+                </ul>
+              </div>
 
-          <Typography variant="h6" fontWeight="bold" gutterBottom>Browser-Specific Instructions</Typography>
-          <Box component="ul" sx={{ pl: 4, mb: 2 }}>
-            <li><strong>Chrome:</strong> Settings → Privacy and security → Cookies and other site data</li>
-            <li><strong>Firefox:</strong> Settings → Privacy & Security → Cookies and Site Data</li>
-            <li><strong>Safari:</strong> Preferences → Privacy → Manage Website Data</li>
-            <li><strong>Edge:</strong> Settings → Privacy, search, and services → Cookies</li>
-          </Box>
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-2">Browser-Specific Instructions</h3>
+                <ul className="list-disc pl-6 space-y-1 text-gray-400">
+                  <li><strong className="text-gray-200">Chrome:</strong> Settings → Privacy and security → Cookies and other site data</li>
+                  <li><strong className="text-gray-200">Firefox:</strong> Settings → Privacy & Security → Cookies and Site Data</li>
+                  <li><strong className="text-gray-200">Safari:</strong> Preferences → Privacy → Manage Website Data</li>
+                  <li><strong className="text-gray-200">Edge:</strong> Settings → Privacy, search, and services → Cookies</li>
+                </ul>
+              </div>
 
-          <Typography variant="h6" fontWeight="bold" gutterBottom>Cookie Consent Tool</Typography>
-          <Typography paragraph>
-            When you first visit QR Studio, you'll see a cookie consent banner. You can:
-          </Typography>
-          <Box component="ul" sx={{ pl: 4, mb: 2 }}>
-            <li>Accept all cookies</li>
-            <li>Reject non-essential cookies</li>
-            <li>Customize your cookie preferences</li>
-          </Box>
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-2">Cookie Consent Tool</h3>
+                <p className="mb-2">
+                  When you first visit QR Studio, you&apos;ll see a cookie consent banner. You can:
+                </p>
+                <ul className="list-disc pl-6 space-y-1 text-gray-400">
+                  <li>Accept all cookies</li>
+                  <li>Reject non-essential cookies</li>
+                  <li>Customize your cookie preferences</li>
+                </ul>
+              </div>
+            </div>
+          </section>
 
-          <Typography variant="h5" fontWeight="bold" gutterBottom>Impact of Disabling Cookies</Typography>
-          <Typography paragraph>
-            Disabling certain cookies may affect your experience:
-          </Typography>
-          <Box component="ul" sx={{ pl: 4, mb: 2 }}>
-            <li><strong>Essential Cookies:</strong> You may not be able to log in or use key features</li>
-            <li><strong>Functional Cookies:</strong> Your preferences won't be saved</li>
-            <li><strong>Analytics Cookies:</strong> We won't be able to improve based on usage data</li>
-            <li><strong>Marketing Cookies:</strong> You may see less relevant advertising</li>
-          </Box>
+          <section>
+            <h2 className="text-2xl font-bold text-white mb-4">Impact of Disabling Cookies</h2>
+            <p className="mb-4">
+              Disabling certain cookies may affect your experience:
+            </p>
+            <ul className="list-disc pl-6 space-y-1 text-gray-400">
+              <li><strong className="text-gray-200">Essential Cookies:</strong> You may not be able to log in or use key features</li>
+              <li><strong className="text-gray-200">Functional Cookies:</strong> Your preferences won&apos;t be saved</li>
+              <li><strong className="text-gray-200">Analytics Cookies:</strong> We won&apos;t be able to improve based on usage data</li>
+              <li><strong className="text-gray-200">Marketing Cookies:</strong> You may see less relevant advertising</li>
+            </ul>
+          </section>
 
-          <Typography variant="h5" fontWeight="bold" gutterBottom>Cookie Retention</Typography>
-          <Typography paragraph>
-            Different cookies have different lifespans:
-          </Typography>
-          <Box component="ul" sx={{ pl: 4, mb: 2 }}>
-            <li><strong>Session Cookies:</strong> Deleted when you close your browser</li>
-            <li><strong>Persistent Cookies:</strong> Remain until they expire or you delete them (typically 30 days to 2 years)</li>
-          </Box>
+          <section>
+            <h2 className="text-2xl font-bold text-white mb-4">Cookie Retention</h2>
+            <p className="mb-4">
+              Different cookies have different lifespans:
+            </p>
+            <ul className="list-disc pl-6 space-y-1 text-gray-400">
+              <li><strong className="text-gray-200">Session Cookies:</strong> Deleted when you close your browser</li>
+              <li><strong className="text-gray-200">Persistent Cookies:</strong> Remain until they expire or you delete them (typically 30 days to 2 years)</li>
+            </ul>
+          </section>
 
-          <Typography variant="h5" fontWeight="bold" gutterBottom>Updates to This Policy</Typography>
-          <Typography paragraph>
-            We may update this Cookie Policy to reflect changes in our practices or for legal reasons. We will notify you of significant changes by posting a notice on our website or sending you an email.
-          </Typography>
+          <section>
+            <h2 className="text-2xl font-bold text-white mb-4">Updates to This Policy</h2>
+            <p>
+              We may update this Cookie Policy to reflect changes in our practices or for legal reasons. We will notify you of significant changes by posting a notice on our website or sending you an email.
+            </p>
+          </section>
 
-          <Typography variant="h5" fontWeight="bold" gutterBottom>Contact Us</Typography>
-          <Typography paragraph>
-            If you have questions about our use of cookies, please contact us at:
-          </Typography>
-          <Typography paragraph>
-            <strong>Email:</strong> privacy@qrstudio.com<br/>
-            <strong>Website:</strong> <Link href="/support">qrstudio.com/support</Link>
-          </Typography>
-        </Box>
-      </Container>
-    </Box>
+          <section>
+            <h2 className="text-2xl font-bold text-white mb-4">Contact Us</h2>
+            <p className="mb-4">
+              If you have questions about our use of cookies, please contact us at:
+            </p>
+            <div className="bg-white/5 border border-white/10 p-6 rounded-lg">
+              <p className="mb-2">
+                <strong className="text-white">Email:</strong> <a href="mailto:privacy@qrstudio.com" className="text-blue-400 hover:text-blue-300">privacy@qrstudio.com</a>
+              </p>
+              <p>
+                <strong className="text-white">Website:</strong> <Link href="/support" className="text-blue-400 hover:text-blue-300">qrstudio.com/support</Link>
+              </p>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
   );
 }

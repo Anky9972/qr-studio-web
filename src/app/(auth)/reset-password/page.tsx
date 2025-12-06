@@ -2,19 +2,12 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import {
-  Box,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Alert,
-  Link as MuiLink,
-  CircularProgress,
-} from '@mui/material'
-import QrCode2Icon from '@mui/icons-material/QrCode2'
 import Link from 'next/link'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import { QrCode, CheckCircle, ArrowLeft, Lock } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/Alert'
 
 function ResetPasswordContent() {
   const router = useRouter()
@@ -84,189 +77,135 @@ function ResetPasswordContent() {
 
   if (!isValidToken) {
     return (
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          bgcolor: 'primary.main',
-          p: 2,
-        }}
-      >
-        <Paper
-          elevation={8}
-          sx={{
-            maxWidth: 440,
-            width: '100%',
-            p: 4,
-            borderRadius: 2,
-          }}
-        >
-          <Box sx={{ textAlign: 'center', mb: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-              <QrCode2Icon sx={{ fontSize: 48, color: 'primary.main', mr: 1 }} />
-              <Typography variant="h4" fontWeight={700} color="primary">
-                QR Studio
-              </Typography>
-            </Box>
-            <Typography variant="h5" fontWeight={600} gutterBottom>
-              Invalid Reset Link
-            </Typography>
-          </Box>
+      <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/20 rounded-full blur-[100px] animate-pulse-slow" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/20 rounded-full blur-[100px] animate-pulse-slow delay-1000" />
+        </div>
 
-          <Alert severity="error" sx={{ mb: 3 }}>
-            This password reset link is invalid or has expired. Please request a new one.
-          </Alert>
+        <Card variant="glass" className="w-full max-w-md relative z-10 border-white/10">
+          <CardHeader className="text-center space-y-2">
+            <div className="mx-auto w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 mb-4">
+              <QrCode className="text-white" size={24} />
+            </div>
+            <CardTitle className="text-2xl font-bold text-white">Invalid Reset Link</CardTitle>
+          </CardHeader>
 
-          <Button
-            fullWidth
-            component={Link}
-            href="/forgot-password"
-            variant="contained"
-            size="large"
-            sx={{ py: 1.5 }}
-          >
-            Request New Reset Link
-          </Button>
+          <CardContent className="space-y-4">
+            <Alert className="bg-red-500/10 border-red-500/20 text-red-400">
+              <AlertDescription>
+                This password reset link is invalid or has expired. Please request a new one.
+              </AlertDescription>
+            </Alert>
 
-          <Box sx={{ textAlign: 'center', mt: 3 }}>
-            <MuiLink
-              component={Link}
-              href="/signin"
-              sx={{
-                textDecoration: 'none',
-                fontWeight: 600,
-              }}
+            <Button
+              className="w-full"
+              variant="premium"
+              size="lg"
+              asChild
             >
-              Back to sign in
-            </MuiLink>
-          </Box>
-        </Paper>
-      </Box>
+              <Link href="/forgot-password">Request New Reset Link</Link>
+            </Button>
+
+            <div className="text-center pt-4 border-t border-white/10">
+              <Link href="/signin" className="text-sm text-gray-400 hover:text-white transition-colors">
+                Back to sign in
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     )
   }
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        bgcolor: 'primary.main',
-        p: 2,
-      }}
-    >
-      <Paper
-        elevation={8}
-        sx={{
-          maxWidth: 440,
-          width: '100%',
-          p: 4,
-          borderRadius: 2,
-        }}
-      >
-        {/* Logo & Title */}
-        <Box sx={{ textAlign: 'center', mb: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-            <QrCode2Icon sx={{ fontSize: 48, color: 'primary.main', mr: 1 }} />
-            <Typography variant="h4" fontWeight={700} color="primary">
-              QR Studio
-            </Typography>
-          </Box>
-          <Typography variant="h5" fontWeight={600} gutterBottom>
-            Reset your password
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
+    <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/20 rounded-full blur-[100px] animate-pulse-slow" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/20 rounded-full blur-[100px] animate-pulse-slow delay-1000" />
+      </div>
+
+      <Card variant="glass" className="w-full max-w-md relative z-10 border-white/10">
+        <CardHeader className="text-center space-y-2">
+          <div className="mx-auto w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 mb-4">
+            <QrCode className="text-white" size={24} />
+          </div>
+          <CardTitle className="text-2xl font-bold text-white">Reset your password</CardTitle>
+          <CardDescription className="text-gray-400">
             Enter your new password below
-          </Typography>
-        </Box>
+          </CardDescription>
+        </CardHeader>
 
-        {/* Error/Success Alert */}
-        {errorMsg && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {errorMsg}
-          </Alert>
-        )}
-        {successMsg && (
-          <Alert 
-            severity="success" 
-            sx={{ mb: 3 }}
-            icon={<CheckCircleIcon />}
-          >
-            {successMsg}
-          </Alert>
-        )}
+        <CardContent className="space-y-4">
+          {errorMsg && (
+            <Alert className="bg-red-500/10 border-red-500/20 text-red-400">
+              <AlertDescription>{errorMsg}</AlertDescription>
+            </Alert>
+          )}
+          
+          {successMsg && (
+            <Alert className="bg-green-500/10 border-green-500/20 text-green-400">
+              <CheckCircle className="w-4 h-4" />
+              <AlertTitle>Success!</AlertTitle>
+              <AlertDescription>{successMsg}</AlertDescription>
+            </Alert>
+          )}
 
-        {/* Password Reset Form */}
-        {!successMsg && (
-          <form onSubmit={handleSubmit}>
-            <TextField
-              fullWidth
-              label="New password"
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-              helperText="Minimum 8 characters"
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              fullWidth
-              label="Confirm new password"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              sx={{ mb: 3 }}
-            />
+          {!successMsg && (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Input
+                  type="password"
+                  placeholder="New password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  icon={<Lock size={16} />}
+                />
+                <p className="text-xs text-gray-500">Minimum 8 characters</p>
+              </div>
 
-            <Button
-              fullWidth
-              type="submit"
-              variant="contained"
-              size="large"
-              disabled={loading}
-              sx={{ py: 1.5, mb: 2 }}
-            >
-              {loading ? 'Resetting password...' : 'Reset password'}
-            </Button>
-          </form>
-        )}
+              <div className="space-y-2">
+                <Input
+                  type="password"
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  icon={<Lock size={16} />}
+                />
+              </div>
 
-        {/* Back to Sign In */}
-        <Box sx={{ textAlign: 'center', mt: 3 }}>
-          <MuiLink
-            component={Link}
-            href="/signin"
-            sx={{
-              textDecoration: 'none',
-              fontWeight: 600,
-            }}
-          >
-            Back to sign in
-          </MuiLink>
-        </Box>
-      </Paper>
-    </Box>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={loading}
+                variant="premium"
+                size="lg"
+              >
+                {loading ? 'Resetting password...' : 'Reset password'}
+              </Button>
+            </form>
+          )}
+
+          <div className="text-center pt-4 border-t border-white/10">
+            <Link href="/signin" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
+              <ArrowLeft size={16} />
+              Back to sign in
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
 
 export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          bgcolor: 'primary.main',
-        }}
-      >
-        <CircularProgress />
-      </Box>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
     }>
       <ResetPasswordContent />
     </Suspense>

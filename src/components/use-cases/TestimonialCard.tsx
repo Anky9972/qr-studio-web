@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, Typography, Avatar, Rating } from '@mui/material';
+import { Card, CardContent } from '@/components/ui/Card';
 
 interface TestimonialCardProps {
   name: string;
@@ -20,60 +20,44 @@ export default function TestimonialCard({
   industry
 }: TestimonialCardProps) {
   return (
-    <Card
-      elevation={0}
-      sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        border: '1px solid',
-        borderColor: 'divider',
-        transition: 'all 0.3s ease',
-        '&:hover': {
-          borderColor: 'primary.light',
-          boxShadow: 2
-        }
-      }}
-    >
-      <CardContent sx={{ flexGrow: 1, p: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+    <Card variant="glass" className="h-full flex flex-col group hover:border-white/20 transition-all duration-300">
+      <CardContent className="flex-grow p-6">
+        <div className="flex items-center gap-4 mb-4">
           {avatar ? (
-            <Avatar src={avatar} alt={name} sx={{ width: 56, height: 56 }} />
+            <img src={avatar} alt={name} className="w-14 h-14 rounded-full object-cover ring-2 ring-white/10" />
           ) : (
-            <Avatar sx={{ width: 56, height: 56, bgcolor: 'primary.main' }}>
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xl font-bold text-white shadow-lg shadow-purple-500/20">
               {name.charAt(0)}
-            </Avatar>
+            </div>
           )}
-          <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="subtitle1" fontWeight="bold">
+          <div>
+            <h3 className="text-lg font-bold text-white">
               {name}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
+            </h3>
+            <p className="text-sm text-gray-400">
               {role} at {company}
-            </Typography>
+            </p>
             {industry && (
-              <Typography variant="caption" color="text.secondary">
+              <p className="text-xs text-blue-400 font-medium mt-0.5">
                 {industry}
-              </Typography>
+              </p>
             )}
-          </Box>
-        </Box>
+          </div>
+        </div>
 
-        <Rating value={rating} readOnly size="small" sx={{ mb: 2 }} />
+        <div className="flex gap-1 mb-4">
+          {[...Array(5)].map((_, i) => (
+            <span key={i} className={`text-lg ${i < rating ? 'text-yellow-400' : 'text-gray-600'}`}>
+              ★
+            </span>
+          ))}
+        </div>
 
-        <Typography
-          variant="body1"
-          color="text.secondary"
-          sx={{
-            fontStyle: 'italic',
-            lineHeight: 1.7,
-            '&::before': { content: '"\u201C"' },
-            '&::after': { content: '"\u201D"' }
-          }}
-        >
-          {text}
-        </Typography>
+        <blockquote className="text-gray-300 italic leading-relaxed relative">
+          &quot;{text}&quot;
+        </blockquote>
       </CardContent>
     </Card>
   );
 }
+

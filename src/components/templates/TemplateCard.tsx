@@ -1,6 +1,8 @@
-import { Card, CardContent, CardMedia, Typography, Chip, Button, Box } from '@mui/material';
-import { Star, Visibility } from '@mui/icons-material';
+import { Star, Eye } from 'lucide-react';
 import Link from 'next/link';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 
 interface TemplateCardProps {
   id: string;
@@ -26,124 +28,73 @@ export default function TemplateCard({
   isAuthenticated = false
 }: TemplateCardProps) {
   return (
-    <Card
-      elevation={0}
-      sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        border: '1px solid',
-        borderColor: 'divider',
-        transition: 'all 0.3s ease',
-        '&:hover': {
-          borderColor: 'primary.main',
-          transform: 'translateY(-4px)',
-          boxShadow: 4
-        }
-      }}
-    >
+    <Card className="h-full flex flex-col group hover:shadow-neon-blue transition-all duration-300 border-white/10 hover:border-blue-500/50 bg-white/5 backdrop-blur-sm">
       {/* Thumbnail */}
-      <Box sx={{ position: 'relative' }}>
-        <CardMedia
-          component="div"
-          sx={{
-            height: 200,
-            bgcolor: 'background.default',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderBottom: '1px solid',
-            borderColor: 'divider'
-          }}
-        >
-          {thumbnail ? (
-            <img
-              src={thumbnail}
-              alt={name}
-              style={{
-                maxWidth: '100%',
-                maxHeight: '100%',
-                objectFit: 'contain'
-              }}
-            />
-          ) : (
-            <Box
-              sx={{
-                width: 120,
-                height: 120,
-                bgcolor: 'primary.main',
-                opacity: 0.1,
-                borderRadius: 2
-              }}
-            />
-          )}
-        </CardMedia>
-        {isPro && (
-          <Chip
-            label="PRO"
-            size="small"
-            color="primary"
-            sx={{
-              position: 'absolute',
-              top: 8,
-              right: 8,
-              fontWeight: 'bold'
-            }}
+      <div className="relative h-48 bg-black/40 border-b border-white/10 flex items-center justify-center p-4 overflow-hidden">
+        {thumbnail ? (
+          <img
+            src={thumbnail}
+            alt={name}
+            className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
           />
+        ) : (
+          <div className="w-24 h-24 bg-blue-500/10 rounded-xl flex items-center justify-center">
+            <div className="w-16 h-16 bg-blue-500/20 rounded-lg animate-pulse" />
+          </div>
         )}
-      </Box>
+        {isPro && (
+          <div className="absolute top-2 right-2">
+            <Badge variant="default" className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+              PRO
+            </Badge>
+          </div>
+        )}
+      </div>
 
-      <CardContent sx={{ flexGrow: 1, p: 2.5 }}>
-        <Box sx={{ mb: 1.5 }}>
-          <Chip label={category} size="small" variant="outlined" />
-        </Box>
+      <CardContent className="flex-grow p-5 flex flex-col">
+        <div className="mb-3">
+          <Badge variant="outline" className="text-xs border-blue-500/30 text-blue-400 bg-blue-500/5">
+            {category}
+          </Badge>
+        </div>
 
-        <Typography variant="h6" component="h3" fontWeight="bold" gutterBottom>
+        <h3 className="text-lg font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
           {name}
-        </Typography>
+        </h3>
 
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{
-            mb: 2,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden'
-          }}
-        >
+        <p className="text-sm text-gray-400 mb-4 line-clamp-2 flex-grow">
           {description}
-        </Typography>
+        </p>
 
         {/* Stats */}
-        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+        <div className="flex items-center gap-4 mb-4 text-xs text-gray-500 font-medium">
           {rating > 0 && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Star sx={{ fontSize: 18, color: 'warning.main' }} />
-              <Typography variant="body2" fontWeight="bold">
-                {rating.toFixed(1)}
-              </Typography>
-            </Box>
+            <div className="flex items-center gap-1 text-yellow-500">
+              <Star className="w-3.5 h-3.5 fill-current" />
+              <span>{rating.toFixed(1)}</span>
+            </div>
           )}
           {usageCount > 0 && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Visibility sx={{ fontSize: 18, color: 'text.secondary' }} />
-              <Typography variant="body2" color="text.secondary">
-                {usageCount >= 1000 ? `${(usageCount / 1000).toFixed(1)}k` : usageCount}
-              </Typography>
-            </Box>
+            <div className="flex items-center gap-1">
+              <Eye className="w-3.5 h-3.5" />
+              <span>
+                {usageCount >= 1000
+                  ? `${(usageCount / 1000).toFixed(1)}k`
+                  : usageCount}
+              </span>
+            </div>
           )}
-        </Box>
+        </div>
 
         {/* Action Button */}
         <Button
-          component={Link}
-          href={isAuthenticated ? `/dashboard?template=${id}` : '/signup'}
-          variant="contained"
-          fullWidth
+          variant={isAuthenticated ? "default" : "outline"}
+          className="w-full justify-center"
+          asChild
         >
-          {isAuthenticated ? 'Use Template' : 'Sign Up to Use'}
+          <Link href={isAuthenticated ? `/dashboard?template=${id}` : '/signup'}>
+            {isAuthenticated ? 'Use Template' : 'Sign Up to Use'}
+          </Link>
         </Button>
       </CardContent>
     </Card>

@@ -2,37 +2,30 @@
 
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import {
-  Box,
-  Container,
-  Typography,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  Switch,
-  TextField,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  QrCode,
+  Check,
+  X,
+  ChevronDown,
+  ArrowRight,
+  Calculator
+} from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/Input';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  FormControlLabel
-} from '@mui/material';
-import {
-  QrCode2,
-  Check,
-  Close,
-  ExpandMore,
-  ArrowForward,
-  Calculate
-} from '@mui/icons-material';
-import Link from 'next/link';
+} from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 
 export default function PricingPage() {
   const { data: session } = useSession();
@@ -240,280 +233,238 @@ export default function PricingPage() {
 
   const renderFeatureValue = (value: any) => {
     if (typeof value === 'boolean') {
-      return value ? <Check sx={{ color: 'success.main' }} /> : <Close sx={{ color: 'error.main' }} />;
+      return value ? <Check className="text-green-500" size={20} /> : <X className="text-red-500" size={20} />;
     }
-    return <Typography variant="body2">{value}</Typography>;
+    return <span className="text-sm">{value}</span>;
   };
 
   return (
-    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+    <div className="bg-black min-h-screen text-white">
       {/* Hero Section */}
-      <Box sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', py: 8 }}>
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: 'center' }}>
-            <Chip label="PRICING" sx={{ mb: 2, bgcolor: 'rgba(255,255,255,0.2)', color: 'inherit' }} />
-            <Typography variant="h2" fontWeight="bold" gutterBottom>
+      <div className="bg-gradient-to-br from-blue-600 to-purple-600 py-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center">
+            <Badge variant="outline" className="mb-4 bg-white/20 border-white/30 text-white">PRICING</Badge>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
               {session?.user ? `${session.user.name?.split(' ')[0]}, Choose Your Plan` : 'Simple, Transparent Pricing'}
-            </Typography>
-            <Typography variant="h5" sx={{ mb: 4, opacity: 0.9 }}>
+            </h1>
+            <p className="text-xl mb-8 opacity-90">
               {session?.user 
                 ? 'Upgrade to unlock more features and grow your QR code capabilities.'
                 : 'Choose the perfect plan for your needs. All plans include a 14-day free trial.'
               }
-            </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
-              <Typography variant="h6" sx={{ opacity: isAnnual ? 0.6 : 1 }}>Monthly</Typography>
+            </p>
+            <div className="flex items-center justify-center gap-4">
+              <span className={cn("text-lg font-medium", !isAnnual && "opacity-100", isAnnual && "opacity-60")}>Monthly</span>
               <Switch
                 checked={isAnnual}
-                onChange={(e) => setIsAnnual(e.target.checked)}
-                sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: 'white' } }}
+                onCheckedChange={setIsAnnual}
               />
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography variant="h6" sx={{ opacity: isAnnual ? 1 : 0.6 }}>Annual</Typography>
-                <Chip label="Save 16%" size="small" sx={{ bgcolor: 'success.main', color: 'white' }} />
-              </Box>
-            </Box>
-          </Box>
-        </Container>
-      </Box>
+              <div className="flex items-center gap-2">
+                <span className={cn("text-lg font-medium", isAnnual && "opacity-100", !isAnnual && "opacity-60")}>Annual</span>
+                <Badge className="bg-green-500 text-white">Save 16%</Badge>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Pricing Cards */}
-      <Container maxWidth="xl" sx={{ py: 8 }}>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, justifyContent: 'center' }}>
+      <div className="max-w-7xl mx-auto px-4 py-16">
+        <div className="flex flex-wrap gap-6 justify-center">
           {pricingPlans.map((plan, index) => (
             <Card
               key={index}
-              sx={{
-                flex: '1 1 280px',
-                maxWidth: 350,
-                border: plan.highlighted ? 2 : 1,
-                borderColor: plan.highlighted ? 'primary.main' : 'divider',
-                position: 'relative',
-                transform: plan.highlighted ? 'scale(1.05)' : 'none',
-                boxShadow: plan.highlighted ? 6 : 1
-              }}
+              variant="glass"
+              className={cn(
+                "flex-1 min-w-[280px] max-w-[350px] relative",
+                plan.highlighted && "border-2 border-blue-500 scale-105 shadow-xl shadow-blue-500/20"
+              )}
             >
               {plan.highlighted && (
-                <Chip
-                  label="MOST POPULAR"
-                  color="primary"
-                  size="small"
-                  sx={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)' }}
-                />
+                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-500 text-white">
+                  MOST POPULAR
+                </Badge>
               )}
-              <CardContent sx={{ p: 4 }}>
-                <Typography variant="h4" fontWeight="bold" gutterBottom>
-                  {plan.name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 3, minHeight: 40 }}>
+              <CardContent className="p-8">
+                <h3 className="text-3xl font-bold mb-2">{plan.name}</h3>
+                <p className="text-sm text-gray-400 mb-6 min-h-[40px]">
                   {plan.description}
-                </Typography>
-                <Box sx={{ mb: 3 }}>
+                </p>
+                <div className="mb-6">
                   {plan.name === 'Enterprise' ? (
-                    <Typography variant="h4" fontWeight="bold">
-                      Custom
-                    </Typography>
+                    <h4 className="text-3xl font-bold">Custom</h4>
                   ) : (
                     <>
-                      <Typography variant="h3" fontWeight="bold" component="span">
+                      <span className="text-4xl font-bold">
                         ${isAnnual ? Math.floor(plan.annualPrice / 12) : plan.monthlyPrice}
-                      </Typography>
-                      <Typography variant="body1" color="text.secondary" component="span">
-                        /month
-                      </Typography>
+                      </span>
+                      <span className="text-gray-400">/month</span>
                       {isAnnual && plan.monthlyPrice > 0 && (
-                        <Typography variant="caption" display="block" color="success.main">
+                        <p className="text-xs text-green-500 mt-1">
                           ${plan.annualPrice}/year - Save ${(plan.monthlyPrice * 12) - plan.annualPrice}
-                        </Typography>
+                        </p>
                       )}
                     </>
                   )}
-                </Box>
+                </div>
                 <Button
-                  variant={plan.highlighted ? 'contained' : 'outlined'}
-                  fullWidth
-                  size="large"
-                  component={Link}
-                  href={
-                    plan.name === 'Enterprise' 
-                      ? '/support' 
-                      : session?.user 
-                        ? '/dashboard/billing'
-                        : '/signup'
-                  }
-                  sx={{ mb: 3 }}
+                  variant={plan.highlighted ? 'premium' : 'outline'}
+                  className="w-full mb-6"
+                  size="lg"
+                  asChild
                 >
-                  {plan.name === 'Enterprise' ? plan.cta : session?.user ? 'Upgrade Now' : plan.cta}
+                  <Link
+                    href={
+                      plan.name === 'Enterprise' 
+                        ? '/support' 
+                        : session?.user 
+                          ? '/dashboard/billing'
+                          : '/signup'
+                    }
+                  >
+                    {plan.name === 'Enterprise' ? plan.cta : session?.user ? 'Upgrade Now' : plan.cta}
+                  </Link>
                 </Button>
-                <Box>
+                <div className="space-y-3">
                   {plan.features.map((feature, i) => (
-                    <Box key={i} sx={{ display: 'flex', gap: 1, mb: 1.5, alignItems: 'flex-start' }}>
+                    <div key={i} className="flex gap-2 items-start">
                       {feature.included ? (
-                        <Check sx={{ color: 'success.main', fontSize: 20, mt: 0.25 }} />
+                        <Check className="text-green-500 mt-0.5 flex-shrink-0" size={18} />
                       ) : (
-                        <Close sx={{ color: 'error.main', fontSize: 20, mt: 0.25, opacity: 0.3 }} />
+                        <X className="text-red-500 mt-0.5 opacity-30 flex-shrink-0" size={18} />
                       )}
-                      <Typography variant="body2" sx={{ opacity: feature.included ? 1 : 0.5 }}>
+                      <span className={cn("text-sm", feature.included ? "text-white" : "text-gray-500")}>
                         {feature.text}
-                      </Typography>
-                    </Box>
+                      </span>
+                    </div>
                   ))}
-                </Box>
+                </div>
               </CardContent>
             </Card>
           ))}
-        </Box>
-      </Container>
+        </div>
+      </div>
 
       {/* Pricing Calculator */}
-      <Box sx={{ py: 8, bgcolor: 'grey.50' }}>
-        <Container maxWidth="md">
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Calculate sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
-            <Typography variant="h3" fontWeight="bold" gutterBottom>
-              Not Sure Which Plan?
-            </Typography>
-            <Typography variant="h6" color="text.secondary">
-              Use our calculator to find the perfect plan for your needs
-            </Typography>
-          </Box>
-          <Card sx={{ p: 4 }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              <TextField
-                label="How many QR codes do you need?"
-                type="number"
-                value={qrCodes}
-                onChange={(e) => setQrCodes(Math.max(1, parseInt(e.target.value) || 1))}
-                fullWidth
-                helperText="Estimate the total number of QR codes you'll create"
-              />
-              <TextField
-                label="How many team members?"
-                type="number"
-                value={teamMembers}
-                onChange={(e) => setTeamMembers(Math.max(1, parseInt(e.target.value) || 1))}
-                fullWidth
-                helperText="Number of people who will access the account"
-              />
-              <Box sx={{ bgcolor: 'primary.main', color: 'white', p: 3, borderRadius: 2, textAlign: 'center' }}>
-                <Typography variant="h6" gutterBottom>Recommended Plan:</Typography>
-                <Typography variant="h3" fontWeight="bold">{calculateRecommendedPlan()}</Typography>
-                <Button
-                  variant="contained"
-                  size="large"
-                  component={Link}
-                  href="/signup"
-                  sx={{ mt: 2, bgcolor: 'white', color: 'primary.main', '&:hover': { bgcolor: 'grey.100' } }}
-                >
-                  Get Started
+      <div className="py-16 bg-zinc-900">
+        <div className="max-w-3xl mx-auto px-4">
+          <div className="text-center mb-8">
+            <Calculator className="text-blue-500 mx-auto mb-4" size={48} />
+            <h2 className="text-3xl font-bold mb-2">Not Sure Which Plan?</h2>
+            <p className="text-lg text-gray-400">Use our calculator to find the perfect plan for your needs</p>
+          </div>
+          <Card variant="glass" className="p-6">
+            <div className="flex flex-col gap-6">
+              <div>
+                <label className="block text-sm font-medium mb-2">How many QR codes do you need?</label>
+                <Input
+                  type="number"
+                  value={qrCodes}
+                  onChange={(e) => setQrCodes(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-full"
+                />
+                <p className="text-xs text-gray-500 mt-1">Estimate the total number of QR codes you'll create</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">How many team members?</label>
+                <Input
+                  type="number"
+                  value={teamMembers}
+                  onChange={(e) => setTeamMembers(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-full"
+                />
+                <p className="text-xs text-gray-500 mt-1">Number of people who will access the account</p>
+              </div>
+              <div className="bg-gradient-to-br from-blue-600 to-purple-600 text-white p-6 rounded-lg text-center">
+                <p className="text-lg mb-2">Recommended Plan:</p>
+                <h3 className="text-4xl font-bold mb-4">{calculateRecommendedPlan()}</h3>
+                <Button variant="secondary" size="lg" asChild>
+                  <Link href="/signup">Get Started</Link>
                 </Button>
-              </Box>
-            </Box>
+              </div>
+            </div>
           </Card>
-        </Container>
-      </Box>
+        </div>
+      </div>
 
       {/* Feature Comparison Table */}
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Typography variant="h3" fontWeight="bold" align="center" gutterBottom>
-          Detailed Feature Comparison
-        </Typography>
-        <Typography variant="h6" color="text.secondary" align="center" sx={{ mb: 4 }}>
-          Compare all features across plans
-        </Typography>
+      <div className="max-w-6xl mx-auto px-4 py-16">
+        <h2 className="text-3xl font-bold text-center mb-2">Detailed Feature Comparison</h2>
+        <p className="text-lg text-gray-400 text-center mb-8">Compare all features across plans</p>
         {allFeatures.map((section, sectionIndex) => (
-          <Box key={sectionIndex} sx={{ mb: 4 }}>
-            <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mb: 2 }}>
-              {section.category}
-            </Typography>
-            <TableContainer component={Paper}>
+          <div key={sectionIndex} className="mb-8">
+            <h3 className="text-2xl font-bold mb-4">{section.category}</h3>
+            <div className="rounded-lg border border-white/10 overflow-hidden">
               <Table>
-                <TableHead>
-                  <TableRow sx={{ bgcolor: 'grey.100' }}>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Feature</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>Free</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>Pro</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>Business</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>Enterprise</TableCell>
+                <TableHeader>
+                  <TableRow className="bg-zinc-900">
+                    <TableHead className="font-bold text-white">Feature</TableHead>
+                    <TableHead className="text-center font-bold text-white">Free</TableHead>
+                    <TableHead className="text-center font-bold text-white">Pro</TableHead>
+                    <TableHead className="text-center font-bold text-white">Business</TableHead>
+                    <TableHead className="text-center font-bold text-white">Enterprise</TableHead>
                   </TableRow>
-                </TableHead>
+                </TableHeader>
                 <TableBody>
                   {section.features.map((feature, featureIndex) => (
-                    <TableRow key={featureIndex}>
+                    <TableRow key={featureIndex} className="border-white/10">
                       <TableCell>{feature.name}</TableCell>
-                      <TableCell align="center">{renderFeatureValue(feature.free)}</TableCell>
-                      <TableCell align="center">{renderFeatureValue(feature.pro)}</TableCell>
-                      <TableCell align="center">{renderFeatureValue(feature.business)}</TableCell>
-                      <TableCell align="center">{renderFeatureValue(feature.enterprise)}</TableCell>
+                      <TableCell className="text-center">{renderFeatureValue(feature.free)}</TableCell>
+                      <TableCell className="text-center">{renderFeatureValue(feature.pro)}</TableCell>
+                      <TableCell className="text-center">{renderFeatureValue(feature.business)}</TableCell>
+                      <TableCell className="text-center">{renderFeatureValue(feature.enterprise)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            </TableContainer>
-          </Box>
+            </div>
+          </div>
         ))}
-      </Container>
+      </div>
 
       {/* FAQ Section */}
-      <Box sx={{ py: 8, bgcolor: 'grey.50' }}>
-        <Container maxWidth="md">
-          <Typography variant="h3" fontWeight="bold" align="center" gutterBottom>
-            Frequently Asked Questions
-          </Typography>
-          <Typography variant="h6" color="text.secondary" align="center" sx={{ mb: 4 }}>
-            Everything you need to know about pricing
-          </Typography>
-          {faqs.map((faq, index) => (
-            <Accordion key={index}>
-              <AccordionSummary expandIcon={<ExpandMore />}>
-                <Typography variant="h6" fontWeight="medium">
+      <div className="py-16 bg-zinc-900">
+        <div className="max-w-3xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-2">Frequently Asked Questions</h2>
+          <p className="text-lg text-gray-400 text-center mb-8">Everything you need to know about pricing</p>
+          <Accordion type="single" collapsible className="space-y-4">
+            {faqs.map((faq, index) => (
+              <AccordionItem key={index} value={`item-${index}`} className="border border-white/10 rounded-lg px-6">
+                <AccordionTrigger className="text-lg font-medium hover:no-underline">
                   {faq.question}
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Typography color="text.secondary">
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-400">
                   {faq.answer}
-                </Typography>
-              </AccordionDetails>
-            </Accordion>
-          ))}
-        </Container>
-      </Box>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </div>
 
       {/* CTA Section */}
-      <Box sx={{ py: 8, bgcolor: 'primary.main', color: 'primary.contrastText' }}>
-        <Container maxWidth="md">
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h3" fontWeight="bold" gutterBottom>
-              Ready to Get Started?
-            </Typography>
-            <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
+      <div className="py-16 bg-gradient-to-br from-blue-600 to-purple-600">
+        <div className="max-w-3xl mx-auto px-4">
+          <div className="text-center">
+            <h2 className="text-4xl font-bold mb-4">Ready to Get Started?</h2>
+            <p className="text-xl mb-8 opacity-90">
               Start your 14-day free trial today. No credit card required.
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Button
-                variant="contained"
-                size="large"
-                component={Link}
-                href="/signup"
-                sx={{ bgcolor: 'white', color: 'primary.main', '&:hover': { bgcolor: 'grey.100' } }}
-                endIcon={<ArrowForward />}
-              >
-                Start Free Trial
+            </p>
+            <div className="flex gap-4 justify-center flex-wrap">
+              <Button variant="secondary" size="lg" asChild>
+                <Link href="/signup" className="flex items-center gap-2">
+                  Start Free Trial
+                  <ArrowRight size={20} />
+                </Link>
               </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                component={Link}
-                href="/support"
-                sx={{ borderColor: 'white', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}
-              >
-                Contact Sales
+              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10" asChild>
+                <Link href="/support">Contact Sales</Link>
               </Button>
-            </Box>
-          </Box>
-        </Container>
-      </Box>
-    </Box>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

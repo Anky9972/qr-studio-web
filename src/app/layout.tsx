@@ -1,11 +1,19 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { ClientLayout } from "@/components/layout/ClientLayout";
 
-const inter = Inter({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   display: "swap",
+  variable: "--font-sans",
+  preload: true,
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-display",
   preload: true,
 });
 
@@ -17,14 +25,14 @@ export const metadata: Metadata = {
   },
   description: "Create stunning QR codes in seconds with QR Studio. Professional QR code generator with custom designs, logo embedding, analytics tracking, bulk creation, and team collaboration. Free QR scanner with advanced features.",
   keywords: [
-    "QR code generator", 
-    "QR code creator", 
-    "QR code maker", 
-    "free QR code", 
+    "QR code generator",
+    "QR code creator",
+    "QR code maker",
+    "free QR code",
     "custom QR code",
-    "QR code with logo", 
-    "QR code scanner", 
-    "QR analytics", 
+    "QR code with logo",
+    "QR code scanner",
+    "QR analytics",
     "bulk QR generation",
     "dynamic QR code",
     "QR code tracking",
@@ -101,7 +109,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased`}>
+      <body className={`${jakarta.variable} ${spaceGrotesk.variable} font-sans antialiased`}>
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>

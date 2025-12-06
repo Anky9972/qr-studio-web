@@ -2,36 +2,28 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
-import {
-  Box,
-  Container,
-  Typography,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  TextField,
-  Grid,
-  Avatar,
-  CircularProgress
-} from '@mui/material';
-import {
-  QrCode2,
-  Analytics,
-  Palette,
-  Speed,
-  Group,
-  Security,
-  Check,
-  ArrowForward,
-  Download,
-  Stars,
-  Lock,
-  TrendingUp,
-  Dashboard as DashboardIcon
-} from '@mui/icons-material';
 import Link from 'next/link';
+import {
+  QrCode,
+  Activity,
+  Palette,
+  Zap,
+  Users,
+  Shield,
+  Check,
+  ArrowRight,
+  Download,
+  Star as StarIcon,
+  Lock,
+  LayoutDashboard
+} from 'lucide-react';
 import { StructuredData, createFAQItems } from '@/components/StructuredData';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Badge } from '@/components/ui/Badge';
+import { cn } from '@/lib/utils';
+import dynamic from 'next/dynamic';
 
 interface Stats {
   activeUsers: string;
@@ -41,7 +33,7 @@ interface Stats {
 }
 
 export default function HomePageClient() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [demoUrl, setDemoUrl] = useState('https://qrstudio.app');
   const [qrGenerated, setQrGenerated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -78,42 +70,27 @@ export default function HomePageClient() {
   // Initialize QR Code
   useEffect(() => {
     setMounted(true);
-    
+
     const initQR = async () => {
       if (qrRef.current && !qrInstance.current) {
         try {
           const QRCodeStyling = (await import('qr-code-styling')).default;
-          
+
           // Clear any existing content
           qrRef.current.innerHTML = '';
-          
+
           qrInstance.current = new QRCodeStyling({
             width: 250,
             height: 250,
             data: demoUrl,
             margin: 5,
-            qrOptions: {
-              typeNumber: 0,
-              mode: 'Byte',
-              errorCorrectionLevel: 'H'
-            },
-            dotsOptions: {
-              type: 'rounded',
-              color: '#1976d2'
-            },
-            backgroundOptions: {
-              color: '#ffffff'
-            },
-            cornersSquareOptions: {
-              type: 'extra-rounded',
-              color: '#1565c0'
-            },
-            cornersDotOptions: {
-              type: 'dot',
-              color: '#1565c0'
-            }
+            qrOptions: { typeNumber: 0, mode: 'Byte', errorCorrectionLevel: 'H' },
+            dotsOptions: { type: 'rounded', color: '#2563eb' },
+            backgroundOptions: { color: '#ffffff' },
+            cornersSquareOptions: { type: 'extra-rounded', color: '#1e40af' },
+            cornersDotOptions: { type: 'dot', color: '#1e40af' }
           });
-          
+
           qrInstance.current.append(qrRef.current);
           setQrGenerated(true);
         } catch (error) {
@@ -121,7 +98,7 @@ export default function HomePageClient() {
         }
       }
     };
-    
+
     // Small delay to ensure DOM is ready
     setTimeout(() => {
       initQR();
@@ -143,9 +120,9 @@ export default function HomePageClient() {
         setIsLoading(false);
       }
     };
-    
+
     fetchStats();
-    setIsLoading(false);
+    setIsLoading(false); // Fallback if fetch fails or is slow
   }, []);
 
   // Update QR Code when URL changes
@@ -171,32 +148,32 @@ export default function HomePageClient() {
 
   const features = [
     {
-      icon: <QrCode2 sx={{ fontSize: 48, color: 'primary.main' }} />,
+      icon: <QrCode className="w-8 h-8 text-blue-500" />,
       title: 'Dynamic QR Codes',
       description: 'Create editable QR codes that you can update anytime without reprinting'
     },
     {
-      icon: <Analytics sx={{ fontSize: 48, color: 'primary.main' }} />,
+      icon: <Activity className="w-8 h-8 text-purple-500" />,
       title: 'Advanced Analytics',
       description: 'Track scans with detailed insights: location, device, time, and more'
     },
     {
-      icon: <Palette sx={{ fontSize: 48, color: 'primary.main' }} />,
+      icon: <Palette className="w-8 h-8 text-pink-500" />,
       title: 'Full Customization',
       description: 'Design stunning QR codes with colors, logos, patterns, and frames'
     },
     {
-      icon: <Speed sx={{ fontSize: 48, color: 'primary.main' }} />,
+      icon: <Zap className="w-8 h-8 text-cyan-500" />,
       title: 'Bulk Generation',
       description: 'Generate thousands of QR codes at once from CSV or Excel files'
     },
     {
-      icon: <Group sx={{ fontSize: 48, color: 'primary.main' }} />,
+      icon: <Users className="w-8 h-8 text-orange-500" />,
       title: 'Team Collaboration',
       description: 'Work together with your team, share libraries, and manage permissions'
     },
     {
-      icon: <Security sx={{ fontSize: 48, color: 'primary.main' }} />,
+      icon: <Shield className="w-8 h-8 text-green-500" />,
       title: 'Enterprise Security',
       description: 'Password protection, expiration dates, and white-label options'
     }
@@ -229,457 +206,392 @@ export default function HomePageClient() {
   if (!mounted) return null;
 
   return (
-    <>
-      {/* Structured Data */}
+    <div className="min-h-screen bg-black overflow-hidden selection:bg-purple-500/30">
+      {/* Background Ambience */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/20 rounded-full blur-[120px] animate-pulse-slow" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/20 rounded-full blur-[120px] animate-pulse-slow delay-1000" />
+      </div>
+
       <StructuredData type="Organization" />
       <StructuredData type="WebApplication" />
       <StructuredData type="FAQPage" data={{ questions: createFAQItems(faqs) }} />
 
-      <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
-        {/* Hero Section */}
-        <Box sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', py: { xs: 8, md: 12 } }}>
-          <Container maxWidth="lg">
-            <Grid container spacing={4} alignItems="center">
-              {/* Left Content */}
-              <Grid item xs={12} md={6}>
-                <Chip
-                  icon={<Stars />}
-                  label="Trusted by 10,000+ businesses worldwide"
-                  sx={{ mb: 3, bgcolor: 'rgba(255,255,255,0.2)', color: 'inherit' }}
-                />
-                <Typography variant="h1" sx={{ fontSize: { xs: '2.5rem', md: '3.5rem' }, fontWeight: 'bold', mb: 2 }}>
-                  {session?.user ? `Welcome Back, ${session.user.name?.split(' ')[0] || 'User'}!` : 'Create Powerful QR Codes In Seconds'}
-                </Typography>
-                <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
-                  {session?.user 
-                    ? 'Ready to create more amazing QR codes? Access your dashboard to manage your codes, view analytics, and more.'
-                    : 'Generate dynamic, customizable QR codes with advanced analytics. Track every scan and update content anytime—no reprinting needed.'
-                  }
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-                  {session?.user ? (
-                    <>
-                      <Button
-                        variant="contained"
-                        size="large"
-                        component={Link}
-                        href="/dashboard"
-                        sx={{ bgcolor: 'white', color: 'primary.main', '&:hover': { bgcolor: 'grey.100' } }}
-                        startIcon={<DashboardIcon />}
-                      >
-                        Go to Dashboard
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        size="large"
-                        component={Link}
-                        href="/dashboard/generate"
-                        sx={{ borderColor: 'white', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}
-                        endIcon={<QrCode2 />}
-                      >
-                        Create New QR Code
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button
-                        variant="contained"
-                        size="large"
-                        component={Link}
-                        href="/signup"
-                        sx={{ bgcolor: 'white', color: 'primary.main', '&:hover': { bgcolor: 'grey.100' } }}
-                        endIcon={<ArrowForward />}
-                      >
-                        Start Free Trial
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        size="large"
-                        component={Link}
-                        href="/features"
-                        sx={{ borderColor: 'white', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}
-                      >
-                        Explore Features
-                      </Button>
-                    </>
-                  )}
-                </Box>
-                {!session?.user && (
-                  <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', fontSize: '0.875rem', opacity: 0.9 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <Check fontSize="small" />
-                      <span>No credit card required</span>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <Check fontSize="small" />
-                      <span>14-day free trial</span>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <Check fontSize="small" />
-                      <span>Cancel anytime</span>
-                    </Box>
-                  </Box>
-                )}
-              </Grid>
+      {/* Hero Section */}
+      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 z-10">
+        <div className="container mx-auto max-w-7xl">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            {/* Left Content */}
+            <div className="text-left space-y-8 animate-in slide-in-from-left duration-700">
+              <Badge variant="premium" className="animate-float">
+                <StarIcon className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
+                Trusted by 10,000+ businesses
+              </Badge>
 
-              {/* Right Content - QR Generator */}
-              <Grid item xs={12} md={6}>
-                <Card sx={{ p: 3 }}>
-                  <Typography variant="h6" fontWeight="bold" gutterBottom align="center">
-                    🚀 Live QR Generator - Try it Free!
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    label="Enter any URL"
+              <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1]">
+                {session?.user ? `Welcome Back, ${session.user.name?.split(' ')[0] || 'User'}!` : (
+                  <>
+                    Create <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 animate-gradient">Powerful</span> QR Codes
+                  </>
+                )}
+              </h1>
+
+              <p className="text-xl text-gray-400 max-w-lg leading-relaxed">
+                {session?.user
+                  ? 'Ready to create more amazing QR codes? Access your dashboard to manage your codes, view analytics, and more.'
+                  : 'Generate dynamic, customizable QR codes with advanced analytics. Track every scan and update content anytime—no reprinting needed.'
+                }
+              </p>
+
+              <div className="flex flex-wrap gap-4">
+                {session?.user ? (
+                  <>
+                    <Button
+                      size="lg"
+                      className="bg-white text-black hover:bg-gray-100"
+                      asChild
+                    >
+                      <Link href="/dashboard">
+                        <LayoutDashboard className="mr-2 w-5 h-5" />
+                        Go to Dashboard
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="border-white/20 text-white hover:bg-white/10"
+                      asChild
+                    >
+                      <Link href="/dashboard/generate">
+                        <QrCode className="mr-2 w-5 h-5" />
+                        Create New QR Code
+                      </Link>
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="premium"
+                      size="lg"
+                      className="text-lg px-8 py-6 h-auto"
+                      asChild
+                    >
+                      <Link href="/signup">
+                        Start Free Trial
+                        <ArrowRight className="ml-2 w-5 h-5" />
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="border-white/20 text-white hover:bg-white/10 text-lg px-8 py-6 h-auto"
+                      asChild
+                    >
+                      <Link href="/features">
+                        Explore Features
+                      </Link>
+                    </Button>
+                  </>
+                )}
+              </div>
+
+              {!session?.user && (
+                <div className="flex flex-wrap gap-6 text-sm text-gray-500 pt-4">
+                  {['No credit card required', '14-day free trial', 'Cancel anytime'].map((item) => (
+                    <div key={item} className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center">
+                        <Check className="w-3 h-3 text-green-500" />
+                      </div>
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Right Content - QR Generator */}
+            <div className="relative animate-in slide-in-from-right duration-700 delay-200">
+              {/* Decorative elements */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl blur opacity-30 animate-pulse" />
+
+              <Card variant="glass" className="relative p-6 lg:p-8 space-y-6">
+                <div className="text-center space-y-2">
+                  <h3 className="text-xl font-bold text-white">🚀 Live QR Generator</h3>
+                  <p className="text-sm text-gray-400">Try it now - No sign up required</p>
+                </div>
+
+                <div className="space-y-4">
+                  <Input
+                    type="url"
+                    placeholder="https://example.com"
                     value={demoUrl}
                     onChange={(e) => setDemoUrl(e.target.value)}
-                    sx={{ mb: 2 }}
-                    variant="outlined"
-                    placeholder="https://example.com"
+                    className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
                   />
-                  <Box 
-                    sx={{ 
-                      display: 'flex', 
-                      justifyContent: 'center', 
-                      alignItems: 'center',
-                      bgcolor: 'grey.100', 
-                      borderRadius: 2, 
-                      p: 3, 
-                      mb: 2,
-                      minHeight: 280,
-                      position: 'relative'
-                    }}
-                  >
+
+                  <div className="bg-white rounded-xl p-8 flex items-center justify-center min-h-[280px] relative overflow-hidden group">
+                    {/* Scan Me Frame */}
+                    <div className="absolute inset-4 border-2 border-dashed border-gray-200 rounded-lg pointer-events-none group-hover:border-blue-500 transition-colors" />
+
                     {!qrGenerated && isLoading && (
-                      <Box sx={{ textAlign: 'center' }}>
-                        <CircularProgress size={40} sx={{ mb: 1 }} />
-                        <Typography variant="body2" color="text.secondary">
-                          Generating QR Code...
-                        </Typography>
-                      </Box>
+                      <div className="text-center absolute z-10">
+                        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                        <span className="text-sm text-gray-500">Generating...</span>
+                      </div>
                     )}
-                    <div 
-                      ref={qrRef} 
-                      style={{ 
-                        display: qrGenerated ? 'flex' : 'none',
-                        justifyContent: 'center', 
-                        alignItems: 'center',
-                        width: '100%'
-                      }} 
-                    />
-                  </Box>
-                  <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        startIcon={<Download />}
-                        onClick={handleDownloadQR}
-                      >
-                        Download
-                      </Button>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        color="secondary"
-                        component={Link}
-                        href={session?.user ? "/dashboard/generate" : "/signup"}
-                        startIcon={session?.user ? <QrCode2 /> : <Lock />}
-                      >
-                        {session?.user ? "Create Advanced QR" : "Unlock Pro"}
-                      </Button>
-                    </Grid>
-                  </Grid>
-                  <Typography variant="caption" display="block" textAlign="center" sx={{ mt: 2 }} color="text.secondary">
-                    🔒 Secure & Private - Your data is never stored
-                  </Typography>
-                </Card>
-              </Grid>
-            </Grid>
-          </Container>
-        </Box>
+                    <div ref={qrRef} className={cn("transition-transform duration-300 hover:scale-105", !qrGenerated && "opacity-0")} />
+                  </div>
 
-        {/* Stats Section */}
-        <Box sx={{ py: 6, bgcolor: 'grey.100' }} component="section" aria-label="Statistics">
-          <Container maxWidth="lg">
-            <Grid container spacing={3}>
-              <Grid item xs={6} md={3}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="h3" fontWeight="bold" color="primary">
-                    {stats.activeUsers}
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary">
-                    Active Users
-                  </Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={6} md={3}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="h3" fontWeight="bold" color="primary">
-                    {stats.qrCodesCreated}
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary">
-                    QR Codes Created
-                  </Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={6} md={3}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="h3" fontWeight="bold" color="primary">
-                    {stats.uptime}
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary">
-                    Uptime
-                  </Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={6} md={3}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="h3" fontWeight="bold" color="primary">
-                    {stats.support}
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary">
-                    Support
-                  </Typography>
-                </Box>
-              </Grid>
-            </Grid>
-          </Container>
-        </Box>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Button
+                      className="bg-white/10 text-white hover:bg-white/20 border border-white/10"
+                      onClick={handleDownloadQR}
+                    >
+                      <Download className="mr-2 w-4 h-4" />
+                      Download
+                    </Button>
+                    <Button
+                      variant="premium"
+                      asChild
+                    >
+                      <Link href={session?.user ? "/dashboard/generate" : "/signup"}>
+                        {session?.user ? <QrCode className="mr-2 w-4 h-4" /> : <Lock className="mr-2 w-4 h-4" />}
+                        {session?.user ? "Create Advanced" : "Unlock Pro"}
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
 
-        {/* Features Preview */}
-        <Container maxWidth="lg" sx={{ py: 8 }} component="section" aria-labelledby="features-heading">
-          <Box sx={{ textAlign: 'center', mb: 6 }}>
-            <Chip label="FEATURES" sx={{ mb: 2 }} color="primary" />
-            <Typography variant="h2" fontWeight="bold" gutterBottom id="features-heading">
-              Everything You Need to Succeed
-            </Typography>
-            <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-              Powerful features for creating, managing, and tracking QR codes
-            </Typography>
-            <Button
-              variant="outlined"
-              component={Link}
-              href="/features"
-              endIcon={<ArrowForward />}
-            >
-              View All Features
-            </Button>
-          </Box>
-          <Grid container spacing={3}>
-            {features.map((feature, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
-                <Card sx={{ height: '100%', transition: 'all 0.3s', '&:hover': { transform: 'translateY(-8px)', boxShadow: 4 } }}>
-                  <CardContent>
-                    <Box sx={{ mb: 2 }}>{feature.icon}</Box>
-                    <Typography variant="h6" fontWeight="bold" gutterBottom>
-                      {feature.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {feature.description}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
+                <p className="text-xs text-center text-gray-500">
+                  🔒 Secure & Private - Your data is never stored in demo mode
+                </p>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-12 border-y border-white/5 bg-white/5 backdrop-blur-sm relative z-10">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              { label: 'Active Users', value: stats.activeUsers },
+              { label: 'QR Codes Created', value: stats.qrCodesCreated },
+              { label: 'Uptime', value: stats.uptime },
+              { label: 'Support', value: stats.support },
+            ].map((stat, i) => (
+              <div key={i} className="text-center space-y-1">
+                <h4 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-white to-gray-500">
+                  {stat.value}
+                </h4>
+                <p className="text-sm text-gray-400 uppercase tracking-widest">{stat.label}</p>
+              </div>
             ))}
-          </Grid>
-        </Container>
+          </div>
+        </div>
+      </section>
 
-        {/* Testimonials Section */}
-        <Box sx={{ bgcolor: 'grey.50', py: 8 }} component="section" aria-labelledby="testimonials-heading">
-          <Container maxWidth="lg">
-            <Box sx={{ textAlign: 'center', mb: 6 }}>
-              <Chip label="TESTIMONIALS" sx={{ mb: 2 }} color="primary" />
-              <Typography variant="h2" fontWeight="bold" gutterBottom id="testimonials-heading">
-                Loved by Thousands
-              </Typography>
-              <Typography variant="h6" color="text.secondary">
-                Join businesses worldwide who trust QR Studio
-              </Typography>
-            </Box>
-            <Grid container spacing={3}>
-              {testimonials.map((testimonial, index) => (
-                <Grid item xs={12} md={4} key={index}>
-                  <Card sx={{ height: '100%' }}>
-                    <CardContent>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 2 }}>
-                        <Avatar sx={{ bgcolor: 'primary.main', width: 56, height: 56 }}>
-                          {testimonial.avatar}
-                        </Avatar>
-                        <Box>
-                          <Typography variant="h6" fontWeight="bold">
-                            {testimonial.name}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {testimonial.role}
-                          </Typography>
-                          <Typography variant="body2" color="primary">
-                            {testimonial.company}
-                          </Typography>
-                        </Box>
-                      </Box>
-                      <Typography variant="body1" sx={{ fontStyle: 'italic' }}>
-                        "{testimonial.content}"
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Container>
-        </Box>
+      {/* Features Section */}
+      <section id="features" className="py-24 relative z-10">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+            <Badge variant="outline" className="border-blue-500/50 text-blue-400">
+              POWERFUL FEATURES
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold text-white">
+              Everything You Need to Succeed
+            </h2>
+            <p className="text-gray-400 text-lg">
+              Create, manage, and track your QR codes with professional tools designed for growth.
+            </p>
+          </div>
 
-        {/* Pricing Preview */}
-        <Container maxWidth="lg" sx={{ py: 8 }} component="section" aria-labelledby="pricing-heading">
-          <Box sx={{ textAlign: 'center', mb: 6 }}>
-            <Chip label="PRICING" sx={{ mb: 2 }} color="primary" />
-            <Typography variant="h2" fontWeight="bold" gutterBottom id="pricing-heading">
-              Simple, Transparent Pricing
-            </Typography>
-            <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-              Choose the plan that's right for you
-            </Typography>
-            <Button
-              variant="outlined"
-              component={Link}
-              href="/pricing"
-              endIcon={<ArrowForward />}
-            >
-              View All Plans
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feature, index) => (
+              <Card
+                key={index}
+                variant="glass"
+                className="group hover:bg-white/5 transition-all duration-300 border-white/5 hover:border-white/10"
+              >
+                <CardContent className="p-8">
+                  <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-3">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-400 leading-relaxed">
+                    {feature.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="mt-12 text-center">
+            <Button variant="outline" size="lg" className="border-white/20 text-white hover:bg-white/10" asChild>
+              <Link href="/features">
+                View All Features <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
             </Button>
-          </Box>
-          <Grid container spacing={3} justifyContent="center">
-            <Grid item xs={12} sm={6} md={4}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h5" fontWeight="bold" gutterBottom>
-                    Free
-                  </Typography>
-                  <Typography variant="h3" fontWeight="bold" color="primary" gutterBottom>
-                    $0<Typography component="span" variant="h6">/month</Typography>
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    Perfect for personal projects
-                  </Typography>
-                  <Box sx={{ mb: 2 }}>
-                    {['50 QR codes', 'Basic analytics', 'Standard customization', 'PNG/SVG export'].map((feature, i) => (
-                      <Box key={i} sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                        <Check fontSize="small" color="success" />
-                        <Typography variant="body2">{feature}</Typography>
-                      </Box>
-                    ))}
-                  </Box>
-                  <Button fullWidth variant="outlined" component={Link} href="/signup">
-                    Get Started
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <Card sx={{ border: 2, borderColor: 'primary.main', position: 'relative' }}>
-                <Chip
-                  label="MOST POPULAR"
-                  color="primary"
-                  size="small"
-                  sx={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)' }}
-                />
-                <CardContent>
-                  <Typography variant="h5" fontWeight="bold" gutterBottom>
-                    Pro
-                  </Typography>
-                  <Typography variant="h3" fontWeight="bold" color="primary" gutterBottom>
-                    $19<Typography component="span" variant="h6">/month</Typography>
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    Ideal for professionals
-                  </Typography>
-                  <Box sx={{ mb: 2 }}>
-                    {['Unlimited dynamic QR codes', 'Advanced analytics', 'Full customization', 'Bulk generation (1,000)', 'Priority support'].map((feature, i) => (
-                      <Box key={i} sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                        <Check fontSize="small" color="success" />
-                        <Typography variant="body2">{feature}</Typography>
-                      </Box>
-                    ))}
-                  </Box>
-                  <Button fullWidth variant="contained" component={Link} href="/signup">
-                    Start Free Trial
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h5" fontWeight="bold" gutterBottom>
-                    Business
-                  </Typography>
-                  <Typography variant="h3" fontWeight="bold" color="primary" gutterBottom>
-                    $49<Typography component="span" variant="h6">/month</Typography>
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    For growing teams
-                  </Typography>
-                  <Box sx={{ mb: 2 }}>
-                    {['Everything in Pro', 'Team collaboration', 'White-label', 'Bulk generation (10,000)', 'API access'].map((feature, i) => (
-                      <Box key={i} sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                        <Check fontSize="small" color="success" />
-                        <Typography variant="body2">{feature}</Typography>
-                      </Box>
-                    ))}
-                  </Box>
-                  <Button fullWidth variant="outlined" component={Link} href="/signup">
-                    Start Free Trial
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        </Container>
+          </div>
+        </div>
+      </section>
 
-        {/* CTA Section */}
-        <Box sx={{ py: 8, bgcolor: 'primary.main', color: 'primary.contrastText' }} component="section" aria-label="Call to action">
-          <Container maxWidth="md">
-            <Box sx={{ textAlign: 'center' }}>
-              <Chip
-                label="LIMITED TIME OFFER"
-                sx={{ mb: 2, bgcolor: 'rgba(255,255,255,0.2)', color: 'inherit' }}
-              />
-              <Typography variant="h2" fontWeight="bold" gutterBottom>
-                Ready to Create Amazing QR Codes?
-              </Typography>
-              <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
-                Join 10,000+ businesses transforming their QR code campaigns with dynamic tracking and beautiful designs
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap', mb: 3 }}>
-                <Button
-                  variant="contained"
-                  size="large"
-                  component={Link}
-                  href="/signup"
-                  sx={{ bgcolor: 'white', color: 'primary.main', '&:hover': { bgcolor: 'grey.100' } }}
-                  endIcon={<ArrowForward />}
-                >
-                  Start Free Today
+      {/* Testimonials */}
+      <section className="py-24 bg-gradient-to-b from-transparent to-white/5 relative z-10">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="text-center mb-16">
+            <Badge variant="outline" className="border-purple-500/50 text-purple-400 mb-4">
+              TESTIMONIALS
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              Loved by Thousands
+            </h2>
+            <p className="text-gray-400">
+              See what our community has to say about QR Studio
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, i) => (
+              <Card key={i} variant="glass" className="h-full">
+                <CardContent className="p-8">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
+                      {testimonial.avatar}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white">{testimonial.name}</h4>
+                      <p className="text-sm text-gray-400">{testimonial.role}</p>
+                      <p className="text-xs text-blue-400">{testimonial.company}</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-300 italic leading-relaxed">
+                    "{testimonial.content}"
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Preview */}
+      <section id="pricing" className="py-24 relative z-10">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <Badge variant="outline" className="border-green-500/50 text-green-400 mb-4">
+              PRICING
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              Simple, Transparent Pricing
+            </h2>
+            <p className="text-gray-400">
+              Choose the perfect plan for your needs. No hidden fees.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Free Plan */}
+            <Card variant="glass" className="relative group">
+              <CardContent className="p-8">
+                <h3 className="text-2xl font-bold text-white mb-2">Free</h3>
+                <div className="text-4xl font-bold text-white mb-6">
+                  $0<span className="text-lg text-gray-500 font-normal">/mo</span>
+                </div>
+                <p className="text-gray-400 mb-6">Perfect for personal projects</p>
+                <ul className="space-y-4 mb-8">
+                  {['50 QR codes', 'Basic analytics', 'Standard customization', 'PNG/SVG export'].map((feature) => (
+                    <li key={feature} className="flex items-center text-gray-300 text-sm">
+                      <Check className="w-4 h-4 text-green-500 mr-3" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10" asChild>
+                  <Link href="/signup">Get Started</Link>
                 </Button>
-                <Button
-                  variant="outlined"
-                  size="large"
-                  component={Link}
-                  href="/contact"
-                  sx={{ borderColor: 'white', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}
-                >
-                  Talk to Sales
+              </CardContent>
+            </Card>
+
+            {/* Pro Plan */}
+            <Card variant="default" className="relative border-purple-500 shadow-neon-purple/20 scale-105 z-10">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 border-0">MOST POPULAR</Badge>
+              </div>
+              <CardContent className="p-8 bg-gray-900">
+                <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-2">Pro</h3>
+                <div className="text-4xl font-bold text-white mb-6">
+                  $19<span className="text-lg text-gray-500 font-normal">/mo</span>
+                </div>
+                <p className="text-gray-400 mb-6">Ideal for professionals</p>
+                <ul className="space-y-4 mb-8">
+                  {['Unlimited dynamic QR codes', 'Advanced analytics', 'Full customization', 'Bulk generation (1,000)', 'Priority support'].map((feature) => (
+                    <li key={feature} className="flex items-center text-gray-300 text-sm">
+                      <Check className="w-4 h-4 text-purple-500 mr-3" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <Button variant="premium" className="w-full" asChild>
+                  <Link href="/signup">Start Free Trial</Link>
                 </Button>
-              </Box>
-              <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                ✨ No credit card required • ⚡ Setup in 2 minutes • 🎯 14-day free trial
-              </Typography>
-            </Box>
-          </Container>
-        </Box>
-      </Box>
-    </>
+              </CardContent>
+            </Card>
+
+            {/* Business Plan */}
+            <Card variant="glass" className="relative group">
+              <CardContent className="p-8">
+                <h3 className="text-2xl font-bold text-white mb-2">Business</h3>
+                <div className="text-4xl font-bold text-white mb-6">
+                  $49<span className="text-lg text-gray-500 font-normal">/mo</span>
+                </div>
+                <p className="text-gray-400 mb-6">For growing teams</p>
+                <ul className="space-y-4 mb-8">
+                  {['Everything in Pro', 'Team collaboration', 'White-label', 'Bulk generation (10,000)', 'API access'].map((feature) => (
+                    <li key={feature} className="flex items-center text-gray-300 text-sm">
+                      <Check className="w-4 h-4 text-green-500 mr-3" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10" asChild>
+                  <Link href="/signup">Start Free Trial</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-purple-900/20 pointer-events-none" />
+        <div className="container mx-auto px-4 relative z-10 text-center max-w-4xl">
+          <Badge variant="premium" className="mb-8">
+            LIMITED TIME OFFER
+          </Badge>
+          <h2 className="text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+            Ready to Create Amazing QR Codes?
+          </h2>
+          <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
+            Join 10,000+ businesses transforming their QR code campaigns with dynamic tracking and beautiful designs
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button variant="premium" size="lg" className="text-lg px-10 py-6" asChild>
+              <Link href="/signup">Start Free Today</Link>
+            </Button>
+            <Button variant="outline" size="lg" className="border-white/20 text-white hover:bg-white/10 text-lg px-10 py-6" asChild>
+              <Link href="/contact">Talk to Sales</Link>
+            </Button>
+          </div>
+          <p className="mt-8 text-sm text-gray-500">
+            ✨ No credit card required • ⚡ Setup in 2 minutes • 🎯 14-day free trial
+          </p>
+        </div>
+      </section>
+    </div>
   );
 }

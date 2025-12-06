@@ -2,41 +2,40 @@
 
 import React, { useState } from 'react';
 import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  Button,
-  Grid,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  MenuItem,
-  Chip,
-  Switch,
-  FormControlLabel,
-  Alert,
-  Avatar,
-  Divider,
-} from '@mui/material';
-import {
-  Add,
-  Delete,
-  Edit,
-  Upload,
-  DragIndicator,
-  Restaurant,
+  Utensils,
   Image as ImageIcon,
+  Briefcase,
+  Plus,
+  Trash2,
+  Edit2,
+  Upload,
+  Settings,
   Palette,
-  Visibility,
-} from '@mui/icons-material';
+  Layout,
+  Euro,
+  DollarSign,
+  PoundSterling,
+  JapaneseYen,
+  Eye,
+  Save,
+  MoreVertical,
+  ChevronDown,
+  ChevronUp,
+  GripVertical
+} from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
+import { Badge } from '@/components/ui/Badge';
+import { Switch } from '@/components/ui/switch';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/Dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
+import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Alert, AlertDescription } from '@/components/ui/Alert';
+import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface MenuItem {
   id: string;
@@ -81,8 +80,8 @@ interface DigitalMenuBuilderProps {
 }
 
 const defaultTheme = {
-  primaryColor: '#6366f1',
-  backgroundColor: '#ffffff',
+  primaryColor: '#f59e0b',
+  backgroundColor: '#171717',
   fontFamily: 'Inter, sans-serif',
 };
 
@@ -101,22 +100,19 @@ export default function DigitalMenuBuilder({
   const [description, setDescription] = useState(data?.description || '');
   const [logo, setLogo] = useState(data?.logo || '');
   const [coverImage, setCoverImage] = useState(data?.coverImage || '');
-  const [type, setType] = useState<'menu' | 'gallery' | 'portfolio'>(
-    data?.type || 'menu'
-  );
-  const [categories, setCategories] = useState<MenuCategory[]>(
-    data?.categories || []
-  );
+  const [type, setType] = useState<'menu' | 'gallery' | 'portfolio'>(data?.type || 'menu');
+  const [categories, setCategories] = useState<MenuCategory[]>(data?.categories || []);
   const [theme, setTheme] = useState(data?.theme || defaultTheme);
   const [settings, setSettings] = useState(data?.settings || defaultSettings);
   const [published, setPublished] = useState(data?.published || false);
+  const [activeTab, setActiveTab] = useState<'content' | 'design' | 'settings'>('content');
 
+  // category dialog state
   const [categoryDialog, setCategoryDialog] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<MenuCategory | null>(
-    null
-  );
+  const [editingCategory, setEditingCategory] = useState<MenuCategory | null>(null);
   const [categoryName, setCategoryName] = useState('');
 
+  // item dialog state
   const [itemDialog, setItemDialog] = useState(false);
   const [currentCategory, setCurrentCategory] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
@@ -125,37 +121,29 @@ export default function DigitalMenuBuilder({
   const [itemPrice, setItemPrice] = useState('');
   const [itemImage, setItemImage] = useState('');
 
-  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogo(reader.result as string);
-      };
+      reader.onloadend = () => setLogo(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
 
-  const handleCoverUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setCoverImage(reader.result as string);
-      };
+      reader.onloadend = () => setCoverImage(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
 
-  const handleItemImageUpload = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
+  const handleItemImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setItemImage(reader.result as string);
-      };
+      reader.onloadend = () => setItemImage(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
@@ -174,11 +162,7 @@ export default function DigitalMenuBuilder({
 
   const handleSaveCategory = () => {
     if (editingCategory) {
-      setCategories(
-        categories.map((cat) =>
-          cat.id === editingCategory.id ? { ...cat, name: categoryName } : cat
-        )
-      );
+      setCategories(categories.map(cat => cat.id === editingCategory.id ? { ...cat, name: categoryName } : cat));
     } else {
       const newCategory: MenuCategory = {
         id: `cat-${Date.now()}`,
@@ -191,8 +175,9 @@ export default function DigitalMenuBuilder({
     setCategoryDialog(false);
   };
 
-  const handleDeleteCategory = (id: string) => {
-    setCategories(categories.filter((cat) => cat.id !== id));
+  const handleDeleteCategory = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCategories(categories.filter(cat => cat.id !== id));
   };
 
   const handleAddItem = (categoryId: string) => {
@@ -217,7 +202,6 @@ export default function DigitalMenuBuilder({
 
   const handleSaveItem = () => {
     if (!currentCategory) return;
-
     const newItem: MenuItem = {
       id: editingItem?.id || `item-${Date.now()}`,
       name: itemName,
@@ -227,41 +211,26 @@ export default function DigitalMenuBuilder({
       visible: true,
     };
 
-    setCategories(
-      categories.map((cat) => {
-        if (cat.id === currentCategory) {
-          if (editingItem) {
-            return {
-              ...cat,
-              items: cat.items.map((item) =>
-                item.id === editingItem.id ? newItem : item
-              ),
-            };
-          } else {
-            return {
-              ...cat,
-              items: [...cat.items, newItem],
-            };
-          }
+    setCategories(categories.map(cat => {
+      if (cat.id === currentCategory) {
+        if (editingItem) {
+          return { ...cat, items: cat.items.map(item => item.id === editingItem.id ? newItem : item) };
+        } else {
+          return { ...cat, items: [...cat.items, newItem] };
         }
-        return cat;
-      })
-    );
+      }
+      return cat;
+    }));
     setItemDialog(false);
   };
 
   const handleDeleteItem = (categoryId: string, itemId: string) => {
-    setCategories(
-      categories.map((cat) => {
-        if (cat.id === categoryId) {
-          return {
-            ...cat,
-            items: cat.items.filter((item) => item.id !== itemId),
-          };
-        }
-        return cat;
-      })
-    );
+    setCategories(categories.map(cat => {
+      if (cat.id === categoryId) {
+        return { ...cat, items: cat.items.filter(item => item.id !== itemId) };
+      }
+      return cat;
+    }));
   };
 
   const handleSave = async () => {
@@ -279,616 +248,360 @@ export default function DigitalMenuBuilder({
     await onSave(menuData);
   };
 
+  const getCurrencySymbol = (curr: string) => {
+    switch (curr) {
+      case 'EUR': return '€';
+      case 'GBP': return '£';
+      case 'JPY': return '¥';
+      default: return '$';
+    }
+  };
+
   return (
-    <Box>
-      <Grid container spacing={3}>
-        {/* Left Panel - Editor */}
-        <Grid item xs={12} md={7}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Digital Menu/Gallery Builder
-              </Typography>
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* Editor Panel */}
+      <div className="lg:col-span-7 space-y-6">
+        <div className="flex items-center gap-4 bg-white/5 p-2 rounded-lg border border-white/10 w-fit">
+          <button
+            onClick={() => setActiveTab('content')}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-md transition-all text-sm font-medium",
+              activeTab === 'content' ? "bg-primary text-white shadow-lg shadow-primary/20" : "hover:bg-white/5 text-muted-foreground"
+            )}
+          >
+            <Layout size={16} /> Content
+          </button>
+          <button
+            onClick={() => setActiveTab('design')}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-md transition-all text-sm font-medium",
+              activeTab === 'design' ? "bg-primary text-white shadow-lg shadow-primary/20" : "hover:bg-white/5 text-muted-foreground"
+            )}
+          >
+            <Palette size={16} /> Design
+          </button>
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-md transition-all text-sm font-medium",
+              activeTab === 'settings' ? "bg-primary text-white shadow-lg shadow-primary/20" : "hover:bg-white/5 text-muted-foreground"
+            )}
+          >
+            <Settings size={16} /> Settings
+          </button>
+        </div>
 
-              <Alert severity="info" sx={{ mb: 3 }}>
-                Create a digital menu for restaurants, gallery for artists, or
-                portfolio for showcasing work.
-              </Alert>
+        <Card variant="glass" className="p-6 space-y-6">
+          {activeTab === 'content' && (
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Menu Type</Label>
+                  <Select value={type} onValueChange={(val: any) => setType(val)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="menu">Restaurant Menu</SelectItem>
+                      <SelectItem value="gallery">Image Gallery</SelectItem>
+                      <SelectItem value="portfolio">Portfolio</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Title</Label>
+                  <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="My Awesome Place" />
+                </div>
+              </div>
 
-              {/* Type Selection */}
-              <TextField
-                select
-                fullWidth
-                label="Type"
-                value={type}
-                onChange={(e) =>
-                  setType(e.target.value as 'menu' | 'gallery' | 'portfolio')
-                }
-                sx={{ mb: 3 }}
-              >
-                <MenuItem value="menu">Restaurant Menu</MenuItem>
-                <MenuItem value="gallery">Image Gallery</MenuItem>
-                <MenuItem value="portfolio">Portfolio</MenuItem>
-              </TextField>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Tagline or short bio..." rows={2} className="resize-none" />
+              </div>
 
-              {/* Logo & Cover */}
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" gutterBottom>
-                  Branding
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={6}>
-                    <Box>
-                      {logo && (
-                        <Avatar
-                          src={logo}
-                          variant="rounded"
-                          sx={{ width: 80, height: 80, mb: 1 }}
-                        />
-                      )}
-                      <Button
-                        variant="outlined"
-                        component="label"
-                        size="small"
-                        fullWidth
-                      >
-                        Upload Logo
-                        <input
-                          type="file"
-                          hidden
-                          accept="image/*"
-                          onChange={handleLogoUpload}
-                        />
-                      </Button>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Box>
-                      {coverImage && (
-                        <Box
-                          sx={{
-                            width: '100%',
-                            height: 80,
-                            backgroundImage: `url(${coverImage})`,
-                            backgroundSize: 'cover',
-                            borderRadius: 1,
-                            mb: 1,
-                          }}
-                        />
-                      )}
-                      <Button
-                        variant="outlined"
-                        component="label"
-                        size="small"
-                        fullWidth
-                      >
-                        Upload Cover
-                        <input
-                          type="file"
-                          hidden
-                          accept="image/*"
-                          onChange={handleCoverUpload}
-                        />
-                      </Button>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </Box>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Logo</Label>
+                  <div className="flex items-center gap-3">
+                    <Avatar className="w-12 h-12 border border-white/10">
+                      <AvatarImage src={logo} />
+                      <AvatarFallback>LG</AvatarFallback>
+                    </Avatar>
+                    <Label htmlFor="logo-upload" className="cursor-pointer bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-md text-sm transition-colors">
+                      Upload Logo
+                      <input id="logo-upload" type="file" hidden accept="image/*" onChange={handleLogoUpload} />
+                    </Label>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Cover Image</Label>
+                  <div className="flex items-center gap-3">
+                    <div className="w-20 h-12 rounded bg-cover bg-center border border-white/10" style={{ backgroundImage: coverImage ? `url(${coverImage})` : 'none', backgroundColor: '#333' }}></div>
+                    <Label htmlFor="cover-upload" className="cursor-pointer bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-md text-sm transition-colors">
+                      Upload Cover
+                      <input id="cover-upload" type="file" hidden accept="image/*" onChange={handleCoverUpload} />
+                    </Label>
+                  </div>
+                </div>
+              </div>
 
-              {/* Basic Info */}
-              <TextField
-                fullWidth
-                required
-                label="Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder={
-                  type === 'menu'
-                    ? 'Restaurant Name'
-                    : type === 'gallery'
-                    ? 'Gallery Title'
-                    : 'Portfolio Name'
-                }
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                label="Description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="A short description"
-                multiline
-                rows={2}
-                sx={{ mb: 3 }}
-              />
+              <div className="h-px bg-white/10" />
 
-              <Divider sx={{ my: 3 }} />
-
-              {/* Categories & Items */}
-              <Box sx={{ mb: 3 }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    mb: 2,
-                  }}
-                >
-                  <Typography variant="subtitle1">
-                    {type === 'menu' ? 'Categories' : 'Collections'}
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    startIcon={<Add />}
-                    onClick={handleAddCategory}
-                  >
-                    Add Category
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <Briefcase size={18} className="text-primary" /> {type === 'menu' ? 'Menu Categories' : 'Collections'}
+                  </h3>
+                  <Button variant="outline" size="sm" onClick={handleAddCategory}>
+                    <Plus size={14} className="mr-2" /> Add {type === 'menu' ? 'Category' : 'Collection'}
                   </Button>
-                </Box>
+                </div>
 
                 {categories.length === 0 ? (
-                  <Alert severity="warning">
-                    No categories yet. Add your first category to get started.
-                  </Alert>
+                  <div className="text-center py-8 border border-dashed border-white/20 rounded-lg bg-white/5">
+                    <p className="text-sm text-muted-foreground">No categories added yet.</p>
+                  </div>
                 ) : (
-                  categories.map((category) => (
-                    <Card key={category.id} variant="outlined" sx={{ mb: 2 }}>
-                      <CardContent>
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            mb: 2,
-                          }}
-                        >
-                          <Typography variant="h6">{category.name}</Typography>
-                          <Box>
-                            <IconButton
-                              size="small"
-                              onClick={() => handleEditCategory(category)}
-                            >
-                              <Edit />
-                            </IconButton>
-                            <IconButton
-                              size="small"
-                              onClick={() => handleDeleteCategory(category.id)}
-                              color="error"
-                            >
-                              <Delete />
-                            </IconButton>
-                          </Box>
-                        </Box>
-
-                        <Button
-                          size="small"
-                          startIcon={<Add />}
-                          onClick={() => handleAddItem(category.id)}
-                          sx={{ mb: 2 }}
-                        >
-                          Add {type === 'menu' ? 'Item' : 'Image'}
-                        </Button>
-
-                        <List dense>
+                  <div className="space-y-4">
+                    {categories.map((category) => (
+                      <div key={category.id} className="border border-white/10 rounded-lg bg-white/5 overflow-hidden">
+                        <div className="flex items-center justify-between p-3 bg-white/5 border-b border-white/10">
+                          <h4 className="font-medium px-2">{category.name}</h4>
+                          <div className="flex items-center gap-1">
+                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10" onClick={() => handleEditCategory(category)}>
+                              <Edit2 size={14} />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-red-400 hover:bg-red-500/10" onClick={(e) => handleDeleteCategory(category.id, e)}>
+                              <Trash2 size={14} />
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="p-3 space-y-2">
                           {category.items.map((item) => (
-                            <ListItem key={item.id} divider>
-                              {item.image && (
-                                <Avatar
-                                  src={item.image}
-                                  variant="rounded"
-                                  sx={{ mr: 2 }}
-                                />
-                              )}
-                              <ListItemText
-                                primary={item.name}
-                                secondary={
-                                  <>
-                                    {item.description}
-                                    {type === 'menu' && item.price && (
-                                      <Chip
-                                        label={`${settings.currency} ${item.price}`}
-                                        size="small"
-                                        sx={{ ml: 1 }}
-                                      />
-                                    )}
-                                  </>
-                                }
-                              />
-                              <ListItemSecondaryAction>
-                                <IconButton
-                                  size="small"
-                                  onClick={() => handleEditItem(category.id, item)}
-                                >
-                                  <Edit />
-                                </IconButton>
-                                <IconButton
-                                  size="small"
-                                  onClick={() =>
-                                    handleDeleteItem(category.id, item.id)
-                                  }
-                                  color="error"
-                                >
-                                  <Delete />
-                                </IconButton>
-                              </ListItemSecondaryAction>
-                            </ListItem>
+                            <div key={item.id} className="flex items-center gap-3 p-2 rounded bg-black/20 hover:bg-black/30 transition-colors group">
+                              {item.image && <img src={item.image} alt="" className="w-10 h-10 rounded object-cover" />}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-sm font-medium truncate">{item.name}</p>
+                                  {item.price && <span className="text-xs font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded">{getCurrencySymbol(settings.currency)}{item.price}</span>}
+                                </div>
+                                {item.description && <p className="text-xs text-muted-foreground truncate">{item.description}</p>}
+                              </div>
+                              <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleEditItem(category.id, item)}><Edit2 size={12} /></Button>
+                                <Button variant="ghost" size="icon" className="h-6 w-6 hover:text-red-400" onClick={() => handleDeleteItem(category.id, item.id)}><Trash2 size={12} /></Button>
+                              </div>
+                            </div>
                           ))}
-                        </List>
-                      </CardContent>
-                    </Card>
-                  ))
+                          <Button variant="ghost" size="sm" className="w-full text-muted-foreground hover:text-white mt-2 border border-dashed border-white/10" onClick={() => handleAddItem(category.id)}>
+                            <Plus size={14} className="mr-2" /> Add Item
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 )}
-              </Box>
+              </div>
+            </>
+          )}
 
-              <Divider sx={{ my: 3 }} />
+          {activeTab === 'design' && (
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Palette size={18} className="text-primary" /> Theme
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label>Primary Color</Label>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded border border-white/20 overflow-hidden relative">
+                      <input
+                        type="color"
+                        value={theme.primaryColor}
+                        onChange={(e) => setTheme({ ...theme, primaryColor: e.target.value })}
+                        className="absolute inset-0 w-[150%] h-[150%] -top-[25%] -left-[25%] p-0 border-0 cursor-pointer"
+                      />
+                    </div>
+                    <Input value={theme.primaryColor} onChange={(e) => setTheme({ ...theme, primaryColor: e.target.value })} className="font-mono" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Background Color</Label>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded border border-white/20 overflow-hidden relative">
+                      <input
+                        type="color"
+                        value={theme.backgroundColor}
+                        onChange={(e) => setTheme({ ...theme, backgroundColor: e.target.value })}
+                        className="absolute inset-0 w-[150%] h-[150%] -top-[25%] -left-[25%] p-0 border-0 cursor-pointer"
+                      />
+                    </div>
+                    <Input value={theme.backgroundColor} onChange={(e) => setTheme({ ...theme, backgroundColor: e.target.value })} className="font-mono" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
-              {/* Settings */}
-              <Typography variant="subtitle1" gutterBottom>
-                Settings
-              </Typography>
+          {activeTab === 'settings' && (
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Settings size={18} className="text-primary" /> Configuration
+              </h3>
+
               {type === 'menu' && (
-                <>
-                  <TextField
-                    select
-                    fullWidth
-                    label="Currency"
-                    value={settings.currency}
-                    onChange={(e) =>
-                      setSettings({ ...settings, currency: e.target.value })
-                    }
-                    sx={{ mb: 2 }}
-                  >
-                    <MenuItem value="USD">USD ($)</MenuItem>
-                    <MenuItem value="EUR">EUR (€)</MenuItem>
-                    <MenuItem value="GBP">GBP (£)</MenuItem>
-                    <MenuItem value="JPY">JPY (¥)</MenuItem>
-                  </TextField>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={settings.showPrices}
-                        onChange={(e) =>
-                          setSettings({
-                            ...settings,
-                            showPrices: e.target.checked,
-                          })
-                        }
-                      />
-                    }
-                    label="Show prices"
-                  />
-                </>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Currency</Label>
+                    <Select value={settings.currency} onValueChange={(val) => setSettings({ ...settings, currency: val })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="USD">USD ($)</SelectItem>
+                        <SelectItem value="EUR">EUR (€)</SelectItem>
+                        <SelectItem value="GBP">GBP (£)</SelectItem>
+                        <SelectItem value="JPY">JPY (¥)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label>Show Prices</Label>
+                    <Switch checked={settings.showPrices} onCheckedChange={(c) => setSettings({ ...settings, showPrices: c })} />
+                  </div>
+                </div>
               )}
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={settings.showImages}
-                    onChange={(e) =>
-                      setSettings({ ...settings, showImages: e.target.checked })
-                    }
-                  />
-                }
-                label="Show images"
-              />
 
-              <Divider sx={{ my: 3 }} />
+              <div className="flex items-center justify-between">
+                <Label>Show Item Images</Label>
+                <Switch checked={settings.showImages} onCheckedChange={(c) => setSettings({ ...settings, showImages: c })} />
+              </div>
+            </div>
+          )}
+        </Card>
 
-              {/* Theme */}
-              <Typography variant="subtitle1" gutterBottom>
-                Theme
-              </Typography>
-              <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid item xs={6}>
-                  <TextField
-                    fullWidth
-                    type="color"
-                    label="Primary Color"
-                    value={theme.primaryColor}
-                    onChange={(e) =>
-                      setTheme({ ...theme, primaryColor: e.target.value })
-                    }
-                    InputLabelProps={{ shrink: true }}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    fullWidth
-                    type="color"
-                    label="Background Color"
-                    value={theme.backgroundColor}
-                    onChange={(e) =>
-                      setTheme({ ...theme, backgroundColor: e.target.value })
-                    }
-                    InputLabelProps={{ shrink: true }}
-                  />
-                </Grid>
-              </Grid>
+        {/* Action Bar */}
+        <div className="flex items-center justify-between bg-black/40 backdrop-blur-md p-4 rounded-lg border border-white/10 sticky bottom-4 z-10">
+          <div className="flex items-center gap-3">
+            <Switch checked={published} onCheckedChange={setPublished} id="publish-switch" />
+            <Label htmlFor="publish-switch" className={published ? "text-emerald-400 font-medium" : "text-muted-foreground"}>
+              {published ? "Published" : "Draft Mode"}
+            </Label>
+          </div>
 
-              {/* Actions */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  gap: 2,
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={published}
-                      onChange={(e) => setPublished(e.target.checked)}
-                    />
-                  }
-                  label="Published"
-                />
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  {onPreview && (
-                    <Button
-                      variant="outlined"
-                      startIcon={<Visibility />}
-                      onClick={onPreview}
-                    >
-                      Preview
-                    </Button>
+          <Button variant="glow" onClick={handleSave} disabled={!title || categories.length === 0} size="lg">
+            <Save size={16} className="mr-2" /> Save {type === 'menu' ? 'Menu' : 'Gallery'}
+          </Button>
+        </div>
+      </div>
+
+      {/* Preview Panel */}
+      <div className="lg:col-span-5 relative">
+        <div className="sticky top-6">
+          <div className="bg-gray-900 rounded-[3rem] border-8 border-gray-800 shadow-2xl overflow-hidden aspect-[9/19] max-w-[320px] mx-auto relative">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-6 bg-gray-800 rounded-b-xl z-20"></div>
+
+            <div
+              className="w-full h-full overflow-y-auto hide-scrollbar"
+              style={{ backgroundColor: theme.backgroundColor, fontFamily: theme.fontFamily }}
+            >
+              {coverImage && (
+                <div className="w-full h-32 bg-cover bg-center" style={{ backgroundImage: `url(${coverImage})` }}></div>
+              )}
+
+              <div className="px-5 py-6">
+                <div className="flex items-center gap-3 mb-6">
+                  {logo && <img src={logo} className="w-14 h-14 rounded-full border-2 border-white/10 shadow-lg object-cover" />}
+                  <div>
+                    <h2 className="text-xl font-bold" style={{ color: theme.primaryColor }}>{title || 'Menu Title'}</h2>
+                    {description && <p className="text-xs opacity-70 mt-1 line-clamp-2" style={{ color: '#fff' }}>{description}</p>}
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  {categories.length === 0 && (
+                    <div className="text-center py-10 opacity-30 text-white">
+                      <p>Menu is empty</p>
+                    </div>
                   )}
-                  <Button
-                    variant="contained"
-                    onClick={handleSave}
-                    disabled={!title || categories.length === 0}
-                  >
-                    Save {type === 'menu' ? 'Menu' : 'Gallery'}
-                  </Button>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Right Panel - Live Preview */}
-        <Grid item xs={12} md={5}>
-          <Card sx={{ position: 'sticky', top: 20 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Preview
-              </Typography>
-              <Box
-                sx={{
-                  backgroundColor: theme.backgroundColor,
-                  borderRadius: 2,
-                  minHeight: 500,
-                  overflow: 'hidden',
-                }}
-              >
-                {/* Cover Image */}
-                {coverImage && (
-                  <Box
-                    sx={{
-                      width: '100%',
-                      height: 150,
-                      backgroundImage: `url(${coverImage})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                    }}
-                  />
-                )}
-
-                <Box sx={{ p: 3 }}>
-                  {/* Header */}
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 2,
-                      mb: 3,
-                    }}
-                  >
-                    {logo && (
-                      <Avatar
-                        src={logo}
-                        variant="rounded"
-                        sx={{ width: 60, height: 60 }}
-                      />
-                    )}
-                    <Box>
-                      <Typography variant="h5">{title || 'Title'}</Typography>
-                      {description && (
-                        <Typography variant="body2" color="text.secondary">
-                          {description}
-                        </Typography>
-                      )}
-                    </Box>
-                  </Box>
-
-                  {/* Categories & Items */}
                   {categories.map((category) => (
-                    <Box key={category.id} sx={{ mb: 3 }}>
-                      <Typography
-                        variant="h6"
-                        sx={{ color: theme.primaryColor, mb: 2 }}
-                      >
+                    <div key={category.id}>
+                      <h3 className="text-lg font-bold border-b pb-1 mb-3" style={{ borderColor: theme.primaryColor, color: '#fff' }}>
                         {category.name}
-                      </Typography>
-                      <Grid container spacing={2}>
-                        {category.items
-                          .filter((item) => item.visible)
-                          .map((item) => (
-                            <Grid item xs={12} key={item.id}>
-                              <Box sx={{ display: 'flex', gap: 2 }}>
-                                {settings.showImages && item.image && (
-                                  <Avatar
-                                    src={item.image}
-                                    variant="rounded"
-                                    sx={{ width: 80, height: 80 }}
-                                  />
+                      </h3>
+                      <div className="space-y-3">
+                        {category.items.filter(i => i.visible).map(item => (
+                          <div key={item.id} className="flex gap-3">
+                            {settings.showImages && item.image && (
+                              <img src={item.image} className="w-16 h-16 rounded-md object-cover bg-white/5" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex justify-between items-baseline">
+                                <h4 className="font-medium text-sm text-white">{item.name}</h4>
+                                {settings.showPrices && item.price && (
+                                  <span className="text-sm font-bold" style={{ color: theme.primaryColor }}>{getCurrencySymbol(settings.currency)}{item.price}</span>
                                 )}
-                                <Box sx={{ flex: 1 }}>
-                                  <Box
-                                    sx={{
-                                      display: 'flex',
-                                      justifyContent: 'space-between',
-                                    }}
-                                  >
-                                    <Typography variant="subtitle1">
-                                      {item.name}
-                                    </Typography>
-                                    {type === 'menu' &&
-                                      settings.showPrices &&
-                                      item.price && (
-                                        <Typography
-                                          variant="subtitle1"
-                                          sx={{ color: theme.primaryColor }}
-                                        >
-                                          {settings.currency} {item.price}
-                                        </Typography>
-                                      )}
-                                  </Box>
-                                  {item.description && (
-                                    <Typography
-                                      variant="body2"
-                                      color="text.secondary"
-                                    >
-                                      {item.description}
-                                    </Typography>
-                                  )}
-                                </Box>
-                              </Box>
-                            </Grid>
-                          ))}
-                      </Grid>
-                    </Box>
+                              </div>
+                              {item.description && (
+                                <p className="text-xs text-white/60 mt-0.5 line-clamp-2">{item.description}</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   ))}
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      {/* Category Dialog */}
-      <Dialog
-        open={categoryDialog}
-        onClose={() => setCategoryDialog(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>
-          {editingCategory ? 'Edit Category' : 'Add Category'}
-        </DialogTitle>
+      {/* Dialogs */}
+      <Dialog open={categoryDialog} onOpenChange={setCategoryDialog}>
         <DialogContent>
-          <TextField
-            fullWidth
-            label="Category Name"
-            value={categoryName}
-            onChange={(e) => setCategoryName(e.target.value)}
-            placeholder={
-              type === 'menu' ? 'e.g., Appetizers' : 'e.g., Portraits'
-            }
-            sx={{ mt: 2 }}
-          />
+          <DialogHeader><DialogTitle>{editingCategory ? 'Edit Category' : 'Add Category'}</DialogTitle></DialogHeader>
+          <div className="py-4 space-y-2">
+            <Label>Name</Label>
+            <Input value={categoryName} onChange={(e) => setCategoryName(e.target.value)} placeholder="e.g. Starters" />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setCategoryDialog(false)}>Cancel</Button>
+            <Button variant="glow" onClick={handleSaveCategory} disabled={!categoryName}>{editingCategory ? 'Update' : 'Add'}</Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setCategoryDialog(false)}>Cancel</Button>
-          <Button
-            onClick={handleSaveCategory}
-            variant="contained"
-            disabled={!categoryName}
-          >
-            {editingCategory ? 'Update' : 'Add'}
-          </Button>
-        </DialogActions>
       </Dialog>
 
-      {/* Item Dialog */}
-      <Dialog
-        open={itemDialog}
-        onClose={() => setItemDialog(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          {editingItem
-            ? `Edit ${type === 'menu' ? 'Item' : 'Image'}`
-            : `Add ${type === 'menu' ? 'Item' : 'Image'}`}
-        </DialogTitle>
+      <Dialog open={itemDialog} onOpenChange={setItemDialog}>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
-              {itemImage && (
-                <Avatar
-                  src={itemImage}
-                  variant="rounded"
-                  sx={{ width: 120, height: 120, mb: 2 }}
-                />
-              )}
-              <Button
-                variant="outlined"
-                component="label"
-                startIcon={<Upload />}
-              >
-                Upload Image
-                <input
-                  type="file"
-                  hidden
-                  accept="image/*"
-                  onChange={handleItemImageUpload}
-                />
-              </Button>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                required
-                label={type === 'menu' ? 'Item Name' : 'Image Title'}
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
-                placeholder={
-                  type === 'menu'
-                    ? 'e.g., Caesar Salad'
-                    : 'e.g., Sunset Landscape'
-                }
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Description"
-                value={itemDescription}
-                onChange={(e) => setItemDescription(e.target.value)}
-                multiline
-                rows={2}
-                placeholder="Optional description"
-              />
-            </Grid>
-            {type === 'menu' && (
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Price"
-                  value={itemPrice}
-                  onChange={(e) => setItemPrice(e.target.value)}
-                  placeholder="9.99"
-                  type="number"
-                  InputProps={{
-                    startAdornment: <Typography sx={{ mr: 1 }}>{settings.currency}</Typography>,
-                  }}
-                />
-              </Grid>
-            )}
-          </Grid>
+          <DialogHeader><DialogTitle>{editingItem ? 'Edit Item' : 'Add Item'}</DialogTitle></DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Name</Label>
+                <Input value={itemName} onChange={(e) => setItemName(e.target.value)} placeholder="Burger" />
+              </div>
+              <div className="space-y-2">
+                <Label>Price</Label>
+                <Input value={itemPrice} onChange={(e) => setItemPrice(e.target.value)} placeholder="12.99" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Description</Label>
+              <Textarea value={itemDescription} onChange={(e) => setItemDescription(e.target.value)} rows={2} />
+            </div>
+            <div className="space-y-2">
+              <Label>Image</Label>
+              <Input type="file" accept="image/*" onChange={handleItemImageUpload} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setItemDialog(false)}>Cancel</Button>
+            <Button variant="glow" onClick={handleSaveItem} disabled={!itemName}>{editingItem ? 'Update' : 'Add'}</Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setItemDialog(false)}>Cancel</Button>
-          <Button
-            onClick={handleSaveItem}
-            variant="contained"
-            disabled={!itemName}
-          >
-            {editingItem ? 'Update' : 'Add'}
-          </Button>
-        </DialogActions>
       </Dialog>
-    </Box>
+    </div>
   );
 }

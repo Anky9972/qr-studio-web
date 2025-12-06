@@ -1,23 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Alert,
-  Box,
-  Typography,
-  Chip,
-  IconButton,
-  Collapse,
-  Stack,
-} from '@mui/material';
-import {
-  Close as CloseIcon,
-  WavingHand as WaveIcon,
-  TrendingUp as TrendingUpIcon,
-  QrCode2 as QrCode2Icon,
-  Visibility as VisibilityIcon,
-} from '@mui/icons-material';
-import { motion } from 'framer-motion';
+  X,
+  Hand,
+  TrendingUp,
+  QrCode,
+  Eye
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/Button';
 
 interface WelcomeBackBannerProps {
   userName?: string;
@@ -45,7 +38,7 @@ export default function WelcomeBackBanner({ userName }: WelcomeBackBannerProps) 
       if (response.ok) {
         const data = await response.json();
         setLoginInfo(data);
-        
+
         // Show banner if user has been away for more than 1 day or has new activity
         if (data.daysSinceLastLogin > 0 || data.newScans > 0 || data.newQRCodes > 0) {
           setOpen(true);
@@ -60,7 +53,7 @@ export default function WelcomeBackBanner({ userName }: WelcomeBackBannerProps) 
 
   const formatLastLogin = (lastLoginAt: string | null) => {
     if (!lastLoginAt) return 'your first time here';
-    
+
     const date = new Date(lastLoginAt);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -68,104 +61,76 @@ export default function WelcomeBackBanner({ userName }: WelcomeBackBannerProps) 
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffMins = Math.floor(diffMs / (1000 * 60));
 
-    if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays === 1) return 'yesterday';
     if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) !== 1 ? 's' : ''} ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   if (loading || !loginInfo || !open) return null;
 
   return (
-    <Collapse in={open}>
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Alert
-          severity="info"
-          icon={<WaveIcon />}
-          sx={{
-            mb: 3,
-            background: 'linear-gradient(135deg, #1976D2 0%, #42A5F5 100%)',
-            color: 'white',
-            border: 'none',
-            borderRadius: 2,
-            boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)',
-            '& .MuiAlert-icon': {
-              color: 'white',
-            },
-          }}
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={() => setOpen(false)}
-            >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+          animate={{ opacity: 1, height: 'auto', marginBottom: 24 }}
+          exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+          transition={{ duration: 0.3 }}
+          className="overflow-hidden"
         >
-          <Box>
-            <Typography variant="h6" fontWeight={700} gutterBottom>
-              Welcome back, {userName || 'there'}! 👋
-            </Typography>
-            <Typography variant="body2" sx={{ mb: 2, opacity: 0.95 }}>
-              {loginInfo.lastLoginAt 
-                ? `Your last visit was ${formatLastLogin(loginInfo.lastLoginAt)}`
-                : "This is your first time here! Let's get started."}
-            </Typography>
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-electric-blue to-electric-cyan p-6 text-white shadow-lg shadow-blue-500/20">
+            <div className="absolute top-0 right-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+            <div className="absolute bottom-0 left-0 -ml-8 -mb-8 h-32 w-32 rounded-full bg-black/10 blur-2xl" />
 
-            {(loginInfo.newScans > 0 || loginInfo.newQRCodes > 0) && (
-              <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ gap: 1 }}>
-                {loginInfo.newScans > 0 && (
-                  <Chip
-                    icon={<VisibilityIcon />}
-                    label={`${loginInfo.newScans} new scan${loginInfo.newScans !== 1 ? 's' : ''}`}
-                    size="small"
-                    sx={{
-                      bgcolor: 'rgba(255, 255, 255, 0.2)',
-                      color: 'white',
-                      fontWeight: 600,
-                      '& .MuiChip-icon': { color: 'white' },
-                    }}
-                  />
+            <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Hand className="w-5 h-5 animate-wave" />
+                  <h3 className="text-lg font-bold">Welcome back, {userName || 'there'}!</h3>
+                </div>
+                <p className="text-sm text-white/90 mb-3">
+                  {loginInfo.lastLoginAt
+                    ? `Your last visit was ${formatLastLogin(loginInfo.lastLoginAt)}.`
+                    : "This is your first time here! Let's get started."}
+                </p>
+
+                {(loginInfo.newScans > 0 || loginInfo.newQRCodes > 0 || loginInfo.daysSinceLastLogin >= 7) && (
+                  <div className="flex flex-wrap gap-2">
+                    {loginInfo.newScans > 0 && (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/20 text-xs font-semibold backdrop-blur-sm">
+                        <Eye className="w-3.5 h-3.5" />
+                        {loginInfo.newScans} new scan{loginInfo.newScans !== 1 ? 's' : ''}
+                      </span>
+                    )}
+                    {loginInfo.newQRCodes > 0 && (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/20 text-xs font-semibold backdrop-blur-sm">
+                        <QrCode className="w-3.5 h-3.5" />
+                        {loginInfo.newQRCodes} new QR{loginInfo.newQRCodes !== 1 ? 's' : ''}
+                      </span>
+                    )}
+                    {loginInfo.daysSinceLastLogin >= 7 && (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/20 text-xs font-semibold backdrop-blur-sm">
+                        <TrendingUp className="w-3.5 h-3.5" />
+                        Long time no see!
+                      </span>
+                    )}
+                  </div>
                 )}
-                {loginInfo.newQRCodes > 0 && (
-                  <Chip
-                    icon={<QrCode2Icon />}
-                    label={`${loginInfo.newQRCodes} new QR code${loginInfo.newQRCodes !== 1 ? 's' : ''}`}
-                    size="small"
-                    sx={{
-                      bgcolor: 'rgba(255, 255, 255, 0.2)',
-                      color: 'white',
-                      fontWeight: 600,
-                      '& .MuiChip-icon': { color: 'white' },
-                    }}
-                  />
-                )}
-                {loginInfo.daysSinceLastLogin >= 7 && (
-                  <Chip
-                    icon={<TrendingUpIcon />}
-                    label="Missed you!"
-                    size="small"
-                    sx={{
-                      bgcolor: 'rgba(255, 255, 255, 0.2)',
-                      color: 'white',
-                      fontWeight: 600,
-                      '& .MuiChip-icon': { color: 'white' },
-                    }}
-                  />
-                )}
-              </Stack>
-            )}
-          </Box>
-        </Alert>
-      </motion.div>
-    </Collapse>
+              </div>
+
+              <button
+                onClick={() => setOpen(false)}
+                className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white shrink-0"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

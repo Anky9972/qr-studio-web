@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import QRCodeStyling, { Options } from 'qr-code-styling';
-import { Box, Paper, Typography } from '@mui/material';
+import { cn } from '@/lib/utils';
+import { Sparkles } from 'lucide-react';
 
 interface AnimatedQRCodeProps {
   value: string;
@@ -8,6 +9,8 @@ interface AnimatedQRCodeProps {
   animationType?: 'pulse' | 'gradient-wave' | 'rainbow' | 'glow';
   pattern?: 'dots' | 'rounded' | 'square';
   baseColor?: string;
+  design?: any; // Pass full design object for frames
+  className?: string; // Add className prop for better flexibility
 }
 
 export const AnimatedQRCode: React.FC<AnimatedQRCodeProps> = ({
@@ -16,20 +19,22 @@ export const AnimatedQRCode: React.FC<AnimatedQRCodeProps> = ({
   animationType = 'pulse',
   pattern = 'dots',
   baseColor = '#2196F3',
+  design,
+  className,
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const qrCodeRef = useRef<QRCodeStyling | null>(null);
-  const [hue, setHue] = useState(0);
+  const hueRef = useRef(0);
 
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    const getAnimatedColor = () => {
+    const getAnimatedColor = (currentHue: number) => {
       switch (animationType) {
         case 'rainbow':
-          return `hsl(${hue}, 70%, 50%)`;
+          return `hsl(${currentHue}, 70%, 50%)`;
         case 'gradient-wave':
-          return `hsl(${190 + Math.sin(hue / 50) * 30}, 70%, 50%)`;
+          return `hsl(${190 + Math.sin(currentHue / 50) * 30}, 70%, 50%)`;
         case 'glow':
           return baseColor;
         case 'pulse':
@@ -55,18 +60,18 @@ export const AnimatedQRCode: React.FC<AnimatedQRCodeProps> = ({
       },
       dotsOptions: {
         type: pattern,
-        color: getAnimatedColor(),
+        color: getAnimatedColor(hueRef.current),
       },
       backgroundOptions: {
         color: animationType === 'glow' ? '#000000' : '#FFFFFF',
       },
       cornersSquareOptions: {
         type: 'extra-rounded',
-        color: getAnimatedColor(),
+        color: getAnimatedColor(hueRef.current),
       },
       cornersDotOptions: {
         type: 'dot',
-        color: getAnimatedColor(),
+        color: getAnimatedColor(hueRef.current),
       },
     };
 
@@ -83,18 +88,18 @@ export const AnimatedQRCode: React.FC<AnimatedQRCodeProps> = ({
   useEffect(() => {
     if (!qrCodeRef.current) return;
 
-    const animationInterval = setInterval(() => {
-      setHue((prev) => (prev + 1) % 360);
+    // Only run JS animation interval for types that actually change color over time
+    if (animationType !== 'rainbow' && animationType !== 'gradient-wave') return;
 
-      const getAnimatedColor = () => {
+    const animationInterval = setInterval(() => {
+      hueRef.current = (hueRef.current + 1) % 360;
+
+      const getAnimatedColor = (currentHue: number) => {
         switch (animationType) {
           case 'rainbow':
-            return `hsl(${hue}, 70%, 50%)`;
+            return `hsl(${currentHue}, 70%, 50%)`;
           case 'gradient-wave':
-            return `hsl(${190 + Math.sin(hue / 50) * 30}, 70%, 50%)`;
-          case 'glow':
-            return baseColor;
-          case 'pulse':
+            return `hsl(${190 + Math.sin(currentHue / 50) * 30}, 70%, 50%)`;
           default:
             return baseColor;
         }
@@ -103,72 +108,73 @@ export const AnimatedQRCode: React.FC<AnimatedQRCodeProps> = ({
       qrCodeRef.current?.update({
         dotsOptions: {
           type: pattern,
-          color: getAnimatedColor(),
+          color: getAnimatedColor(hueRef.current),
         },
         cornersSquareOptions: {
           type: 'extra-rounded',
-          color: getAnimatedColor(),
+          color: getAnimatedColor(hueRef.current),
         },
         cornersDotOptions: {
           type: 'dot',
-          color: getAnimatedColor(),
+          color: getAnimatedColor(hueRef.current),
         },
       });
     }, 50);
 
     return () => clearInterval(animationInterval);
-  }, [hue, animationType, pattern, baseColor]);
-
-  const getAnimationStyles = () => {
-    switch (animationType) {
-      case 'pulse':
-        return {
-          animation: 'qr-pulse 2s ease-in-out infinite',
-          '@keyframes qr-pulse': {
-            '0%, 100%': { transform: 'scale(1)', opacity: 1 },
-            '50%': { transform: 'scale(1.02)', opacity: 0.95 },
-          },
-        };
-      case 'glow':
-        return {
-          animation: 'qr-glow 2s ease-in-out infinite',
-          filter: 'drop-shadow(0 0 20px rgba(33, 150, 243, 0.5))',
-          '@keyframes qr-glow': {
-            '0%, 100%': { filter: 'drop-shadow(0 0 10px rgba(33, 150, 243, 0.5))' },
-            '50%': { filter: 'drop-shadow(0 0 30px rgba(33, 150, 243, 0.8))' },
-          },
-        };
-      default:
-        return {};
-    }
-  };
+  }, [animationType, pattern, baseColor]);
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 2,
-      }}
-    >
-      <Paper
-        elevation={3}
-        sx={{
-          p: 2,
-          borderRadius: 2,
-          background: animationType === 'glow' ? '#000' : '#fff',
-          ...getAnimationStyles(),
-        }}
-      >
-        <div ref={canvasRef} />
-      </Paper>
-      {animationType === 'rainbow' && (
-        <Typography variant="caption" color="text.secondary">
-          🌈 Animated Rainbow QR Code
-        </Typography>
+    <div
+      className={cn(
+        "flex flex-col items-center gap-4",
+        className
       )}
-    </Box>
+    >
+      <div
+        className={cn(
+          "p-6 rounded-3xl bg-white shadow-xl transition-all duration-300 relative",
+          animationType === 'glow' ? 'bg-black shadow-primary/50' : 'bg-white',
+          animationType === 'pulse' && "animate-pulse-slow",
+          animationType === 'glow' && "shadow-[0_0_50px_rgba(33,150,243,0.3)] animate-pulse-glow"
+        )}
+      >
+        <div className={cn(
+          "relative",
+          design?.frameStyle === 'box' && "border-8 border-black p-4 rounded-xl",
+          design?.frameStyle === 'banner' && "pb-12 border-4 border-black p-2 rounded-lg bg-white",
+          design?.frameStyle === 'balloon' && "p-4 rounded-[3rem] rounded-bl-none border-4 border-black bg-white"
+        )} style={{ borderColor: design?.frameColor }}>
+
+          <div ref={canvasRef} />
+
+          {design?.frameStyle === 'banner' && (
+            <div
+              className="absolute bottom-0 left-0 right-0 h-10 flex items-center justify-center text-white font-bold text-sm uppercase tracking-wider"
+              style={{ backgroundColor: design?.frameColor || 'black' }}
+            >
+              {design?.frameText}
+            </div>
+          )}
+
+          {design?.frameStyle === 'box' && (
+            <div
+              className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white px-4 py-1 text-xs font-bold uppercase tracking-wider border-2"
+              style={{ borderColor: design?.frameColor || 'black', color: design?.frameColor || 'black' }}
+            >
+              {design?.frameText}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {animationType === 'rainbow' && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium animate-pulse">
+          <Sparkles size={16} className="text-yellow-500" />
+          <span>Animated Rainbow Effect Active</span>
+        </div>
+      )}
+    </div>
   );
 };
 
