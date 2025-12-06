@@ -219,7 +219,7 @@ export default function CampaignsPage() {
         </div>
       ) : campaigns.length === 0 ? (
         <Card variant="glass" className="py-20 text-center flex flex-col items-center">
-          <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
+          <div className="w-20 h-20 mx-auto rounded-full bg-white/5 flex items-center justify-center mb-6">
             <Megaphone size={40} className="text-muted-foreground opacity-50" />
           </div>
           <h3 className="text-xl font-semibold mb-2">No campaigns found</h3>

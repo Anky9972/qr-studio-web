@@ -49,7 +49,7 @@ export default function LinkInBioPage() {
         </div>
       ) : (
         <Card variant="glass" className="py-20 text-center flex flex-col items-center">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center mb-6 relative group">
+          <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center mb-6 relative group">
             <LayoutTemplate size={48} className="text-primary group-hover:scale-110 transition-transform duration-500" />
             <Sparkles size={20} className="text-yellow-400 absolute top-4 right-4 animate-pulse" />
           </div>

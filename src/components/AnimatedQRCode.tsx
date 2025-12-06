@@ -75,6 +75,11 @@ export const AnimatedQRCode: React.FC<AnimatedQRCodeProps> = ({
       },
     };
 
+    // Clear any existing QR code first
+    if (canvasRef.current) {
+      canvasRef.current.innerHTML = '';
+    }
+
     qrCodeRef.current = new QRCodeStyling(options);
     qrCodeRef.current.append(canvasRef.current);
 

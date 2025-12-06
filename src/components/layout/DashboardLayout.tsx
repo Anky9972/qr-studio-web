@@ -61,23 +61,28 @@ export default function DashboardLayout({
     { text: 'Generate QR Code', icon: QrCode, path: '/dashboard/generate' },
     { text: 'Scan QR Code', icon: Scan, path: '/dashboard/scan' },
     { text: 'Bulk Generate', icon: UploadCloud, path: '/dashboard/bulk' },
-    { divider: true },
+
+    { header: 'Management' },
     { text: 'My QR Codes', icon: QrCode, path: '/dashboard/qr-codes' },
     { text: 'History', icon: History, path: '/dashboard/history' },
     { text: 'Analytics', icon: BarChart2, path: '/dashboard/analytics' },
-    { divider: true },
+
+    { header: 'Workspace' },
     { text: 'Campaigns', icon: Folder, path: '/dashboard/campaigns' },
     { text: 'Templates', icon: LayoutTemplate, path: '/dashboard/templates' },
     { text: 'Team', icon: Users, path: '/dashboard/team', badge: 'Pro' },
-    { divider: true },
+
+    { header: 'Microsites' },
     { text: 'Link in Bio', icon: LinkIcon, path: '/dashboard/link-in-bio', badge: 'New' },
     { text: 'vCard Plus', icon: Contact, path: '/dashboard/vcard-plus', badge: 'New' },
     { text: 'Digital Menu', icon: Utensils, path: '/dashboard/digital-menu', badge: 'New' },
     { text: 'Lead Gate', icon: ClipboardList, path: '/dashboard/lead-gate', badge: 'New' },
+
     ...(isAdmin ? [
-      { divider: true },
+      { header: 'Administration' },
       { text: 'Admin Panel', icon: Settings, path: '/admin' },
     ] : []),
+
     { divider: true },
     { text: 'Settings', icon: Settings, path: '/dashboard/settings' },
   ];
@@ -128,10 +133,22 @@ export default function DashboardLayout({
 
       {/* Navigation */}
       <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-        {menuItems.map((item, index) => (
-          item.divider ? (
-            <div key={`divider-${index}`} className="my-4 border-t border-gray-100 dark:border-white/5" />
-          ) : (
+        {menuItems.map((item, index) => {
+          if (item.header) {
+            return (
+              <div key={`header-${index}`} className="mt-6 mb-2 px-3">
+                <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                  {item.header}
+                </h3>
+              </div>
+            );
+          }
+
+          if (item.divider) {
+            return <div key={`divider-${index}`} className="my-4 border-t border-gray-100 dark:border-white/5" />;
+          }
+
+          return (
             <Link
               key={item.text}
               href={item.path!}
@@ -155,8 +172,8 @@ export default function DashboardLayout({
                 </span>
               )}
             </Link>
-          )
-        ))}
+          );
+        })}
       </div>
 
       {/* User Mini Profile (Bottom Sidebar) */}

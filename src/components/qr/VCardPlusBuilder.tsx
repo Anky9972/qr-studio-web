@@ -35,6 +35,10 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/Alert';
 import { cn } from '@/lib/utils';
+import PhonePreview from '@/components/ui/PhonePreview';
+import ThemeEditor from '@/components/ui/ThemeEditor';
+import { ThemeConfig } from '@/types/theme';
+import { themePresets } from '@/lib/theme-presets';
 
 interface CustomField {
   id: string;
@@ -61,10 +65,7 @@ interface VCardPlusData {
     instagram?: string;
   };
   customFields: CustomField[];
-  theme: {
-    primaryColor: string;
-    backgroundColor: string;
-  };
+  theme: ThemeConfig;
   downloadEnabled: boolean;
   published: boolean;
 }
@@ -75,10 +76,7 @@ interface VCardPlusBuilderProps {
   onPreview?: () => void;
 }
 
-const defaultTheme = {
-  primaryColor: '#3b82f6',
-  backgroundColor: '#0f172a',
-};
+const defaultTheme = themePresets[0].config;
 
 export default function VCardPlusBuilder({
   data,
@@ -379,45 +377,7 @@ export default function VCardPlusBuilder({
               </div>
             </>
           ) : (
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Palette size={18} className="text-primary" /> Appearance
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Primary Color */}
-                <div className="space-y-2">
-                  <Label>Primary Color</Label>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded border border-white/20 overflow-hidden relative">
-                      <input
-                        type="color"
-                        value={theme.primaryColor}
-                        onChange={(e) => setTheme({ ...theme, primaryColor: e.target.value })}
-                        className="absolute inset-0 w-[150%] h-[150%] -top-[25%] -left-[25%] p-0 border-0 cursor-pointer"
-                      />
-                    </div>
-                    <Input value={theme.primaryColor} onChange={(e) => setTheme({ ...theme, primaryColor: e.target.value })} className="font-mono" />
-                  </div>
-                </div>
-
-                {/* Background Color */}
-                <div className="space-y-2">
-                  <Label>Background Color</Label>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded border border-white/20 overflow-hidden relative">
-                      <input
-                        type="color"
-                        value={theme.backgroundColor}
-                        onChange={(e) => setTheme({ ...theme, backgroundColor: e.target.value })}
-                        className="absolute inset-0 w-[150%] h-[150%] -top-[25%] -left-[25%] p-0 border-0 cursor-pointer"
-                      />
-                    </div>
-                    <Input value={theme.backgroundColor} onChange={(e) => setTheme({ ...theme, backgroundColor: e.target.value })} className="font-mono" />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ThemeEditor theme={theme} onChange={setTheme} />
           )}
         </Card>
 
@@ -443,89 +403,84 @@ export default function VCardPlusBuilder({
       </div>
 
       {/* Preview Panel */}
-      <div className="lg:col-span-5 relative">
-        <div className="sticky top-6">
-          <div className="bg-gray-900 rounded-[3rem] border-8 border-gray-800 shadow-2xl overflow-hidden aspect-[9/19] max-w-[320px] mx-auto relative">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-6 bg-gray-800 rounded-b-xl z-20"></div>
+      <PhonePreview theme={theme} className="lg:col-span-5">
+        {/* Cover */}
+        <div
+          className="w-full h-32 bg-cover bg-center"
+          style={{
+            backgroundImage: coverPhoto ? `url(${coverPhoto})` : 'none',
+            backgroundColor: coverPhoto ? 'transparent' : theme.primaryColor
+          }}
+        />
 
-            <div
-              className="w-full h-full overflow-y-auto hide-scrollbar"
-              style={{ backgroundColor: theme.backgroundColor }}
+        {/* Content Container */}
+        <div className="px-6 pb-8 -mt-12 relative flex flex-col items-center text-center">
+          <Avatar className="w-24 h-24 border-4" style={{ borderColor: theme.backgroundColor }}>
+            <AvatarImage src={profilePhoto} />
+            <AvatarFallback className="bg-gray-200 text-gray-500 text-2xl font-bold">{firstName ? firstName[0] : '?'}</AvatarFallback>
+          </Avatar>
+
+          <div className="mt-3 space-y-1">
+            <h2 className="text-xl font-bold" style={{ color: theme.textColor }}>{firstName} {lastName}</h2>
+            {(jobTitle || company) && (
+              <p className="text-sm opacity-80" style={{ color: theme.textColor }}>{jobTitle} {jobTitle && company ? 'at' : ''} {company}</p>
+            )}
+          </div>
+
+          {bio && <p className="text-sm opacity-70 mt-4 leading-relaxed" style={{ color: theme.textColor }}>{bio}</p>}
+
+          {downloadEnabled && (
+            <Button
+              className={cn(
+                "w-full mt-6 font-medium shadow-lg hover:opacity-90 transition-opacity",
+                theme.buttonStyle === 'rounded' && "rounded-lg",
+                theme.buttonStyle === 'pill' && "rounded-full",
+                theme.buttonStyle === 'square' && "rounded-none",
+                theme.buttonStyle === 'soft' && "rounded-xl",
+              )}
+              style={{ backgroundColor: theme.primaryColor, color: '#ffffff' }}
             >
-              {/* Cover */}
-              <div
-                className="w-full h-32 bg-cover bg-center"
-                style={{
-                  backgroundImage: coverPhoto ? `url(${coverPhoto})` : 'none',
-                  backgroundColor: coverPhoto ? 'transparent' : theme.primaryColor
-                }}
-              />
+              <Download size={16} className="mr-2" /> Save Contact
+            </Button>
+          )}
 
-              {/* Content Container */}
-              <div className="px-6 pb-8 -mt-12 relative flex flex-col items-center text-center">
-                <Avatar className="w-24 h-24 border-4" style={{ borderColor: theme.backgroundColor }}>
-                  <AvatarImage src={profilePhoto} />
-                  <AvatarFallback className="bg-gray-200 text-gray-500 text-2xl font-bold">{firstName ? firstName[0] : '?'}</AvatarFallback>
-                </Avatar>
-
-                <div className="mt-3 space-y-1">
-                  <h2 className="text-xl font-bold text-white">{firstName} {lastName}</h2>
-                  {(jobTitle || company) && (
-                    <p className="text-sm text-gray-400">{jobTitle} {jobTitle && company ? 'at' : ''} {company}</p>
-                  )}
-                </div>
-
-                {bio && <p className="text-sm text-gray-300 mt-4 leading-relaxed">{bio}</p>}
-
-                {downloadEnabled && (
-                  <Button
-                    className="w-full mt-6 rounded-full font-medium shadow-lg"
-                    style={{ backgroundColor: theme.primaryColor }}
-                  >
-                    <Download size={16} className="mr-2" /> Save Contact
-                  </Button>
-                )}
-
-                {/* Contact Links */}
-                <div className="w-full mt-8 space-y-3">
-                  {email && (
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
-                      <div className="p-2 rounded-full bg-white/5 text-gray-300"><Mail size={16} /></div>
-                      <span className="text-sm text-gray-300">{email}</span>
-                    </div>
-                  )}
-                  {phone && (
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
-                      <div className="p-2 rounded-full bg-white/5 text-gray-300"><Phone size={16} /></div>
-                      <span className="text-sm text-gray-300">{phone}</span>
-                    </div>
-                  )}
-                  {website && (
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
-                      <div className="p-2 rounded-full bg-white/5 text-gray-300"><Globe size={16} /></div>
-                      <span className="text-sm text-gray-300">{website}</span>
-                    </div>
-                  )}
-                  {address && (
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
-                      <div className="p-2 rounded-full bg-white/5 text-gray-300"><MapPin size={16} /></div>
-                      <span className="text-sm text-gray-300">{address}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Socials */}
-                <div className="flex justify-center gap-4 mt-8">
-                  {socialLinks.linkedin && <div style={{ color: theme.primaryColor }}><Linkedin size={20} /></div>}
-                  {socialLinks.twitter && <div style={{ color: theme.primaryColor }}><Twitter size={20} /></div>}
-                  {socialLinks.facebook && <div style={{ color: theme.primaryColor }}><Facebook size={20} /></div>}
-                  {socialLinks.instagram && <div style={{ color: theme.primaryColor }}><Instagram size={20} /></div>}
-                </div>
+          {/* Contact Links */}
+          <div className="w-full mt-8 space-y-3">
+            {email && (
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+                <div className="p-2 rounded-full bg-white/5 opacity-80" style={{ color: theme.textColor }}><Mail size={16} /></div>
+                <span className="text-sm" style={{ color: theme.textColor }}>{email}</span>
               </div>
-            </div>
+            )}
+            {phone && (
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+                <div className="p-2 rounded-full bg-white/5 opacity-80" style={{ color: theme.textColor }}><Phone size={16} /></div>
+                <span className="text-sm" style={{ color: theme.textColor }}>{phone}</span>
+              </div>
+            )}
+            {website && (
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+                <div className="p-2 rounded-full bg-white/5 opacity-80" style={{ color: theme.textColor }}><Globe size={16} /></div>
+                <span className="text-sm" style={{ color: theme.textColor }}>{website}</span>
+              </div>
+            )}
+            {address && (
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+                <div className="p-2 rounded-full bg-white/5 opacity-80" style={{ color: theme.textColor }}><MapPin size={16} /></div>
+                <span className="text-sm" style={{ color: theme.textColor }}>{address}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Socials */}
+          <div className="flex justify-center gap-4 mt-8">
+            {socialLinks.linkedin && <div style={{ color: theme.primaryColor }}><Linkedin size={20} /></div>}
+            {socialLinks.twitter && <div style={{ color: theme.primaryColor }}><Twitter size={20} /></div>}
+            {socialLinks.facebook && <div style={{ color: theme.primaryColor }}><Facebook size={20} /></div>}
+            {socialLinks.instagram && <div style={{ color: theme.primaryColor }}><Instagram size={20} /></div>}
           </div>
         </div>
-      </div>
+      </PhonePreview>
 
       {/* Custom Field Dialog */}
       <Dialog open={customFieldDialog} onOpenChange={setCustomFieldDialog}>

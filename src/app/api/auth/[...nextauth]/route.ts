@@ -71,7 +71,8 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id
         token.role = (user as any).role
         token.plan = (user as any).plan
-        
+        token.isAdmin = (user as any).isAdmin
+
         // Update last login timestamp
         try {
           await prisma.user.update({
@@ -95,6 +96,7 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).id = token.id as string
         (session.user as any).role = token.role as string
         (session.user as any).plan = token.plan as string
+        (session.user as any).isAdmin = token.isAdmin as boolean
         // Pass tokens to session for API calls
         (session as any).accessToken = token.accessToken as string
         (session as any).refreshToken = token.refreshToken as string

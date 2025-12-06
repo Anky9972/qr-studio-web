@@ -186,7 +186,7 @@ export default function TemplatesPage() {
                   {/* Utilize AnimatedQRCode for dynamic preview if design object exists */}
                   {template.design ? (
                     <AnimatedQRCode
-                      value="https://example.com"
+                      value={`https://qrstudio.app/template/${template.id}`}
                       size={180}
                       design={template.design}
                       baseColor={template.design.dotsOptions?.color}

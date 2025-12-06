@@ -36,6 +36,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import PhonePreview from '@/components/ui/PhonePreview';
+import ThemeEditor from '@/components/ui/ThemeEditor';
+import { ThemeConfig } from '@/types/theme';
+import { themePresets } from '@/lib/theme-presets';
 import { AnimatePresence, motion } from 'framer-motion';
 
 interface FormField {
@@ -61,11 +65,7 @@ interface LeadGateData {
   fields: FormField[];
   redirectUrl: string;
   submitText: string;
-  theme: {
-    primaryColor: string;
-    backgroundColor: string;
-    fontFamily: string;
-  };
+  theme: ThemeConfig;
   submissions: Submission[];
   published: boolean;
 }
@@ -76,11 +76,7 @@ interface LeadGateBuilderProps {
   onPreview?: () => void;
 }
 
-const defaultTheme = {
-  primaryColor: '#8b5cf6',
-  backgroundColor: '#171717',
-  fontFamily: 'Inter, sans-serif',
-};
+const defaultTheme = themePresets[0].config;
 
 const commonFields: Omit<FormField, 'id'>[] = [
   { name: 'fullName', type: 'text', label: 'Full Name', required: true },
@@ -332,41 +328,7 @@ export default function LeadGateBuilder({
           )}
 
           {activeTab === 'design' && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Palette size={18} className="text-primary" /> Theme
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label>Primary Color</Label>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded border border-white/20 overflow-hidden relative">
-                      <input
-                        type="color"
-                        value={theme.primaryColor}
-                        onChange={(e) => setTheme({ ...theme, primaryColor: e.target.value })}
-                        className="absolute inset-0 w-[150%] h-[150%] -top-[25%] -left-[25%] p-0 border-0 cursor-pointer"
-                      />
-                    </div>
-                    <Input value={theme.primaryColor} onChange={(e) => setTheme({ ...theme, primaryColor: e.target.value })} className="font-mono" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Background Color</Label>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded border border-white/20 overflow-hidden relative">
-                      <input
-                        type="color"
-                        value={theme.backgroundColor}
-                        onChange={(e) => setTheme({ ...theme, backgroundColor: e.target.value })}
-                        className="absolute inset-0 w-[150%] h-[150%] -top-[25%] -left-[25%] p-0 border-0 cursor-pointer"
-                      />
-                    </div>
-                    <Input value={theme.backgroundColor} onChange={(e) => setTheme({ ...theme, backgroundColor: e.target.value })} className="font-mono" />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ThemeEditor theme={theme} onChange={setTheme} />
           )}
 
           {activeTab === 'results' && (
@@ -427,61 +389,78 @@ export default function LeadGateBuilder({
       </div>
 
       {/* Preview Panel */}
-      <div className="lg:col-span-5 relative">
-        <div className="sticky top-6">
-          <div className="bg-gray-900 rounded-[3rem] border-8 border-gray-800 shadow-2xl overflow-hidden aspect-[9/19] max-w-[320px] mx-auto relative">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-6 bg-gray-800 rounded-b-xl z-20"></div>
-
-            <div
-              className="w-full h-full overflow-y-auto hide-scrollbar p-6 pt-12"
-              style={{ backgroundColor: theme.backgroundColor, fontFamily: theme.fontFamily }}
-            >
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold mb-2" style={{ color: theme.primaryColor }}>{title}</h2>
-                <p className="text-sm opacity-80 whitespace-pre-wrap" style={{ color: '#fff' }}>{description}</p>
-              </div>
-
-              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                {fields.map(field => (
-                  <div key={field.id} className="space-y-1">
-                    <label className="text-xs font-medium ml-1" style={{ color: '#ccc' }}>
-                      {field.label} {field.required && <span className="text-red-400">*</span>}
-                    </label>
-                    {field.type === 'textarea' ? (
-                      <textarea
-                        className="w-full rounded-lg bg-white/10 border-transparent focus:border-white/30 focus:ring-0 text-white text-sm p-3 min-h-[80px]"
-                        placeholder={field.placeholder}
-                      ></textarea>
-                    ) : field.type === 'select' ? (
-                      <select className="w-full rounded-lg bg-white/10 border-transparent focus:border-white/30 focus:ring-0 text-white text-sm p-3">
-                        <option value="">Select option...</option>
-                        {field.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                      </select>
-                    ) : (
-                      <input
-                        type={field.type}
-                        className="w-full rounded-lg bg-white/10 border-transparent focus:border-white/30 focus:ring-0 text-white text-sm p-3"
-                        placeholder={field.placeholder}
-                      />
-                    )}
-                  </div>
-                ))}
-
-                <button
-                  className="w-full py-3 rounded-lg font-bold text-white shadow-lg mt-6"
-                  style={{ backgroundColor: theme.primaryColor }}
-                >
-                  {submitText}
-                </button>
-
-                <p className="text-[10px] text-center opacity-40 mt-4 text-white">
-                  Securely processed by QR Studio
-                </p>
-              </form>
-            </div>
-          </div>
+      <PhonePreview theme={theme} className="lg:col-span-5">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold mb-2" style={{ color: theme.primaryColor }}>{title}</h2>
+          <p className="text-sm opacity-80 whitespace-pre-wrap" style={{ color: theme.textColor }}>{description}</p>
         </div>
-      </div>
+
+        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          {fields.map(field => (
+            <div key={field.id} className="space-y-1">
+              <label className="text-xs font-medium ml-1" style={{ color: theme.textColor, opacity: 0.8 }}>
+                {field.label} {field.required && <span className="text-red-400">*</span>}
+              </label>
+              {field.type === 'textarea' ? (
+                <textarea
+                  className={cn(
+                    "w-full bg-white/10 border-transparent focus:border-white/30 focus:ring-0 text-white text-sm p-3 min-h-[80px]",
+                    theme.buttonStyle === 'rounded' && "rounded-lg",
+                    theme.buttonStyle === 'pill' && "rounded-2xl", // Inputs look better slightly less round than pills
+                    theme.buttonStyle === 'square' && "rounded-none",
+                    theme.buttonStyle === 'soft' && "rounded-xl",
+                  )}
+                  placeholder={field.placeholder}
+                  style={{ color: theme.textColor }}
+                ></textarea>
+              ) : field.type === 'select' ? (
+                <select className={cn(
+                  "w-full bg-white/10 border-transparent focus:border-white/30 focus:ring-0 text-white text-sm p-3",
+                  theme.buttonStyle === 'rounded' && "rounded-lg",
+                  theme.buttonStyle === 'pill' && "rounded-2xl",
+                  theme.buttonStyle === 'square' && "rounded-none",
+                  theme.buttonStyle === 'soft' && "rounded-xl",
+                )}
+                  style={{ color: theme.textColor }}
+                >
+                  <option value="">Select option...</option>
+                  {field.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                </select>
+              ) : (
+                <input
+                  type={field.type}
+                  className={cn(
+                    "w-full bg-white/10 border-transparent focus:border-white/30 focus:ring-0 text-white text-sm p-3",
+                    theme.buttonStyle === 'rounded' && "rounded-lg",
+                    theme.buttonStyle === 'pill' && "rounded-2xl",
+                    theme.buttonStyle === 'square' && "rounded-none",
+                    theme.buttonStyle === 'soft' && "rounded-xl",
+                  )}
+                  placeholder={field.placeholder}
+                  style={{ color: theme.textColor }}
+                />
+              )}
+            </div>
+          ))}
+
+          <button
+            className={cn(
+              "w-full py-3 font-bold text-white shadow-lg mt-6 hover:opacity-90 transition-opacity",
+              theme.buttonStyle === 'rounded' && "rounded-lg",
+              theme.buttonStyle === 'pill' && "rounded-full",
+              theme.buttonStyle === 'square' && "rounded-none",
+              theme.buttonStyle === 'soft' && "rounded-xl",
+            )}
+            style={{ backgroundColor: theme.primaryColor, color: '#ffffff' }}
+          >
+            {submitText}
+          </button>
+
+          <p className="text-[10px] text-center opacity-40 mt-4" style={{ color: theme.textColor }}>
+            Securely processed by QR Studio
+          </p>
+        </form>
+      </PhonePreview>
 
       {/* Field Dialog */}
       <Dialog open={fieldDialog} onOpenChange={setFieldDialog}>

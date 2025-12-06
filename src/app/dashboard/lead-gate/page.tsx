@@ -49,7 +49,7 @@ export default function LeadGatePage() {
         </div>
       ) : (
         <Card variant="glass" className="py-20 text-center flex flex-col items-center">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center mb-6 relative group">
+          <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center mb-6 relative group">
             <Lock size={48} className="text-purple-400 group-hover:scale-110 transition-transform duration-500" />
             <div className="absolute -bottom-2 -right-2 bg-purple-500 p-1.5 rounded-full shadow-lg border-4 border-[#0f0f0f]">
               <Key size={18} className="text-white" />

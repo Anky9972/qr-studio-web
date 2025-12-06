@@ -49,7 +49,7 @@ export default function VCardPlusPage() {
         </div>
       ) : (
         <Card variant="glass" className="py-20 text-center flex flex-col items-center">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center mb-6 relative group">
+          <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center mb-6 relative group">
             <IdCard size={48} className="text-blue-400 group-hover:scale-110 transition-transform duration-500" />
             <Contact size={20} className="text-white absolute -bottom-2 -right-2 bg-blue-500 p-1 rounded-full shadow-lg" />
           </div>

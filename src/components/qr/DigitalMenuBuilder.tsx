@@ -35,6 +35,10 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Alert, AlertDescription } from '@/components/ui/Alert';
 import { cn } from '@/lib/utils';
+import PhonePreview from '@/components/ui/PhonePreview';
+import ThemeEditor from '@/components/ui/ThemeEditor';
+import { ThemeConfig } from '@/types/theme';
+import { themePresets } from '@/lib/theme-presets';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface MenuItem {
@@ -60,11 +64,7 @@ interface DigitalMenuData {
   coverImage?: string;
   type: 'menu' | 'gallery' | 'portfolio';
   categories: MenuCategory[];
-  theme: {
-    primaryColor: string;
-    backgroundColor: string;
-    fontFamily: string;
-  };
+  theme: ThemeConfig;
   settings: {
     currency: string;
     showPrices: boolean;
@@ -79,11 +79,7 @@ interface DigitalMenuBuilderProps {
   onPreview?: () => void;
 }
 
-const defaultTheme = {
-  primaryColor: '#f59e0b',
-  backgroundColor: '#171717',
-  fontFamily: 'Inter, sans-serif',
-};
+const defaultTheme = themePresets[0].config;
 
 const defaultSettings = {
   currency: 'USD',
@@ -406,41 +402,7 @@ export default function DigitalMenuBuilder({
           )}
 
           {activeTab === 'design' && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Palette size={18} className="text-primary" /> Theme
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label>Primary Color</Label>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded border border-white/20 overflow-hidden relative">
-                      <input
-                        type="color"
-                        value={theme.primaryColor}
-                        onChange={(e) => setTheme({ ...theme, primaryColor: e.target.value })}
-                        className="absolute inset-0 w-[150%] h-[150%] -top-[25%] -left-[25%] p-0 border-0 cursor-pointer"
-                      />
-                    </div>
-                    <Input value={theme.primaryColor} onChange={(e) => setTheme({ ...theme, primaryColor: e.target.value })} className="font-mono" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Background Color</Label>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded border border-white/20 overflow-hidden relative">
-                      <input
-                        type="color"
-                        value={theme.backgroundColor}
-                        onChange={(e) => setTheme({ ...theme, backgroundColor: e.target.value })}
-                        className="absolute inset-0 w-[150%] h-[150%] -top-[25%] -left-[25%] p-0 border-0 cursor-pointer"
-                      />
-                    </div>
-                    <Input value={theme.backgroundColor} onChange={(e) => setTheme({ ...theme, backgroundColor: e.target.value })} className="font-mono" />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ThemeEditor theme={theme} onChange={setTheme} />
           )}
 
           {activeTab === 'settings' && (
@@ -496,67 +458,56 @@ export default function DigitalMenuBuilder({
       </div>
 
       {/* Preview Panel */}
-      <div className="lg:col-span-5 relative">
-        <div className="sticky top-6">
-          <div className="bg-gray-900 rounded-[3rem] border-8 border-gray-800 shadow-2xl overflow-hidden aspect-[9/19] max-w-[320px] mx-auto relative">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-6 bg-gray-800 rounded-b-xl z-20"></div>
+      <PhonePreview theme={theme} className="lg:col-span-5">
+        {coverImage && (
+          <div className="w-full h-32 bg-cover bg-center" style={{ backgroundImage: `url(${coverImage})` }}></div>
+        )}
 
-            <div
-              className="w-full h-full overflow-y-auto hide-scrollbar"
-              style={{ backgroundColor: theme.backgroundColor, fontFamily: theme.fontFamily }}
-            >
-              {coverImage && (
-                <div className="w-full h-32 bg-cover bg-center" style={{ backgroundImage: `url(${coverImage})` }}></div>
-              )}
+        <div className="px-5 py-6">
+          <div className="flex items-center gap-3 mb-6">
+            {logo && <img src={logo} className="w-14 h-14 rounded-full border-2 border-white/10 shadow-lg object-cover" />}
+            <div>
+              <h2 className="text-xl font-bold" style={{ color: theme.primaryColor }}>{title || 'Menu Title'}</h2>
+              {description && <p className="text-xs opacity-70 mt-1 line-clamp-2" style={{ color: theme.textColor }}>{description}</p>}
+            </div>
+          </div>
 
-              <div className="px-5 py-6">
-                <div className="flex items-center gap-3 mb-6">
-                  {logo && <img src={logo} className="w-14 h-14 rounded-full border-2 border-white/10 shadow-lg object-cover" />}
-                  <div>
-                    <h2 className="text-xl font-bold" style={{ color: theme.primaryColor }}>{title || 'Menu Title'}</h2>
-                    {description && <p className="text-xs opacity-70 mt-1 line-clamp-2" style={{ color: '#fff' }}>{description}</p>}
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  {categories.length === 0 && (
-                    <div className="text-center py-10 opacity-30 text-white">
-                      <p>Menu is empty</p>
-                    </div>
-                  )}
-                  {categories.map((category) => (
-                    <div key={category.id}>
-                      <h3 className="text-lg font-bold border-b pb-1 mb-3" style={{ borderColor: theme.primaryColor, color: '#fff' }}>
-                        {category.name}
-                      </h3>
-                      <div className="space-y-3">
-                        {category.items.filter(i => i.visible).map(item => (
-                          <div key={item.id} className="flex gap-3">
-                            {settings.showImages && item.image && (
-                              <img src={item.image} className="w-16 h-16 rounded-md object-cover bg-white/5" />
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex justify-between items-baseline">
-                                <h4 className="font-medium text-sm text-white">{item.name}</h4>
-                                {settings.showPrices && item.price && (
-                                  <span className="text-sm font-bold" style={{ color: theme.primaryColor }}>{getCurrencySymbol(settings.currency)}{item.price}</span>
-                                )}
-                              </div>
-                              {item.description && (
-                                <p className="text-xs text-white/60 mt-0.5 line-clamp-2">{item.description}</p>
-                              )}
-                            </div>
-                          </div>
-                        ))}
+          <div className="space-y-6">
+            {categories.length === 0 && (
+              <div className="text-center py-10 opacity-30">
+                <p style={{ color: theme.textColor }}>Menu is empty</p>
+              </div>
+            )}
+            {categories.map((category) => (
+              <div key={category.id}>
+                <h3 className="text-lg font-bold border-b pb-1 mb-3" style={{ borderColor: theme.primaryColor, color: theme.textColor }}>
+                  {category.name}
+                </h3>
+                <div className="space-y-3">
+                  {category.items.filter(i => i.visible).map(item => (
+                    <div key={item.id} className="flex gap-3">
+                      {settings.showImages && item.image && (
+                        <img src={item.image} className="w-16 h-16 rounded-md object-cover bg-white/5" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-baseline">
+                          <h4 className="font-medium text-sm" style={{ color: theme.textColor }}>{item.name}</h4>
+                          {settings.showPrices && item.price && (
+                            <span className="text-sm font-bold" style={{ color: theme.primaryColor }}>{getCurrencySymbol(settings.currency)}{item.price}</span>
+                          )}
+                        </div>
+                        {item.description && (
+                          <p className="text-xs opacity-60 mt-0.5 line-clamp-2" style={{ color: theme.textColor }}>{item.description}</p>
+                        )}
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
-      </div>
+      </PhonePreview>
 
       {/* Dialogs */}
       <Dialog open={categoryDialog} onOpenChange={setCategoryDialog}>

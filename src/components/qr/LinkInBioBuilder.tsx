@@ -36,6 +36,10 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/Alert';
 import { cn } from '@/lib/utils';
+import PhonePreview from '@/components/ui/PhonePreview';
+import ThemeEditor from '@/components/ui/ThemeEditor';
+import { ThemeConfig } from '@/types/theme';
+import { themePresets } from '@/lib/theme-presets';
 
 interface SocialLink {
   platform: string;
@@ -58,12 +62,7 @@ interface LinkInBioData {
   profileImage?: string;
   links: BioLink[];
   socialLinks: SocialLink[];
-  theme: {
-    backgroundColor: string;
-    buttonColor: string;
-    buttonTextColor: string;
-    fontFamily: string;
-  };
+  theme: ThemeConfig;
   published: boolean;
 }
 
@@ -73,12 +72,7 @@ interface LinkInBioBuilderProps {
   onPreview?: () => void;
 }
 
-const defaultTheme = {
-  backgroundColor: '#0f172a',
-  buttonColor: '#3b82f6',
-  buttonTextColor: '#ffffff',
-  fontFamily: 'Inter, sans-serif',
-};
+const defaultTheme = themePresets[0].config;
 
 const socialPlatforms = [
   { value: 'facebook', label: 'Facebook', icon: <Facebook size={16} /> },
@@ -359,57 +353,7 @@ export default function LinkInBioBuilder({
             </>
           ) : (
             <div className="space-y-6">
-              {/* Theme Settings */}
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Palette size={18} className="text-primary" /> Theme Customization
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label>Background Color</Label>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded border border-white/20 overflow-hidden relative">
-                      <input
-                        type="color"
-                        value={theme.backgroundColor}
-                        onChange={(e) => setTheme({ ...theme, backgroundColor: e.target.value })}
-                        className="absolute inset-0 w-[150%] h-[150%] -top-[25%] -left-[25%] p-0 border-0 cursor-pointer"
-                      />
-                    </div>
-                    <Input value={theme.backgroundColor} onChange={(e) => setTheme({ ...theme, backgroundColor: e.target.value })} className="font-mono" />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Button Color</Label>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded border border-white/20 overflow-hidden relative">
-                      <input
-                        type="color"
-                        value={theme.buttonColor}
-                        onChange={(e) => setTheme({ ...theme, buttonColor: e.target.value })}
-                        className="absolute inset-0 w-[150%] h-[150%] -top-[25%] -left-[25%] p-0 border-0 cursor-pointer"
-                      />
-                    </div>
-                    <Input value={theme.buttonColor} onChange={(e) => setTheme({ ...theme, buttonColor: e.target.value })} className="font-mono" />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Text Color</Label>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded border border-white/20 overflow-hidden relative">
-                      <input
-                        type="color"
-                        value={theme.buttonTextColor}
-                        onChange={(e) => setTheme({ ...theme, buttonTextColor: e.target.value })}
-                        className="absolute inset-0 w-[150%] h-[150%] -top-[25%] -left-[25%] p-0 border-0 cursor-pointer"
-                      />
-                    </div>
-                    <Input value={theme.buttonTextColor} onChange={(e) => setTheme({ ...theme, buttonTextColor: e.target.value })} className="font-mono" />
-                  </div>
-                </div>
-              </div>
+              <ThemeEditor theme={theme} onChange={setTheme} />
             </div>
           )}
         </Card>
@@ -429,70 +373,63 @@ export default function LinkInBioBuilder({
       </div>
 
       {/* Preview Panel (Sticky) */}
-      <div className="lg:col-span-5 relative">
-        <div className="sticky top-6">
-          <div className="bg-gray-900 rounded-[3rem] border-8 border-gray-800 shadow-2xl overflow-hidden aspect-[9/19] max-w-[320px] mx-auto relative">
-            {/* Notch */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-6 bg-gray-800 rounded-b-xl z-20"></div>
-
-            {/* Screen Content */}
-            <div
-              className="w-full h-full overflow-y-auto hide-scrollbar p-6 pt-12"
-              style={{ backgroundColor: theme.backgroundColor, fontFamily: theme.fontFamily }}
-            >
-              <div className="flex flex-col items-center gap-4 text-center">
-                {profileImage ? (
-                  <img src={profileImage} alt={title} className="w-24 h-24 rounded-full object-cover border-4 border-white/20 shadow-lg" />
-                ) : (
-                  <div className="w-24 h-24 rounded-full bg-white/10 flex items-center justify-center text-3xl font-bold text-white/50">
-                    {title ? title[0] : '?'}
-                  </div>
-                )}
-
-                <div>
-                  <h2 className="text-xl font-bold" style={{ color: theme.buttonTextColor === '#ffffff' ? '#fff' : '#000' }}>{title || "Your Page Title"}</h2>
-                  {description && (
-                    <p className="text-sm mt-1 opacity-80 whitespace-pre-wrap" style={{ color: theme.buttonTextColor === '#ffffff' ? '#fff' : '#000' }}>
-                      {description}
-                    </p>
-                  )}
-                </div>
-
-                <div className="w-full space-y-3 mt-4">
-                  {links.filter(l => l.visible).map(link => (
-                    <div
-                      key={link.id}
-                      className="w-full py-3 px-4 rounded-xl text-center font-medium shadow-sm transition-transform active:scale-95 cursor-pointer"
-                      style={{ backgroundColor: theme.buttonColor, color: theme.buttonTextColor }}
-                    >
-                      {link.title}
-                    </div>
-                  ))}
-                </div>
-
-                {socialLinks.length > 0 && (
-                  <div className="flex flex-wrap justify-center gap-3 mt-6">
-                    {socialLinks.map(link => (
-                      <a
-                        key={link.platform}
-                        href={link.url}
-                        className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-                        style={{ color: theme.buttonTextColor === '#ffffff' ? '#fff' : '#000' }}
-                      >
-                        {socialPlatforms.find(p => p.value === link.platform)?.icon || <LinkIcon size={20} />}
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-12 text-center pb-6">
-                <p className="text-[10px] opacity-40 uppercase tracking-widest" style={{ color: theme.buttonTextColor === '#ffffff' ? '#fff' : '#000' }}>Powered by QR Studio</p>
-              </div>
+      <PhonePreview theme={theme} className="lg:col-span-5">
+        <div className="flex flex-col items-center gap-4 text-center">
+          {profileImage ? (
+            <img src={profileImage} alt={title} className="w-24 h-24 rounded-full object-cover border-4 border-white/20 shadow-lg" />
+          ) : (
+            <div className="w-24 h-24 rounded-full bg-white/10 flex items-center justify-center text-3xl font-bold text-white/50">
+              {title ? title[0] : '?'}
             </div>
+          )}
+
+          <div>
+            <h2 className="text-xl font-bold" style={{ color: theme.textColor }}>{title || "Your Page Title"}</h2>
+            {description && (
+              <p className="text-sm mt-1 opacity-80 whitespace-pre-wrap" style={{ color: theme.textColor }}>
+                {description}
+              </p>
+            )}
           </div>
+
+          <div className="w-full space-y-3 mt-4">
+            {links.filter(l => l.visible).map(link => (
+              <div
+                key={link.id}
+                className={cn(
+                  "w-full py-3 px-4 text-center font-medium shadow-sm transition-transform active:scale-95 cursor-pointer flex items-center justify-center relative overflow-hidden",
+                  theme.buttonStyle === 'rounded' && "rounded-lg",
+                  theme.buttonStyle === 'pill' && "rounded-full",
+                  theme.buttonStyle === 'square' && "rounded-none",
+                  theme.buttonStyle === 'soft' && "rounded-xl",
+                  theme.cardStyle === 'glass' && "backdrop-blur-sm bg-opacity-80",
+                )}
+                style={{
+                  backgroundColor: theme.primaryColor,
+                  color: '#ffffff'
+                }}
+              >
+                {link.title}
+              </div>
+            ))}
+          </div>
+
+          {socialLinks.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-3 mt-6">
+              {socialLinks.map(link => (
+                <a
+                  key={link.platform}
+                  href={link.url}
+                  className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                  style={{ color: theme.textColor }}
+                >
+                  {socialPlatforms.find(p => p.value === link.platform)?.icon || <LinkIcon size={20} />}
+                </a>
+              ))}
+            </div>
+          )}
         </div>
-      </div>
+      </PhonePreview>
 
       {/* Dialogs */}
       <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
