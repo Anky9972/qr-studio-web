@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { QrCode, Mail, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -97,8 +98,13 @@ export default function SignInPage() {
 
       <Card variant="glass" className="w-full max-w-md relative z-10 border-white/10">
         <CardHeader className="text-center space-y-2">
-          <div className="mx-auto w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 mb-4">
-            <QrCode className="text-white" size={28} />
+          <div className="mx-auto w-12 h-12 relative mb-4">
+            <Image
+              src="/logo.png"
+              alt="QR Studio"
+              fill
+              className="object-contain"
+            />
           </div>
           <CardTitle className="text-2xl font-bold text-white">Welcome back</CardTitle>
           <CardDescription className="text-gray-400">

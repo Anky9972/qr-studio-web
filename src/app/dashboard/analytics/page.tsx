@@ -32,6 +32,7 @@ import { Card } from '@/components/ui/Card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/Badge';
+import { DataAssistant } from '@/components/analytics/DataAssistant';
 
 interface AnalyticsData {
   totalScans: number;
@@ -363,6 +364,15 @@ export default function AnalyticsPage() {
           </div>
         </Card>
       </div>
+
+      <DataAssistant data={{
+        title: "Analytics Dashboard",
+        summary: analytics,
+        trends: getDailyScanData(),
+        distribution: getQRTypeDistribution(),
+        sources: getScanSourceData(),
+        history: scans.slice(0, 50) // Limit granular history to save context
+      }} />
     </div>
   );
 }

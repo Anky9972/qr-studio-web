@@ -169,13 +169,12 @@ export const QRDesignControls: React.FC<QRDesignControlsProps> = ({
                                         <span>Rotation</span>
                                         <span>{design.gradientRotation}°</span>
                                     </div>
-                                    <input
-                                        type="range"
-                                        min="0"
-                                        max="360"
-                                        value={design.gradientRotation}
-                                        onChange={(e) => onChange('gradientRotation', Number(e.target.value))}
-                                        className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary"
+                                    <Slider
+                                        min={0}
+                                        max={360}
+                                        step={1}
+                                        value={[design.gradientRotation]}
+                                        onValueChange={(val) => onChange('gradientRotation', val[0])}
                                     />
                                 </div>
                             )}
@@ -248,14 +247,12 @@ export const QRDesignControls: React.FC<QRDesignControlsProps> = ({
                                 <span>Logo Size</span>
                                 <span>{Math.round(design.logoSize * 100)}%</span>
                             </div>
-                            <input
-                                type="range"
-                                min="0.1"
-                                max="0.5"
-                                step="0.05"
-                                value={design.logoSize}
-                                onChange={(e) => onChange('logoSize', Number(e.target.value))}
-                                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary"
+                            <Slider
+                                min={0.1}
+                                max={0.5}
+                                step={0.05}
+                                value={[design.logoSize]}
+                                onValueChange={(val) => onChange('logoSize', val[0])}
                             />
                         </div>
                     )}

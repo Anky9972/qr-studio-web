@@ -22,8 +22,13 @@ import {
   Layout,
   Globe,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Sparkles,
+  Wand2,
+  Loader2
 } from 'lucide-react';
+import { useAIStore } from '@/store/ai-store';
+import { clientAI } from '@/lib/ai/client-ai';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -107,6 +112,11 @@ export default function LinkInBioBuilder({
   const [socialDialogOpen, setSocialDialogOpen] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState('');
   const [socialUrl, setSocialUrl] = useState('');
+
+  // AI State
+  const [aiDialogOpen, setAiDialogOpen] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
 
   const handleAddLink = () => {
     setEditingLink(null);
@@ -217,6 +227,59 @@ export default function LinkInBioBuilder({
     }
   };
 
+  const handleAiGenerate = async () => {
+    if (!aiPrompt.trim()) return;
+
+    const apiKey = useAIStore.getState().getApiKey();
+    if (!apiKey) {
+      alert('Please configure your AI API Key in Settings first.');
+      return;
+    }
+
+    setIsAiGenerating(true);
+    try {
+      const systemPrompt = `You are a Social Media Manager. Generate a "Link in Bio" profile based on the user's description.
+      Output valid JSON with:
+      {
+        "title": "Short catchy title/name",
+        "description": "Engaging short bio (max 150 chars)",
+        "links": [
+           { "title": "Link Title", "url": "https://placeholder.url" }
+        ]
+      }
+      Generate at least 3 relevant links. Use placeholder URLs if needed.`;
+
+      const { text, error } = await clientAI.generateText(aiPrompt, {
+        systemPrompt,
+        temperature: 0.8,
+        jsonMode: true
+      });
+
+      if (error) throw new Error(error);
+      if (!text) throw new Error('No content returned');
+
+      const data = JSON.parse(text);
+
+      if (data.title) setTitle(data.title);
+      if (data.description) setDescription(data.description);
+      if (data.links && Array.isArray(data.links)) {
+        const newLinks: BioLink[] = data.links.map((l: any, i: number) => ({
+          id: `ai-link-${Date.now()}-${i}`,
+          title: l.title,
+          url: l.url,
+          visible: true
+        }));
+        setLinks(newLinks);
+      }
+
+      setAiDialogOpen(false);
+    } catch (e: any) {
+      alert('AI Generation failed: ' + e.message);
+    } finally {
+      setIsAiGenerating(false);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       {/* Editor Panel */}
@@ -250,6 +313,11 @@ export default function LinkInBioBuilder({
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <Globe size={18} className="text-primary" /> Profile
                 </h3>
+                <div className="flex justify-end">
+                  <Button variant="outline" size="sm" onClick={() => setAiDialogOpen(true)} className="border-primary/30 hover:bg-primary/5 text-primary">
+                    <Sparkles size={14} className="mr-2" /> AI Autofill
+                  </Button>
+                </div>
                 <div className="flex flex-col sm:flex-row gap-6 items-start">
                   <div className="flex flex-col items-center gap-2">
                     <Avatar className="w-24 h-24 border-4 border-white/5">
@@ -488,6 +556,37 @@ export default function LinkInBioBuilder({
             <Button variant="ghost" onClick={() => setSocialDialogOpen(false)}>Cancel</Button>
             <Button variant="glow" onClick={handleAddSocialLink} disabled={!selectedPlatform || !socialUrl}>
               Add Social
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Dialog */}
+      <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Wand2 className="w-5 h-5 text-primary" />
+              AI Content Generator
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>What is this page for?</Label>
+              <Textarea
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                placeholder="e.g. A photography portfolio for landscapes, selling prints and booking workshops."
+                rows={3}
+              />
+              <p className="text-xs text-muted-foreground">The AI will generate a title, bio, and suggested links for you.</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setAiDialogOpen(false)}>Cancel</Button>
+            <Button variant="glow" onClick={handleAiGenerate} disabled={isAiGenerating || !aiPrompt}>
+              {isAiGenerating ? <Loader2 className="mr-2 animate-spin" /> : <Sparkles className="mr-2" />}
+              Generate Content
             </Button>
           </DialogFooter>
         </DialogContent>

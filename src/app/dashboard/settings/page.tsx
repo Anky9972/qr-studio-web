@@ -17,8 +17,11 @@ import {
   CheckCircle,
   Activity,
   History,
-  Bell
+  Bell,
+  Bot,
+  Sparkles
 } from 'lucide-react';
+import { AISettingsModal } from '@/components/settings/AISettingsModal';
 import { usePreferencesStore } from '@/store/preferencesStore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -73,6 +76,9 @@ export default function SettingsPage() {
   const [webhooks, setWebhooks] = useState<any[]>([]);
   const [openWebhookDialog, setOpenWebhookDialog] = useState(false);
   const [selectedEvents, setSelectedEvents] = useState<string[]>(['qr.bulk.completed']);
+
+  // AI Settings
+  const [aiModalOpen, setAiModalOpen] = useState(false);
 
   // Available webhook events
   const WEBHOOK_EVENTS = [
@@ -312,9 +318,49 @@ export default function SettingsPage() {
           <TabsTrigger value="security"><Lock size={16} className="mr-2" /> Security</TabsTrigger>
           <TabsTrigger value="api-keys"><Key size={16} className="mr-2" /> API Keys</TabsTrigger>
           <TabsTrigger value="webhooks"><Webhook size={16} className="mr-2" /> Webhooks</TabsTrigger>
+          <TabsTrigger value="ai"><Bot size={16} className="mr-2" /> AI Features</TabsTrigger>
           <TabsTrigger value="preferences"><SettingsIcon size={16} className="mr-2" /> Preferences</TabsTrigger>
           <TabsTrigger value="billing"><CreditCard size={16} className="mr-2" /> Billing</TabsTrigger>
         </TabsList>
+
+        {/* AI TAB */}
+        <TabsContent value="ai" className="mt-6">
+          <Card variant="neon" className="p-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
+            <div className="relative z-10 flex flex-col items-center text-center space-y-6 max-w-2xl mx-auto">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                <Sparkles className="w-8 h-8 text-white" />
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-2xl font-bold">Supercharge QR Studio with AI</h3>
+                <p className="text-muted-foreground">
+                  Connect your own API keys to enable next-generation features like Magic Themes, AI Microsite Builder, and Smart Analytics.
+                  Your keys are stored securely in your browser.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full pt-4">
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                  <div className="mb-2 font-semibold flex items-center justify-center gap-2"><SettingsIcon size={14} /> Magic Themes</div>
+                  <p className="text-xs text-muted-foreground">Generate beautiful QR styles from text descriptions.</p>
+                </div>
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                  <div className="mb-2 font-semibold flex items-center justify-center gap-2"><Bot size={14} /> Smart Analytics</div>
+                  <p className="text-xs text-muted-foreground">Chat with your data to get instant insights.</p>
+                </div>
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                  <div className="mb-2 font-semibold flex items-center justify-center gap-2"><Sparkles size={14} /> AI Microsites</div>
+                  <p className="text-xs text-muted-foreground">Auto-generate landing page content.</p>
+                </div>
+              </div>
+
+              <Button size="lg" variant="glow" onClick={() => setAiModalOpen(true)} className="mt-4">
+                <Key size={16} className="mr-2" /> Configure API Keys
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
 
         {/* PROFILE TAB */}
         <TabsContent value="profile" className="mt-6 space-y-6">
@@ -664,6 +710,8 @@ export default function SettingsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AISettingsModal open={aiModalOpen} onOpenChange={setAiModalOpen} />
     </div>
   );
 }

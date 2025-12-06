@@ -658,3 +658,64 @@ paths:
                     type: boolean
                   statusCode:
                     type: integer
+
+  /api/ai/generate-qr:
+    post:
+      summary: Generate AI-styled QR code
+      description: Create an artistic QR code using various AI providers (OpenAI, Replicate, Stability, HuggingFace).
+      tags:
+        - AI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - prompt
+                - qrContent
+              properties:
+                prompt:
+                  type: string
+                  minLength: 10
+                  example: "Cyberpunk city with neon lights"
+                qrContent:
+                  type: string
+                  minLength: 3
+                  example: "https://example.com"
+                style:
+                  type: string
+                  default: "artistic"
+                creativity:
+                  type: number
+                  format: float
+                  minimum: 0
+                  maximum: 1
+                  default: 0.7
+                preferredProvider:
+                  type: string
+                  enum: [auto, replicate, stability, openai, huggingface]
+                  default: auto
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  imageUrl:
+                    type: string
+                    format: uri
+                  provider:
+                    type: string
+                  prompt: 
+                    type: string
+        '400':
+          description: Bad Request (Invalid input or missing keys)
+        '401':
+          description: Unauthorized
+        '500':
+          description: Generation Failed

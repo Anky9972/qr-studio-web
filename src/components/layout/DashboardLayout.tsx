@@ -7,6 +7,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import AnnouncementBanner from '@/components/AnnouncementBanner'
 import ThemeToggle from '@/components/ui/ThemeToggle'
+import NotificationDropdown from '@/components/ui/NotificationDropdown'
 import {
   Menu,
   LayoutDashboard,
@@ -117,8 +118,13 @@ export default function DashboardLayout({
       {/* Logo */}
       <div className="h-16 flex items-center px-6 border-b border-gray-100 dark:border-white/5">
         <Link href="/dashboard" className="flex items-center gap-3 group translate-y-0.5">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-electric-blue to-electric-cyan flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 group-hover:scale-105 transition-all duration-300">
-            <QrCode className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 relative group-hover:scale-105 transition-transform duration-300">
+            <Image
+              src="/logo.png"
+              alt="QR Studio Logo"
+              fill
+              className="object-contain"
+            />
           </div>
           <div>
             <h1 className="text-lg font-bold font-display bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 group-hover:to-electric-cyan transition-all">
@@ -243,12 +249,9 @@ export default function DashboardLayout({
           </div>
 
           <div className="flex items-center gap-3">
-            <ThemeToggle />
+            {/* <ThemeToggle /> */}
 
-            <button className="relative w-10 h-10 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-electric-pink shadow-glow-pink"></span>
-            </button>
+            <NotificationDropdown />
 
             {/* Profile Dropdown Replacement (Simplified for now, can be expanded) */}
             <div className="relative ml-2">

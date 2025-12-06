@@ -207,7 +207,7 @@ export default function DashboardPage() {
           transition={{ duration: 0.5 }}
         >
           <h1 className="text-3xl md:text-4xl font-bold font-display text-gray-900 dark:text-white">
-            {getGreeting()}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-blue to-electric-cyan">{session?.user?.name?.split(' ')[0] || 'User'}</span>! 👋
+            {getGreeting()}, <span className="text-electric-blue dark:text-electric-cyan font-bold">{session?.user?.name?.split(' ')[0] || 'User'}</span>! 👋
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg">
             Here's what's happening with your QR codes today.
