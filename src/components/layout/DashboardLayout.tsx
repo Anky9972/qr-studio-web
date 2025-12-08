@@ -91,7 +91,7 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/signin')
+      router.push(`/signin?callbackUrl=${encodeURIComponent(pathname)}`)
     }
   }, [status, router])
 

@@ -52,7 +52,8 @@ export default function SignInPage() {
       if (result?.error) {
         setErrorMsg('Invalid email or password')
       } else if (result?.ok) {
-        router.push(callbackUrl)
+        // Force a hard reload to ensure the session cookie is picked up
+        window.location.href = callbackUrl
       }
     } catch (err) {
       setErrorMsg('An error occurred. Please try again.')
