@@ -32,12 +32,21 @@
     "dashboard": "Panel",
     "myQRCodes": "Mis Códigos QR",
     "analytics": "Analíticas",
-    "settings": "Configuración"
+    "settings": "Configuración",
+    "account": "Cuenta"
   },
   "hero": {
-    "title": "Crear, Gestionar y Rastrear Códigos QR",
-    "subtitle": "Generación profesional de códigos QR con análisis avanzados, contenido dinámico y colaboración en equipo",
-    "cta": "Comenzar Gratis",
+    "badge": "Confían en nosotros más de 10,000 empresas",
+    "title": "Crear",
+    "titleHighlight": "Potentes",
+    "titleEnd": "Códigos QR",
+    "subtitle": "Genere códigos QR dinámicos y personalizables con análisis avanzados. Rastree cada escaneo y actualice el contenido en cualquier momento, sin necesidad de reimprimir.",
+    "subtitleLoggedIn": "¿Listo para crear más códigos QR increíbles? Acceda a su panel para administrar sus códigos, ver análisis y más.",
+    "welcomeBack": "Bienvenido de Nuevo",
+    "cta": "Comenzar Prueba Gratuita",
+    "ctaDashboard": "Ir al Panel",
+    "ctaCreateNew": "Crear Nuevo Código QR",
+    "exploreFeatures": "Explorar Características",
     "watchDemo": "Ver Demo"
   },
   "features": {
@@ -57,16 +66,87 @@
     },
     "bulk": {
       "title": "Generación Masiva",
-      "description": "Crea miles de códigos QR a la vez"
+      "description": "Genere miles de códigos QR a la vez desde archivos CSV o Excel"
+    },
+    "team": {
+      "title": "Colaboración en Equipo",
+      "description": "Trabaje junto con su equipo, comparta bibliotecas y administre permisos"
+    },
+    "security": {
+      "title": "Seguridad Empresarial",
+      "description": "Protección con contraseña, fechas de vencimiento y opciones de marca blanca"
     },
     "api": {
       "title": "Acceso API",
       "description": "Integra la generación de QR en tus aplicaciones"
-    },
-    "teams": {
-      "title": "Colaboración en Equipo",
-      "description": "Trabaja junto con permisos basados en roles"
     }
+  },
+  "demo": {
+    "title": "🚀 Generador QR en Vivo",
+    "subtitle": "Pruébalo ahora - No requiere registro",
+    "placeholder": "https://ejemplo.com",
+    "download": "Descargar",
+    "unlockPro": "Desbloquear Pro",
+    "createAdvanced": "Crear Avanzado",
+    "secureNote": "🔒 Seguro y Privado - Tus datos nunca se almacenan en modo demo",
+    "noCreditCard": "No se requiere tarjeta de crédito",
+    "freeTrial": "Prueba gratuita de 14 días",
+    "cancelAnytime": "Cancela en cualquier momento"
+  },
+  "stats": {
+    "activeUsers": "Usuarios Activos",
+    "qrCodesCreated": "Códigos QR Creados",
+    "uptime": "Tiempo de Actividad",
+    "support": "Soporte"
+  },
+  "featuresSection": {
+    "badge": "CARACTERÍSTICAS POTENTES",
+    "title": "Todo lo que Necesitas para Triunfar",
+    "subtitle": "Crea, gestiona y rastrea tus códigos QR con herramientas profesionales diseñadas para el crecimiento.",
+    "viewAll": "Ver Todas las Características"
+  },
+  "testimonials": {
+    "badge": "TESTIMONIOS",
+    "title": "Amado por Miles",
+    "subtitle": "Mira lo que nuestra comunidad dice sobre QR Studio"
+  },
+  "pricingSection": {
+    "badge": "PRECIOS",
+    "title": "Precios Simples y Transparentes",
+    "subtitle": "Elige el plan perfecto para tus necesidades. Sin tarifas ocultas.",
+    "free": {
+      "title": "Gratis",
+      "price": "$0",
+      "period": "/mes",
+      "description": "Perfecto para proyectos personales",
+      "features": ["50 códigos QR", "Análisis básicos", "Personalización estándar", "Exportar PNG/SVG"],
+      "cta": "Comenzar"
+    },
+    "pro": {
+      "title": "Pro",
+      "price": "$19",
+      "period": "/mes",
+      "description": "Ideal para profesionales",
+      "badge": "MÁS POPULAR",
+      "features": ["Códigos QR dinámicos ilimitados", "Análisis avanzados", "Personalización completa", "Generación masiva (1,000)", "Soporte prioritario"],
+      "cta": "Iniciar Prueba Gratuita"
+    },
+    "business": {
+      "title": "Negocios",
+      "price": "$49",
+      "period": "/mes",
+      "description": "Para equipos en crecimiento",
+      "features": ["Todo en Pro", "Colaboración en equipo", "Marca blanca", "Generación masiva (10,000)", "Acceso API"],
+      "cta": "Iniciar Prueba Gratuita"
+    }
+  },
+  "cta": {
+    "badge": "OFERTA POR TIEMPO LIMITADO",
+    "title": "¿Listo para Crear Códigos QR Increíbles?",
+    "subtitle": "Únete a más de 10,000 empresas transformando sus campañas de códigos QR con seguimiento dinámico y diseños hermosos",
+    "primary": "Comenzar Gratis Hoy",
+    "secondary": "Hablar con Ventas",
+    "benefits": "✨ Sin tarjeta de crédito • ⚡ Configuración en 2 minutos • 🎯 Prueba gratuita de 14 días"
   },
   "pricing": {
     "title": "Precios Simples y Transparentes",

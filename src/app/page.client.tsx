@@ -24,6 +24,7 @@ import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
+import { useTranslations } from '@/lib/useTranslations';
 
 interface Stats {
   activeUsers: string;
@@ -34,6 +35,15 @@ interface Stats {
 
 export default function HomePageClient() {
   const { data: session } = useSession();
+  const t = useTranslations('hero');
+  const tFeatures = useTranslations('features');
+  const tCommon = useTranslations('common');
+  const tDemo = useTranslations('demo');
+  const tStats = useTranslations('stats');
+  const tFeaturesSection = useTranslations('featuresSection');
+  const tTestimonials = useTranslations('testimonials');
+  const tPricingSection = useTranslations('pricingSection');
+  const tCta = useTranslations('cta');
   const [demoUrl, setDemoUrl] = useState('https://qrstudio.app');
   const [qrGenerated, setQrGenerated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -149,33 +159,33 @@ export default function HomePageClient() {
   const features = [
     {
       icon: <QrCode className="w-8 h-8 text-blue-500" />,
-      title: 'Dynamic QR Codes',
-      description: 'Create editable QR codes that you can update anytime without reprinting'
+      title: tFeatures('dynamic.title'),
+      description: tFeatures('dynamic.description')
     },
     {
       icon: <Activity className="w-8 h-8 text-purple-500" />,
-      title: 'Advanced Analytics',
-      description: 'Track scans with detailed insights: location, device, time, and more'
+      title: tFeatures('analytics.title'),
+      description: tFeatures('analytics.description')
     },
     {
       icon: <Palette className="w-8 h-8 text-pink-500" />,
-      title: 'Full Customization',
-      description: 'Design stunning QR codes with colors, logos, patterns, and frames'
+      title: tFeatures('customization.title'),
+      description: tFeatures('customization.description')
     },
     {
       icon: <Zap className="w-8 h-8 text-cyan-500" />,
-      title: 'Bulk Generation',
-      description: 'Generate thousands of QR codes at once from CSV or Excel files'
+      title: tFeatures('bulk.title'),
+      description: tFeatures('bulk.description')
     },
     {
       icon: <Users className="w-8 h-8 text-orange-500" />,
-      title: 'Team Collaboration',
-      description: 'Work together with your team, share libraries, and manage permissions'
+      title: tFeatures('team.title'),
+      description: tFeatures('team.description')
     },
     {
       icon: <Shield className="w-8 h-8 text-green-500" />,
-      title: 'Enterprise Security',
-      description: 'Password protection, expiration dates, and white-label options'
+      title: tFeatures('security.title'),
+      description: tFeatures('security.description')
     }
   ];
 
@@ -218,28 +228,28 @@ export default function HomePageClient() {
       <StructuredData type="FAQPage" data={{ questions: createFAQItems(faqs) }} />
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 z-10">
+      <section className="relative pt-32 pb-20 lg:pt-28 lg:pb-32 px-4 z-10">
         <div className="container mx-auto max-w-7xl">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             {/* Left Content */}
             <div className="text-left space-y-8 animate-in slide-in-from-left duration-700">
               <Badge variant="premium" className="animate-float">
                 <StarIcon className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
-                Trusted by 10,000+ businesses
+                {t('badge')}
               </Badge>
 
               <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1]">
-                {session?.user ? `Welcome Back, ${session.user.name?.split(' ')[0] || 'User'}!` : (
+                {session?.user ? `${t('welcomeBack')}, ${session.user.name?.split(' ')[0] || 'User'}!` : (
                   <>
-                    Create <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 animate-gradient">Powerful</span> QR Codes
+                    {t('title')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 animate-gradient">{t('titleHighlight')}</span> {t('titleEnd')}
                   </>
                 )}
               </h1>
 
               <p className="text-xl text-gray-400 max-w-lg leading-relaxed">
                 {session?.user
-                  ? 'Ready to create more amazing QR codes? Access your dashboard to manage your codes, view analytics, and more.'
-                  : 'Generate dynamic, customizable QR codes with advanced analytics. Track every scan and update content anytime—no reprinting needed.'
+                  ? t('subtitleLoggedIn')
+                  : t('subtitle')
                 }
               </p>
 
@@ -253,7 +263,7 @@ export default function HomePageClient() {
                     >
                       <Link href="/dashboard">
                         <LayoutDashboard className="mr-2 w-5 h-5" />
-                        Go to Dashboard
+                        {t('ctaDashboard')}
                       </Link>
                     </Button>
                     <Button
@@ -264,7 +274,7 @@ export default function HomePageClient() {
                     >
                       <Link href="/dashboard/generate">
                         <QrCode className="mr-2 w-5 h-5" />
-                        Create New QR Code
+                        {t('ctaCreateNew')}
                       </Link>
                     </Button>
                   </>
@@ -277,7 +287,7 @@ export default function HomePageClient() {
                       asChild
                     >
                       <Link href="/signup">
-                        Start Free Trial
+                        {t('cta')}
                         <ArrowRight className="ml-2 w-5 h-5" />
                       </Link>
                     </Button>
@@ -288,7 +298,7 @@ export default function HomePageClient() {
                       asChild
                     >
                       <Link href="/features">
-                        Explore Features
+                        {t('exploreFeatures')}
                       </Link>
                     </Button>
                   </>
@@ -297,7 +307,7 @@ export default function HomePageClient() {
 
               {!session?.user && (
                 <div className="flex flex-wrap gap-6 text-sm text-gray-500 pt-4">
-                  {['No credit card required', '14-day free trial', 'Cancel anytime'].map((item) => (
+                  {[tDemo('noCreditCard'), tDemo('freeTrial'), tDemo('cancelAnytime')].map((item) => (
                     <div key={item} className="flex items-center gap-2">
                       <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center">
                         <Check className="w-3 h-3 text-green-500" />
@@ -316,14 +326,14 @@ export default function HomePageClient() {
 
               <Card variant="glass" className="relative p-6 lg:p-8 space-y-6">
                 <div className="text-center space-y-2">
-                  <h3 className="text-xl font-bold text-white">🚀 Live QR Generator</h3>
-                  <p className="text-sm text-gray-400">Try it now - No sign up required</p>
+                  <h3 className="text-xl font-bold text-white">{tDemo('title')}</h3>
+                  <p className="text-sm text-gray-400">{tDemo('subtitle')}</p>
                 </div>
 
                 <div className="space-y-4">
                   <Input
                     type="url"
-                    placeholder="https://example.com"
+                    placeholder={tDemo('placeholder')}
                     value={demoUrl}
                     onChange={(e) => setDemoUrl(e.target.value)}
                     className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
@@ -348,7 +358,7 @@ export default function HomePageClient() {
                       onClick={handleDownloadQR}
                     >
                       <Download className="mr-2 w-4 h-4" />
-                      Download
+                      {tDemo('download')}
                     </Button>
                     <Button
                       variant="premium"
@@ -356,14 +366,14 @@ export default function HomePageClient() {
                     >
                       <Link href={session?.user ? "/dashboard/generate" : "/signup"}>
                         {session?.user ? <QrCode className="mr-2 w-4 h-4" /> : <Lock className="mr-2 w-4 h-4" />}
-                        {session?.user ? "Create Advanced" : "Unlock Pro"}
+                        {session?.user ? tDemo('createAdvanced') : tDemo('unlockPro')}
                       </Link>
                     </Button>
                   </div>
                 </div>
 
                 <p className="text-xs text-center text-gray-500">
-                  🔒 Secure & Private - Your data is never stored in demo mode
+                  {tDemo('secureNote')}
                 </p>
               </Card>
             </div>
@@ -376,10 +386,10 @@ export default function HomePageClient() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { label: 'Active Users', value: stats.activeUsers },
-              { label: 'QR Codes Created', value: stats.qrCodesCreated },
-              { label: 'Uptime', value: stats.uptime },
-              { label: 'Support', value: stats.support },
+              { label: tStats('activeUsers'), value: stats.activeUsers },
+              { label: tStats('qrCodesCreated'), value: stats.qrCodesCreated },
+              { label: tStats('uptime'), value: stats.uptime },
+              { label: tStats('support'), value: stats.support },
             ].map((stat, i) => (
               <div key={i} className="text-center space-y-1">
                 <h4 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-white to-gray-500">
@@ -397,13 +407,13 @@ export default function HomePageClient() {
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
             <Badge variant="outline" className="border-blue-500/50 text-blue-400">
-              POWERFUL FEATURES
+              {tFeaturesSection('badge')}
             </Badge>
             <h2 className="text-4xl md:text-5xl font-bold text-white">
-              Everything You Need to Succeed
+              {tFeaturesSection('title')}
             </h2>
             <p className="text-gray-400 text-lg">
-              Create, manage, and track your QR codes with professional tools designed for growth.
+              {tFeaturesSection('subtitle')}
             </p>
           </div>
 
@@ -432,7 +442,7 @@ export default function HomePageClient() {
           <div className="mt-12 text-center">
             <Button variant="outline" size="lg" className="border-white/20 text-white hover:bg-white/10" asChild>
               <Link href="/features">
-                View All Features <ArrowRight className="ml-2 w-4 h-4" />
+                {tFeaturesSection('viewAll')} <ArrowRight className="ml-2 w-4 h-4" />
               </Link>
             </Button>
           </div>
@@ -444,13 +454,13 @@ export default function HomePageClient() {
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="text-center mb-16">
             <Badge variant="outline" className="border-purple-500/50 text-purple-400 mb-4">
-              TESTIMONIALS
+              {tTestimonials('badge')}
             </Badge>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Loved by Thousands
+              {tTestimonials('title')}
             </h2>
             <p className="text-gray-400">
-              See what our community has to say about QR Studio
+              {tTestimonials('subtitle')}
             </p>
           </div>
 
@@ -483,13 +493,13 @@ export default function HomePageClient() {
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <Badge variant="outline" className="border-green-500/50 text-green-400 mb-4">
-              PRICING
+              {tPricingSection('badge')}
             </Badge>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Simple, Transparent Pricing
+              {tPricingSection('title')}
             </h2>
             <p className="text-gray-400">
-              Choose the perfect plan for your needs. No hidden fees.
+              {tPricingSection('subtitle')}
             </p>
           </div>
 
@@ -497,13 +507,13 @@ export default function HomePageClient() {
             {/* Free Plan */}
             <Card variant="glass" className="relative group">
               <CardContent className="p-8">
-                <h3 className="text-2xl font-bold text-white mb-2">Free</h3>
+                <h3 className="text-2xl font-bold text-white mb-2">{tPricingSection('free.title')}</h3>
                 <div className="text-4xl font-bold text-white mb-6">
-                  $0<span className="text-lg text-gray-500 font-normal">/mo</span>
+                  {tPricingSection('free.price')}<span className="text-lg text-gray-500 font-normal">{tPricingSection('free.period')}</span>
                 </div>
-                <p className="text-gray-400 mb-6">Perfect for personal projects</p>
+                <p className="text-gray-400 mb-6">{tPricingSection('free.description')}</p>
                 <ul className="space-y-4 mb-8">
-                  {['50 QR codes', 'Basic analytics', 'Standard customization', 'PNG/SVG export'].map((feature) => (
+                  {(tPricingSection('free.features') as string[]).map((feature) => (
                     <li key={feature} className="flex items-center text-gray-300 text-sm">
                       <Check className="w-4 h-4 text-green-500 mr-3" />
                       {feature}
@@ -511,7 +521,7 @@ export default function HomePageClient() {
                   ))}
                 </ul>
                 <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10" asChild>
-                  <Link href="/signup">Get Started</Link>
+                  <Link href="/signup">{tPricingSection('free.cta')}</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -519,16 +529,16 @@ export default function HomePageClient() {
             {/* Pro Plan */}
             <Card variant="default" className="relative border-purple-500 shadow-neon-purple/20 scale-105 z-10">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 border-0">MOST POPULAR</Badge>
+                <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 border-0">{tPricingSection('pro.badge')}</Badge>
               </div>
               <CardContent className="p-8 bg-gray-900">
-                <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-2">Pro</h3>
+                <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-2">{tPricingSection('pro.title')}</h3>
                 <div className="text-4xl font-bold text-white mb-6">
-                  $19<span className="text-lg text-gray-500 font-normal">/mo</span>
+                  {tPricingSection('pro.price')}<span className="text-lg text-gray-500 font-normal">{tPricingSection('pro.period')}</span>
                 </div>
-                <p className="text-gray-400 mb-6">Ideal for professionals</p>
+                <p className="text-gray-400 mb-6">{tPricingSection('pro.description')}</p>
                 <ul className="space-y-4 mb-8">
-                  {['Unlimited dynamic QR codes', 'Advanced analytics', 'Full customization', 'Bulk generation (1,000)', 'Priority support'].map((feature) => (
+                  {(tPricingSection('pro.features') as string[]).map((feature) => (
                     <li key={feature} className="flex items-center text-gray-300 text-sm">
                       <Check className="w-4 h-4 text-purple-500 mr-3" />
                       {feature}
@@ -536,7 +546,7 @@ export default function HomePageClient() {
                   ))}
                 </ul>
                 <Button variant="premium" className="w-full" asChild>
-                  <Link href="/signup">Start Free Trial</Link>
+                  <Link href="/signup">{tPricingSection('pro.cta')}</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -544,13 +554,13 @@ export default function HomePageClient() {
             {/* Business Plan */}
             <Card variant="glass" className="relative group">
               <CardContent className="p-8">
-                <h3 className="text-2xl font-bold text-white mb-2">Business</h3>
+                <h3 className="text-2xl font-bold text-white mb-2">{tPricingSection('business.title')}</h3>
                 <div className="text-4xl font-bold text-white mb-6">
-                  $49<span className="text-lg text-gray-500 font-normal">/mo</span>
+                  {tPricingSection('business.price')}<span className="text-lg text-gray-500 font-normal">{tPricingSection('business.period')}</span>
                 </div>
-                <p className="text-gray-400 mb-6">For growing teams</p>
+                <p className="text-gray-400 mb-6">{tPricingSection('business.description')}</p>
                 <ul className="space-y-4 mb-8">
-                  {['Everything in Pro', 'Team collaboration', 'White-label', 'Bulk generation (10,000)', 'API access'].map((feature) => (
+                  {(tPricingSection('business.features') as string[]).map((feature) => (
                     <li key={feature} className="flex items-center text-gray-300 text-sm">
                       <Check className="w-4 h-4 text-green-500 mr-3" />
                       {feature}
@@ -558,7 +568,7 @@ export default function HomePageClient() {
                   ))}
                 </ul>
                 <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10" asChild>
-                  <Link href="/signup">Start Free Trial</Link>
+                  <Link href="/signup">{tPricingSection('business.cta')}</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -571,24 +581,24 @@ export default function HomePageClient() {
         <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-purple-900/20 pointer-events-none" />
         <div className="container mx-auto px-4 relative z-10 text-center max-w-4xl">
           <Badge variant="premium" className="mb-8">
-            LIMITED TIME OFFER
+            {tCta('badge')}
           </Badge>
           <h2 className="text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight">
-            Ready to Create Amazing QR Codes?
+            {tCta('title')}
           </h2>
           <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
-            Join 10,000+ businesses transforming their QR code campaigns with dynamic tracking and beautiful designs
+            {tCta('subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="premium" size="lg" className="text-lg px-10 py-6" asChild>
-              <Link href="/signup">Start Free Today</Link>
+              <Link href="/signup">{tCta('primary')}</Link>
             </Button>
             <Button variant="outline" size="lg" className="border-white/20 text-white hover:bg-white/10 text-lg px-10 py-6" asChild>
-              <Link href="/contact">Talk to Sales</Link>
+              <Link href="/contact">{tCta('secondary')}</Link>
             </Button>
           </div>
           <p className="mt-8 text-sm text-gray-500">
-            ✨ No credit card required • ⚡ Setup in 2 minutes • 🎯 14-day free trial
+            {tCta('benefits')}
           </p>
         </div>
       </section>

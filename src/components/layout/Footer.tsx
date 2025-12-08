@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
 export function Footer() {
   const pathname = usePathname()
@@ -153,7 +154,7 @@ export function Footer() {
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
               Systems Operational
             </span>
-            <span>English (US)</span>
+            <LanguageSwitcher />
           </div>
         </div>
       </div>

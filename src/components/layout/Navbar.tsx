@@ -17,6 +17,8 @@ import {
 } from '@mui/icons-material'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
+import { LanguageSwitcher, LanguageSwitcherCompact } from '@/components/LanguageSwitcher'
+import { useTranslations } from '@/lib/useTranslations'
 
 export function Navbar() {
   const pathname = usePathname()
@@ -25,6 +27,8 @@ export function Navbar() {
   const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
+  const t = useTranslations('nav')
+  const tCommon = useTranslations('common')
 
   useEffect(() => {
     setMounted(true)
@@ -47,10 +51,10 @@ export function Navbar() {
   }
 
   const navItems = [
-    { label: 'Features', href: '/features' },
-    { label: 'Pricing', href: '/pricing' },
-    { label: 'Templates', href: '/templates' },
-    { label: 'Use Cases', href: '/use-cases' },
+    { label: t('features'), href: '/features' },
+    { label: t('pricing'), href: '/pricing' },
+    { label: t('templates'), href: '/templates' },
+    { label: t('useCases'), href: '/use-cases' },
   ]
 
   return (
@@ -102,6 +106,10 @@ export function Navbar() {
 
               <div className="w-px h-6 bg-white/10 mx-2" />
 
+              <LanguageSwitcher />
+
+              <div className="w-px h-6 bg-white/10 mx-2" />
+
               {status === 'loading' ? (
                 <div className="w-24 h-9 bg-white/5 rounded-lg animate-pulse" />
               ) : session?.user ? (
@@ -113,7 +121,7 @@ export function Navbar() {
                   >
                     <Link href="/dashboard">
                       <DashboardIcon className="mr-2 h-4 w-4" />
-                      Dashboard
+                      {t('dashboard')}
                     </Link>
                   </Button>
 
@@ -150,7 +158,7 @@ export function Navbar() {
                               onClick={() => setProfileMenuOpen(false)}
                             >
                               <DashboardIcon className="text-lg" />
-                              Dashboard
+                              {t('dashboard')}
                             </Link>
                             <Link
                               href="/dashboard/settings"
@@ -158,7 +166,7 @@ export function Navbar() {
                               onClick={() => setProfileMenuOpen(false)}
                             >
                               <SettingsIcon className="text-lg" />
-                              Settings
+                              {t('settings')}
                             </Link>
                             <Link
                               href="/dashboard/account"
@@ -166,7 +174,7 @@ export function Navbar() {
                               onClick={() => setProfileMenuOpen(false)}
                             >
                               <AccountCircle className="text-lg" />
-                              Account
+                              {t('account')}
                             </Link>
                             <div className="h-px bg-white/10 my-1" />
                             <button
@@ -174,7 +182,7 @@ export function Navbar() {
                               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-white/10 rounded-lg transition-colors"
                             >
                               <LogoutIcon className="text-lg" />
-                              Sign Out
+                              {tCommon('signOut')}
                             </button>
                           </div>
                         </div>
@@ -188,7 +196,7 @@ export function Navbar() {
                     href="/signin"
                     className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
                   >
-                    Sign In
+                    {tCommon('signIn')}
                   </Link>
                   <Button
                     variant="premium"
@@ -197,7 +205,7 @@ export function Navbar() {
                     asChild
                   >
                     <Link href="/signup">
-                      Get Started
+                      {tCommon('getStarted')}
                     </Link>
                   </Button>
                 </div>
@@ -272,6 +280,12 @@ export function Navbar() {
 
           <div className="h-px bg-white/10 my-2" />
 
+          <div className="px-4 py-3">
+            <LanguageSwitcherCompact />
+          </div>
+
+          <div className="h-px bg-white/10 my-2" />
+
           {status === 'loading' ? (
             <div className="px-4 py-3 text-sm text-gray-500">Loading...</div>
           ) : session?.user ? (
@@ -294,7 +308,7 @@ export function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <DashboardIcon className="w-5 h-5" />
-                Dashboard
+                {t('dashboard')}
               </Link>
               <Link
                 href="/dashboard/settings"
@@ -302,7 +316,7 @@ export function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <SettingsIcon className="w-5 h-5" />
-                Settings
+                {t('settings')}
               </Link>
               <Link
                 href="/dashboard/account"
@@ -310,7 +324,7 @@ export function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <AccountCircle className="w-5 h-5" />
-                Account
+                {t('account')}
               </Link>
 
               <div className="mt-4">
@@ -323,7 +337,7 @@ export function Navbar() {
                   }}
                 >
                   <LogoutIcon className="mr-2 w-5 h-5" />
-                  Sign Out
+                  {tCommon('signOut')}
                 </Button>
               </div>
             </>
@@ -334,14 +348,14 @@ export function Navbar() {
                 className="w-full px-4 py-3 text-sm font-medium text-center text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Sign In
+                {tCommon('signIn')}
               </Link>
               <Link
                 href="/signup"
                 className="w-full px-4 py-3 text-sm font-medium text-center text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-neon-purple/50 rounded-lg transition-all shadow-lg"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Get Started
+                {tCommon('getStarted')}
               </Link>
             </div>
           )}

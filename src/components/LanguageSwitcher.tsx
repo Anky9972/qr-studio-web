@@ -6,7 +6,6 @@
 
 'use client';
 
-// import { useLocale } from 'next-intl';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState } from 'react';
 import {
@@ -17,6 +16,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Language as LanguageIcon } from '@mui/icons-material';
+import { useLocale } from '@/lib/useTranslations';
 
 const languages = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -27,10 +27,9 @@ const languages = [
 ];
 
 export function LanguageSwitcher() {
-  // Temporarily use 'en' as default until i18n is properly configured
-  const locale = 'en'; // useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const locale = useLocale();
   const [isChanging, setIsChanging] = useState(false);
 
   const handleLanguageChange = (newLocale: string) => {
@@ -55,12 +54,49 @@ export function LanguageSwitcher() {
         value={locale}
         onChange={(e) => handleLanguageChange(e.target.value)}
         disabled={isChanging}
-        startAdornment={<LanguageIcon sx={{ mr: 1, color: 'text.secondary' }} />}
+        startAdornment={<LanguageIcon sx={{ mr: 1, color: '#9ca3af' }} />}
         sx={{
+          color: '#fff',
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: '0.5rem',
           '& .MuiSelect-select': {
             display: 'flex',
             alignItems: 'center',
             gap: 1,
+            padding: '8px 12px',
+          },
+          '& .MuiOutlinedInput-notchedOutline': {
+            border: 'none',
+          },
+          '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            borderColor: 'rgba(255, 255, 255, 0.2)',
+          },
+          '& .MuiSvgIcon-root': {
+            color: '#9ca3af',
+          },
+        }}
+        MenuProps={{
+          PaperProps: {
+            sx: {
+              backgroundColor: '#1f2937',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '0.5rem',
+              mt: 1,
+              '& .MuiMenuItem-root': {
+                color: '#fff',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                },
+                '&.Mui-selected': {
+                  backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(59, 130, 246, 0.3)',
+                  },
+                },
+              },
+            },
           },
         }}
       >
@@ -83,16 +119,15 @@ export function LanguageSwitcher() {
  * Compact Language Switcher for Mobile
  */
 export function LanguageSwitcherCompact() {
-  // Temporarily use 'en' as default until i18n is properly configured
-  // const locale = useLocale();
-  const [locale, setLocale] = useState('en');
   const router = useRouter();
   const pathname = usePathname();
+  const locale = useLocale();
+  const [isChanging, setIsChanging] = useState(false);
 
   const handleLanguageChange = (newLocale: string) => {
     if (newLocale === locale) return;
 
-    setLocale(newLocale);
+    setIsChanging(true);
     const pathWithoutLocale = pathname.replace(/^\/(en|es|fr|de|pt)/, '') || '/';
     const newPath = newLocale === 'en' ? pathWithoutLocale : `/${newLocale}${pathWithoutLocale}`;
 
@@ -106,11 +141,49 @@ export function LanguageSwitcherCompact() {
       <Select
         value={locale}
         onChange={(e) => handleLanguageChange(e.target.value)}
+        disabled={isChanging}
         sx={{
+          color: '#fff',
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: '0.5rem',
           '& .MuiSelect-select': {
             display: 'flex',
             alignItems: 'center',
             gap: 1,
+            padding: '8px 12px',
+          },
+          '& .MuiOutlinedInput-notchedOutline': {
+            border: 'none',
+          },
+          '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            borderColor: 'rgba(255, 255, 255, 0.2)',
+          },
+          '& .MuiSvgIcon-root': {
+            color: '#9ca3af',
+          },
+        }}
+        MenuProps={{
+          PaperProps: {
+            sx: {
+              backgroundColor: '#1f2937',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '0.5rem',
+              mt: 1,
+              '& .MuiMenuItem-root': {
+                color: '#fff',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                },
+                '&.Mui-selected': {
+                  backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(59, 130, 246, 0.3)',
+                  },
+                },
+              },
+            },
           },
         }}
       >

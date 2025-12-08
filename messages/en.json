@@ -32,12 +32,21 @@
     "dashboard": "Dashboard",
     "myQRCodes": "My QR Codes",
     "analytics": "Analytics",
-    "settings": "Settings"
+    "settings": "Settings",
+    "account": "Account"
   },
   "hero": {
-    "title": "Create, Manage & Track QR Codes",
-    "subtitle": "Professional QR code generation with advanced analytics, dynamic content, and team collaboration",
-    "cta": "Start Creating Free",
+    "badge": "Trusted by 10,000+ businesses",
+    "title": "Create",
+    "titleHighlight": "Powerful",
+    "titleEnd": "QR Codes",
+    "subtitle": "Generate dynamic, customizable QR codes with advanced analytics. Track every scan and update content anytime—no reprinting needed.",
+    "subtitleLoggedIn": "Ready to create more amazing QR codes? Access your dashboard to manage your codes, view analytics, and more.",
+    "welcomeBack": "Welcome Back",
+    "cta": "Start Free Trial",
+    "ctaDashboard": "Go to Dashboard",
+    "ctaCreateNew": "Create New QR Code",
+    "exploreFeatures": "Explore Features",
     "watchDemo": "Watch Demo"
   },
   "features": {
@@ -57,16 +66,87 @@
     },
     "bulk": {
       "title": "Bulk Generation",
-      "description": "Create thousands of QR codes at once"
+      "description": "Generate thousands of QR codes at once from CSV or Excel files"
+    },
+    "team": {
+      "title": "Team Collaboration",
+      "description": "Work together with your team, share libraries, and manage permissions"
+    },
+    "security": {
+      "title": "Enterprise Security",
+      "description": "Password protection, expiration dates, and white-label options"
     },
     "api": {
       "title": "API Access",
       "description": "Integrate QR generation into your applications"
-    },
-    "teams": {
-      "title": "Team Collaboration",
-      "description": "Work together with role-based permissions"
     }
+  },
+  "demo": {
+    "title": "🚀 Live QR Generator",
+    "subtitle": "Try it now - No sign up required",
+    "placeholder": "https://example.com",
+    "download": "Download",
+    "unlockPro": "Unlock Pro",
+    "createAdvanced": "Create Advanced",
+    "secureNote": "🔒 Secure & Private - Your data is never stored in demo mode",
+    "noCreditCard": "No credit card required",
+    "freeTrial": "14-day free trial",
+    "cancelAnytime": "Cancel anytime"
+  },
+  "stats": {
+    "activeUsers": "Active Users",
+    "qrCodesCreated": "QR Codes Created",
+    "uptime": "Uptime",
+    "support": "Support"
+  },
+  "featuresSection": {
+    "badge": "POWERFUL FEATURES",
+    "title": "Everything You Need to Succeed",
+    "subtitle": "Create, manage, and track your QR codes with professional tools designed for growth.",
+    "viewAll": "View All Features"
+  },
+  "testimonials": {
+    "badge": "TESTIMONIALS",
+    "title": "Loved by Thousands",
+    "subtitle": "See what our community has to say about QR Studio"
+  },
+  "pricingSection": {
+    "badge": "PRICING",
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Choose the perfect plan for your needs. No hidden fees.",
+    "free": {
+      "title": "Free",
+      "price": "$0",
+      "period": "/mo",
+      "description": "Perfect for personal projects",
+      "features": ["50 QR codes", "Basic analytics", "Standard customization", "PNG/SVG export"],
+      "cta": "Get Started"
+    },
+    "pro": {
+      "title": "Pro",
+      "price": "$19",
+      "period": "/mo",
+      "description": "Ideal for professionals",
+      "badge": "MOST POPULAR",
+      "features": ["Unlimited dynamic QR codes", "Advanced analytics", "Full customization", "Bulk generation (1,000)", "Priority support"],
+      "cta": "Start Free Trial"
+    },
+    "business": {
+      "title": "Business",
+      "price": "$49",
+      "period": "/mo",
+      "description": "For growing teams",
+      "features": ["Everything in Pro", "Team collaboration", "White-label", "Bulk generation (10,000)", "API access"],
+      "cta": "Start Free Trial"
+    }
+  },
+  "cta": {
+    "badge": "LIMITED TIME OFFER",
+    "title": "Ready to Create Amazing QR Codes?",
+    "subtitle": "Join 10,000+ businesses transforming their QR code campaigns with dynamic tracking and beautiful designs",
+    "primary": "Start Free Today",
+    "secondary": "Talk to Sales",
+    "benefits": "✨ No credit card required • ⚡ Setup in 2 minutes • 🎯 14-day free trial"
   },
   "pricing": {
     "title": "Simple, Transparent Pricing",
