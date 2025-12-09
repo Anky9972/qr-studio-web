@@ -31,6 +31,10 @@ interface Announcement {
     type: 'info' | 'success' | 'warning' | 'error';
     active: boolean;
     targetAudience: string;
+    sendEmail: boolean;
+    sendWebNotification: boolean;
+    emailSent: boolean;
+    emailSentAt: string | null;
     createdAt: string;
 }
 
@@ -90,6 +94,8 @@ export function AnnouncementsTab({
             type: announcement.type,
             active: announcement.active,
             targetAudience: announcement.targetAudience,
+            sendEmail: announcement.sendEmail,
+            sendWebNotification: announcement.sendWebNotification,
         });
         setDialogOpen(true);
     };
@@ -149,6 +155,8 @@ export function AnnouncementsTab({
                 type: 'info',
                 active: true,
                 targetAudience: 'all',
+                sendEmail: false,
+                sendWebNotification: true,
             });
         }
         setDialogOpen(open);
@@ -176,6 +184,7 @@ export function AnnouncementsTab({
                             <TableHead className="text-gray-400">Title</TableHead>
                             <TableHead className="text-gray-400">Type</TableHead>
                             <TableHead className="text-gray-400">Target</TableHead>
+                            <TableHead className="text-gray-400">Channels</TableHead>
                             <TableHead className="text-gray-400">Status</TableHead>
                             <TableHead className="text-gray-400">Created</TableHead>
                             <TableHead className="text-right text-gray-400">Actions</TableHead>
@@ -184,7 +193,7 @@ export function AnnouncementsTab({
                     <TableBody>
                         {announcements.length === 0 ? (
                             <TableRow className="border-white/5 bg-white/5 hover:bg-white/5">
-                                <TableCell colSpan={6} className="h-24 text-center text-gray-400">
+                                <TableCell colSpan={7} className="h-24 text-center text-gray-400">
                                     No announcements found. Create one to get started.
                                 </TableCell>
                             </TableRow>
@@ -196,6 +205,23 @@ export function AnnouncementsTab({
                                         <TypeBadge type={announcement.type} />
                                     </TableCell>
                                     <TableCell className="text-gray-300 capitalize">{announcement.targetAudience}</TableCell>
+                                    <TableCell>
+                                        <div className="flex gap-1.5">
+                                            {announcement.sendWebNotification && (
+                                                <span className="px-2 py-0.5 rounded text-[10px] bg-blue-500/10 text-blue-500 border border-blue-500/20">Web</span>
+                                            )}
+                                            {announcement.sendEmail && (
+                                                <span className={cn(
+                                                    "px-2 py-0.5 rounded text-[10px] border",
+                                                    announcement.emailSent
+                                                        ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                                                        : "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                                                )}>
+                                                    {announcement.emailSent ? '📧 Sent' : '📧 Email'}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </TableCell>
                                     <TableCell>
                                         <span className={cn(
                                             "px-2 py-0.5 rounded-full text-[10px] border",
@@ -301,14 +327,58 @@ export function AnnouncementsTab({
                         </div>
 
                         <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
-                            <div className="space-y-0.5">
-                                <label className="text-sm font-medium text-gray-200">Active Status</label>
+                            <div className="space-y-0.5 flex-1">
+                                <label htmlFor="active-status-switch" className="text-sm font-medium text-gray-200 cursor-pointer">
+                                    Active Status
+                                </label>
                                 <p className="text-xs text-gray-400">Immediately visible to users</p>
                             </div>
                             <Switch
-                                checked={form.active}
-                                onCheckedChange={(checked) => setForm({ ...form, active: checked })}
+                                id="active-status-switch"
+                                checked={form.active ?? true}
+                                onCheckedChange={(checked) => {
+                                    console.log('Active status toggled:', checked);
+                                    setForm({ ...form, active: checked });
+                                }}
                             />
+                        </div>
+
+                        <div className="space-y-3 pt-2 border-t border-white/10">
+                            <label className="text-sm font-medium text-gray-200">Notification Channels</label>
+                            
+                            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
+                                <div className="space-y-0.5 flex-1">
+                                    <label htmlFor="web-notification-switch" className="text-sm font-medium text-gray-200 cursor-pointer">
+                                        Web Notification
+                                    </label>
+                                    <p className="text-xs text-gray-400">Show banner in the app</p>
+                                </div>
+                                <Switch
+                                    id="web-notification-switch"
+                                    checked={form.sendWebNotification ?? true}
+                                    onCheckedChange={(checked) => {
+                                        console.log('Web notification toggled:', checked);
+                                        setForm({ ...form, sendWebNotification: checked });
+                                    }}
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
+                                <div className="space-y-0.5 flex-1">
+                                    <label htmlFor="email-notification-switch" className="text-sm font-medium text-gray-200 cursor-pointer">
+                                        Email Notification
+                                    </label>
+                                    <p className="text-xs text-gray-400">Send email to target audience</p>
+                                </div>
+                                <Switch
+                                    id="email-notification-switch"
+                                    checked={form.sendEmail ?? false}
+                                    onCheckedChange={(checked) => {
+                                        console.log('Email notification toggled:', checked);
+                                        setForm({ ...form, sendEmail: checked });
+                                    }}
+                                />
+                            </div>
                         </div>
                     </div>
                     <div className="flex justify-end gap-3">

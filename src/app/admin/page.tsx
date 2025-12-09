@@ -40,6 +40,8 @@ export default function AdminPage() {
     type: 'info',
     active: true,
     targetAudience: 'all',
+    sendEmail: false,
+    sendWebNotification: true,
   });
 
   const [offerForm, setOfferForm] = useState({
@@ -76,8 +78,11 @@ export default function AdminPage() {
   }, [status, session, router]);
 
   useEffect(() => {
-    fetchAdminData();
-  }, []);
+    // Only fetch data if we have a session and user is admin
+    if (status === 'authenticated' && (session?.user as any)?.isAdmin) {
+      fetchAdminData();
+    }
+  }, [status, session]);
 
   const fetchAdminData = async () => {
     try {
@@ -86,6 +91,8 @@ export default function AdminPage() {
       if (statsResponse.ok) {
         const data = await statsResponse.json();
         setStats(data);
+      } else {
+        console.error('Failed to fetch stats:', statsResponse.status, statsResponse.statusText);
       }
 
       // Fetch announcements
@@ -93,6 +100,10 @@ export default function AdminPage() {
       if (announcementsResponse.ok) {
         const data = await announcementsResponse.json();
         setAnnouncements(data.announcements);
+      } else {
+        console.error('Failed to fetch announcements:', announcementsResponse.status, announcementsResponse.statusText);
+        const errorData = await announcementsResponse.json().catch(() => ({}));
+        console.error('Error details:', errorData);
       }
 
       // Fetch offers
@@ -100,6 +111,8 @@ export default function AdminPage() {
       if (offersResponse.ok) {
         const data = await offersResponse.json();
         setOffers(data.offers);
+      } else {
+        console.error('Failed to fetch offers:', offersResponse.status, offersResponse.statusText);
       }
     } catch (error) {
       console.error('Failed to fetch admin data:', error);
@@ -122,6 +135,8 @@ export default function AdminPage() {
           type: 'info',
           active: true,
           targetAudience: 'all',
+          sendEmail: false,
+          sendWebNotification: true,
         });
         fetchAdminData();
       }

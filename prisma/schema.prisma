@@ -7,49 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id                    String         @id @default(cuid())
-  name                  String?
-  email                 String?        @unique
-  emailVerified         DateTime?
-  image                 String?
-  password              String?
-  role                  String         @default("user")
-  plan                  String         @default("free")
-  planExpiry            DateTime?
-  isAdmin               Boolean        @default(false)
-  subscription          String         @default("FREE")
-  lastLoginAt           DateTime?
-  emailNotifications    Boolean        @default(true)
-  scanAlerts            Boolean        @default(false)
-  weeklyReports         Boolean        @default(true)
-  limitWarnings         Boolean        @default(true)
-  expirationReminders   Boolean        @default(true)
-  createdAt             DateTime       @default(now())
-  updatedAt             DateTime       @updatedAt
-  accounts              Account[]
-  apiKeys               ApiKey[]
-  campaigns             Campaign[]
-  qrCodes               QRCode[]
-  sessions              Session[]
-  teamMembers           TeamMember[]
-  templates             Template[]
-  webhooks              Webhook[]
-  customDomains         CustomDomain[]
-  microsites            Microsite[]
-  notificationSettings  NotificationSetting[]
-  linkInBios            LinkInBio[]
-  vCardPlus             VCardPlus[]
-  digitalMenus          DigitalMenu[]
-  leadGates             LeadGate[]
-  auditLogs             AuditLog[]
-  complianceSettings    ComplianceSettings?
-
-  @@index([lastLoginAt])
-}
-
 model Account {
-  id                String  @id @default(cuid())
+  id                String  @id
   userId            String
   type              String
   provider          String
@@ -61,158 +20,31 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  User              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
+model Announcement {
+  id                  String    @id
+  title               String
+  message             String
+  type                String    @default("info")
+  active              Boolean   @default(true)
+  targetAudience      String    @default("all")
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime
+  emailSent           Boolean   @default(false)
+  emailSentAt         DateTime?
+  sendEmail           Boolean   @default(false)
+  sendWebNotification Boolean   @default(true)
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-model QRCode {
-  id           String         @id @default(cuid())
-  userId       String
-  name         String?
-  type         String
-  content      String
-  qrType       String
-  size         Int            @default(512)
-  foreground   String         @default("#000000")
-  background   String         @default("#FFFFFF")
-  logo         String?
-  errorLevel   String         @default("M")
-  pattern      String         @default("square")
-  design       Json?
-  shortUrl     String?        @unique
-  destination  String?
-  password     String?
-  expiresAt    DateTime?
-  campaignId   String?
-  tags         String[]
-  favorite     Boolean        @default(false)
-  scanCount    Int            @default(0)
-  maxScans     Int?
-  lastScanned  DateTime?
-  customDomain String?
-  frameId      String?
-  micrositeId  String?
-  linkInBioId  String?
-  vCardPlusId  String?
-  digitalMenuId String?
-  leadGateId   String?
-  utmParams    Json?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  campaign     Campaign?      @relation(fields: [campaignId], references: [id])
-  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  scans        Scan[]
-  routingRules RoutingRule[]
-  pixelConfigs PixelConfig[]
-  linkInBio    LinkInBio?     @relation(fields: [linkInBioId], references: [id])
-  vCardPlus    VCardPlus?     @relation(fields: [vCardPlusId], references: [id])
-  digitalMenu  DigitalMenu?   @relation(fields: [digitalMenuId], references: [id])
-  leadGate     LeadGate?      @relation(fields: [leadGateId], references: [id])
-
-  @@index([userId])
-  @@index([shortUrl])
-  @@index([campaignId])
-  @@index([customDomain])
-}
-
-model Scan {
-  id        String   @id @default(cuid())
-  qrCodeId  String
-  ipAddress String?
-  userAgent String?
-  country   String?
-  city      String?
-  device    String?
-  browser   String?
-  os        String?
-  referrer  String?
-  visitorId String?
-  isUnique  Boolean  @default(true)
-  scannedAt DateTime @default(now())
-  qrCode    QRCode   @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
-
-  @@index([qrCodeId])
-  @@index([scannedAt])
-  @@index([visitorId])
-  @@index([isUnique])
-}
-
-model Template {
-  id          String   @id @default(cuid())
-  userId      String
-  name        String
-  description String?
-  category    String
-  public      Boolean  @default(false)
-  design      Json
-  preview     String?
-  useCount    Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([category])
-}
-
-model Campaign {
-  id          String    @id @default(cuid())
-  userId      String
-  name        String
-  description String?
-  startDate   DateTime?
-  endDate     DateTime?
-  tags        String[]  @default([])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  qrCodes     QRCode[]
-
-  @@index([userId])
-}
-
-model Team {
-  id        String       @id @default(cuid())
-  name      String
-  plan      String       @default("business")
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-  members   TeamMember[]
-}
-
-model TeamMember {
-  id       String   @id @default(cuid())
-  teamId   String
-  userId   String
-  role     String   @default("viewer")
-  joinedAt DateTime @default(now())
-  team     Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([teamId, userId])
-  @@index([teamId])
-  @@index([userId])
+  @@index([active])
+  @@index([targetAudience])
 }
 
 model ApiKey {
-  id         String    @id @default(cuid())
+  id         String    @id
   userId     String
   name       String
   keyHash    String    @unique
@@ -220,28 +52,226 @@ model ApiKey {
   lastUsedAt DateTime?
   expiresAt  DateTime?
   createdAt  DateTime  @default(now())
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  User       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
   @@index([keyHash])
+  @@index([userId])
 }
 
-model Announcement {
-  id             String   @id @default(cuid())
-  title          String
-  message        String
-  type           String   @default("info")
-  active         Boolean  @default(true)
-  targetAudience String   @default("all")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+model AuditLog {
+  id         String   @id
+  userId     String
+  action     String
+  entityType String
+  entityId   String?
+  details    Json?
+  ipAddress  String?
+  userAgent  String?
+  timestamp  DateTime @default(now())
+  User       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([active])
-  @@index([targetAudience])
+  @@index([action])
+  @@index([entityType])
+  @@index([timestamp])
+  @@index([userId])
+}
+
+model CTAFrame {
+  id         String   @id
+  name       String
+  category   String
+  svgContent String
+  preview    String?
+  variables  Json
+  premium    Boolean  @default(false)
+  useCount   Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+
+  @@index([category])
+  @@index([premium])
+}
+
+model Campaign {
+  id          String    @id
+  userId      String
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  endDate     DateTime?
+  startDate   DateTime?
+  tags        String[]  @default([])
+  User        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  QRCode      QRCode[]
+
+  @@index([userId])
+}
+
+model ComplianceSettings {
+  id                    String   @id
+  userId                String   @unique
+  gdprMode              Boolean  @default(false)
+  dataRetentionDays     Int      @default(365)
+  anonymizeScans        Boolean  @default(false)
+  allowDataExport       Boolean  @default(true)
+  allowDataDeletion     Boolean  @default(true)
+  cookieConsentRequired Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime
+  User                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model CustomDomain {
+  id                String    @id
+  userId            String
+  domain            String    @unique
+  verified          Boolean   @default(false)
+  sslEnabled        Boolean   @default(false)
+  cnameTarget       String    @default("qrstudio.app")
+  verificationToken String    @unique
+  verifiedAt        DateTime?
+  lastChecked       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime
+  User              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([domain])
+  @@index([userId])
+  @@index([verified])
+}
+
+model DigitalMenu {
+  id          String   @id
+  userId      String
+  slug        String   @unique
+  title       String
+  description String?
+  logo        String?
+  coverImage  String?
+  type        String   @default("menu")
+  categories  Json
+  theme       Json?
+  settings    Json?
+  viewCount   Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  QRCode      QRCode[]
+
+  @@index([published])
+  @@index([slug])
+  @@index([type])
+  @@index([userId])
+}
+
+model LeadGate {
+  id              String   @id
+  userId          String
+  name            String
+  title           String
+  description     String?
+  fields          Json
+  redirectUrl     String
+  submitText      String   @default("Continue")
+  theme           Json?
+  submissions     Json[]   @default([])
+  submissionCount Int      @default(0)
+  published       Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime
+  User            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  QRCode          QRCode[]
+
+  @@index([published])
+  @@index([userId])
+}
+
+model LinkInBio {
+  id           String   @id
+  userId       String
+  slug         String   @unique
+  title        String
+  description  String?
+  profileImage String?
+  theme        Json?
+  links        Json
+  socialLinks  Json?
+  analytics    Boolean  @default(true)
+  viewCount    Int      @default(0)
+  published    Boolean  @default(true)
+  customCss    String?
+  seo          Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+  User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  QRCode       QRCode[]
+
+  @@index([published])
+  @@index([slug])
+  @@index([userId])
+}
+
+model Microsite {
+  id          String   @id
+  userId      String
+  slug        String   @unique
+  title       String
+  description String?
+  type        String
+  theme       Json?
+  content     Json
+  seo         Json?
+  customCss   String?
+  published   Boolean  @default(false)
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([published])
+  @@index([slug])
+  @@index([type])
+  @@index([userId])
+}
+
+model NotificationLog {
+  id      String   @id
+  userId  String
+  type    String
+  subject String
+  message String
+  sentAt  DateTime @default(now())
+  success Boolean
+  error   String?
+
+  @@index([sentAt])
+  @@index([type])
+  @@index([userId])
+}
+
+model NotificationSetting {
+  id        String   @id
+  userId    String
+  type      String
+  enabled   Boolean  @default(true)
+  frequency String?
+  threshold Int?
+  qrCodeIds String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+  @@index([type])
+  @@index([userId])
 }
 
 model Offer {
-  id              String   @id @default(cuid())
+  id              String   @id
   title           String
   description     String
   discountPercent Int
@@ -252,209 +282,211 @@ model Offer {
   active          Boolean  @default(true)
   usageCount      Int      @default(0)
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  updatedAt       DateTime
 
-  @@index([couponCode])
   @@index([active])
+  @@index([couponCode])
   @@index([validUntil])
 }
 
-model Webhook {
-  id           String       @id @default(cuid())
-  userId       String
-  url          String
-  events       String[]
-  secret       String
-  active       Boolean      @default(true)
-  lastUsedAt   DateTime?
-  failureCount Int          @default(0)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  logs         WebhookLog[]
+model PixelConfig {
+  id            String   @id
+  qrCodeId      String
+  provider      String
+  pixelId       String
+  events        String[]
+  delayRedirect Int      @default(1000)
+  active        Boolean  @default(true)
+  scriptContent String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+  QRCode        QRCode   @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
 
+  @@index([provider])
+  @@index([qrCodeId])
+}
+
+model QRCode {
+  id            String        @id
+  userId        String
+  name          String?
+  type          String
+  content       String
+  qrType        String
+  size          Int           @default(512)
+  foreground    String        @default("#000000")
+  background    String        @default("#FFFFFF")
+  logo          String?
+  errorLevel    String        @default("M")
+  pattern       String        @default("square")
+  design        Json?
+  shortUrl      String?       @unique
+  destination   String?
+  password      String?
+  expiresAt     DateTime?
+  campaignId    String?
+  tags          String[]
+  favorite      Boolean       @default(false)
+  scanCount     Int           @default(0)
+  lastScanned   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime
+  customDomain  String?
+  frameId       String?
+  maxScans      Int?
+  micrositeId   String?
+  utmParams     Json?
+  digitalMenuId String?
+  leadGateId    String?
+  linkInBioId   String?
+  vCardPlusId   String?
+  PixelConfig   PixelConfig[]
+  Campaign      Campaign?     @relation(fields: [campaignId], references: [id])
+  DigitalMenu   DigitalMenu?  @relation(fields: [digitalMenuId], references: [id])
+  LeadGate      LeadGate?     @relation(fields: [leadGateId], references: [id])
+  LinkInBio     LinkInBio?    @relation(fields: [linkInBioId], references: [id])
+  User          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  VCardPlus     VCardPlus?    @relation(fields: [vCardPlusId], references: [id])
+  RoutingRule   RoutingRule[]
+  Scan          Scan[]
+
+  @@index([campaignId])
+  @@index([customDomain])
+  @@index([shortUrl])
   @@index([userId])
-  @@index([active])
 }
 
-model WebhookLog {
-  id         String   @id @default(cuid())
-  webhookId  String
-  event      String
-  payload    Json
-  response   Json?
-  statusCode Int?
-  success    Boolean
-  attempt    Int      @default(1)
-  error      String?
-  createdAt  DateTime @default(now())
-  webhook    Webhook  @relation(fields: [webhookId], references: [id], onDelete: Cascade)
-
-  @@index([webhookId])
-  @@index([createdAt])
-  @@index([event])
-}
-
-// ===== SMART ROUTING & CONDITIONAL LOGIC =====
 model RoutingRule {
-  id          String   @id @default(cuid())
+  id          String   @id
   qrCodeId    String
-  type        String   // 'device', 'time', 'language', 'scanLimit', 'geo'
-  condition   Json     // Stores rule conditions
-  destination String   // Target URL for this rule
+  type        String
+  condition   Json
+  destination String
   priority    Int      @default(0)
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  qrCode      QRCode   @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
+  updatedAt   DateTime
+  QRCode      QRCode   @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
 
-  @@index([qrCodeId])
-  @@index([type])
   @@index([active])
-}
-
-// ===== MARKETING & RETARGETING =====
-model PixelConfig {
-  id             String   @id @default(cuid())
-  qrCodeId       String
-  provider       String   // 'facebook', 'google', 'linkedin', 'custom'
-  pixelId        String
-  events         String[] // Conversion events to track
-  delayRedirect  Int      @default(1000) // Milliseconds before redirect
-  active         Boolean  @default(true)
-  scriptContent  String?  // For custom pixels
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  qrCode         QRCode   @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
-
   @@index([qrCodeId])
-  @@index([provider])
-}
-
-// ===== WHITE-LABELING & CUSTOM DOMAINS =====
-model CustomDomain {
-  id                String    @id @default(cuid())
-  userId            String
-  domain            String    @unique
-  verified          Boolean   @default(false)
-  sslEnabled        Boolean   @default(false)
-  cnameTarget       String    @default("qrstudio.app")
-  verificationToken String    @unique
-  verifiedAt        DateTime?
-  lastChecked       DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([domain])
-  @@index([verified])
-}
-
-// ===== MICROSITE BUILDER =====
-model Microsite {
-  id          String   @id @default(cuid())
-  userId      String
-  slug        String   @unique
-  title       String
-  description String?
-  type        String   // 'linkinbio', 'menu', 'portfolio', 'event', 'custom'
-  theme       Json?    // Color scheme, fonts, etc.
-  content     Json     // Page content blocks
-  seo         Json?    // Meta tags, og tags
-  customCss   String?
-  published   Boolean  @default(false)
-  viewCount   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([slug])
   @@index([type])
-  @@index([published])
 }
 
-// ===== CTA FRAMES =====
-model CTAFrame {
-  id          String   @id @default(cuid())
+model Scan {
+  id        String   @id
+  qrCodeId  String
+  ipAddress String?
+  userAgent String?
+  country   String?
+  city      String?
+  device    String?
+  browser   String?
+  os        String?
+  referrer  String?
+  scannedAt DateTime @default(now())
+  isUnique  Boolean  @default(true)
+  visitorId String?
+  QRCode    QRCode   @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
+
+  @@index([isUnique])
+  @@index([qrCodeId])
+  @@index([scannedAt])
+  @@index([visitorId])
+}
+
+model Session {
+  id           String   @id
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Team {
+  id         String       @id
+  name       String
+  plan       String       @default("business")
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime
+  TeamMember TeamMember[]
+}
+
+model TeamMember {
+  id       String   @id
+  teamId   String
+  userId   String
+  role     String   @default("viewer")
+  joinedAt DateTime @default(now())
+  Team     Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  User     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
+}
+
+model Template {
+  id          String   @id
+  userId      String
   name        String
-  category    String   // 'social', 'wifi', 'menu', 'scan', 'custom'
-  svgContent  String   // SVG template with variables
-  preview     String?  // Preview image URL
-  variables   Json     // Customizable text/colors
-  premium     Boolean  @default(false)
+  description String?
+  category    String
+  public      Boolean  @default(false)
+  design      Json
+  preview     String?
   useCount    Int      @default(0)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime
+  User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([category])
-  @@index([premium])
-}
-
-// ===== NOTIFICATION SETTINGS =====
-model NotificationSetting {
-  id          String   @id @default(cuid())
-  userId      String
-  type        String   // 'scan_alert', 'weekly_report', 'limit_warning', 'expiration_reminder'
-  enabled     Boolean  @default(true)
-  frequency   String?  // 'immediate', 'daily', 'weekly'
-  threshold   Int?     // For limit warnings (percentage)
-  qrCodeIds   String[] // Specific QR codes to monitor (empty = all)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, type])
   @@index([userId])
-  @@index([type])
 }
 
-// ===== NOTIFICATION LOG =====
-model NotificationLog {
-  id        String   @id @default(cuid())
-  userId    String
-  type      String
-  subject   String
-  message   String
-  sentAt    DateTime @default(now())
-  success   Boolean
-  error     String?
+model User {
+  id                  String                @id
+  name                String?
+  email               String?               @unique
+  emailVerified       DateTime?
+  image               String?
+  password            String?
+  role                String                @default("user")
+  plan                String                @default("free")
+  planExpiry          DateTime?
+  isAdmin             Boolean               @default(false)
+  subscription        String                @default("FREE")
+  lastLoginAt         DateTime?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime
+  emailNotifications  Boolean               @default(true)
+  expirationReminders Boolean               @default(true)
+  limitWarnings       Boolean               @default(true)
+  scanAlerts          Boolean               @default(false)
+  weeklyReports       Boolean               @default(true)
+  Account             Account[]
+  ApiKey              ApiKey[]
+  AuditLog            AuditLog[]
+  Campaign            Campaign[]
+  ComplianceSettings  ComplianceSettings?
+  CustomDomain        CustomDomain[]
+  DigitalMenu         DigitalMenu[]
+  LeadGate            LeadGate[]
+  LinkInBio           LinkInBio[]
+  Microsite           Microsite[]
+  NotificationSetting NotificationSetting[]
+  QRCode              QRCode[]
+  Session             Session[]
+  TeamMember          TeamMember[]
+  Template            Template[]
+  VCardPlus           VCardPlus[]
+  Webhook             Webhook[]
 
-  @@index([userId])
-  @@index([sentAt])
-  @@index([type])
+  @@index([lastLoginAt])
 }
 
-// ===== LINK IN BIO / SOCIAL PAGE =====
-model LinkInBio {
-  id           String         @id @default(cuid())
-  userId       String
-  slug         String         @unique
-  title        String
-  description  String?
-  profileImage String?
-  theme        Json?          // Colors, fonts, layout style
-  links        Json           // Array of {title, url, icon, visible}
-  socialLinks  Json?          // Social media handles
-  analytics    Boolean        @default(true)
-  viewCount    Int            @default(0)
-  published    Boolean        @default(true)
-  customCss    String?
-  seo          Json?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  qrCodes      QRCode[]
-
-  @@index([userId])
-  @@index([slug])
-  @@index([published])
-}
-
-// ===== VCARD PLUS (HOSTED DIGITAL BUSINESS CARD) =====
 model VCardPlus {
-  id              String   @id @default(cuid())
+  id              String   @id
   userId          String
   slug            String   @unique
   firstName       String
@@ -468,104 +500,62 @@ model VCardPlus {
   profilePhoto    String?
   coverPhoto      String?
   bio             String?
-  socialLinks     Json?    // LinkedIn, Twitter, etc.
-  customFields    Json?    // Additional custom contact fields
-  theme           Json?    // Styling options
-  downloadEnabled Boolean  @default(true) // Allow .vcf download
+  socialLinks     Json?
+  customFields    Json?
+  theme           Json?
+  downloadEnabled Boolean  @default(true)
   viewCount       Int      @default(0)
   published       Boolean  @default(true)
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  qrCodes         QRCode[]
+  updatedAt       DateTime
+  QRCode          QRCode[]
+  User            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
+  @@index([published])
   @@index([slug])
-  @@index([published])
-}
-
-// ===== DIGITAL MENU / GALLERY =====
-model DigitalMenu {
-  id          String   @id @default(cuid())
-  userId      String
-  slug        String   @unique
-  title       String
-  description String?
-  logo        String?
-  coverImage  String?
-  type        String   @default("menu") // 'menu', 'gallery', 'portfolio'
-  categories  Json     // Array of {name, items: [{name, price, image, description}]}
-  theme       Json?    // Branding, colors, layout
-  settings    Json?    // Display options, currency, etc.
-  viewCount   Int      @default(0)
-  published   Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  qrCodes     QRCode[]
-
-  @@index([userId])
-  @@index([slug])
-  @@index([type])
-  @@index([published])
-}
-
-// ===== LEAD GENERATION GATE =====
-model LeadGate {
-  id            String   @id @default(cuid())
-  userId        String
-  name          String
-  title         String
-  description   String?
-  fields        Json     // Form fields: [{name, type, required, placeholder}]
-  redirectUrl   String   // Where to send after submission
-  submitText    String   @default("Continue")
-  theme         Json?    // Styling
-  submissions   Json[]   @default([]) // Captured leads
-  submissionCount Int    @default(0)
-  published     Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  qrCodes       QRCode[]
-
-  @@index([userId])
-  @@index([published])
-}
-
-// ===== AUDIT LOG (COMPLIANCE & TRACKING) =====
-model AuditLog {
-  id          String   @id @default(cuid())
-  userId      String
-  action      String   // 'CREATE', 'UPDATE', 'DELETE', 'VIEW', 'EXPORT', 'LOGIN'
-  entityType  String   // 'QRCode', 'Template', 'User', 'ApiKey', 'Webhook', etc.
-  entityId    String?  // ID of the affected entity
-  details     Json?    // Additional context (old/new values, IP, etc.)
-  ipAddress   String?
-  userAgent   String?
-  timestamp   DateTime @default(now())
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([action])
-  @@index([entityType])
-  @@index([timestamp])
-}
-
-// ===== GDPR & COMPLIANCE SETTINGS =====
-model ComplianceSettings {
-  id                    String   @id @default(cuid())
-  userId                String   @unique
-  gdprMode              Boolean  @default(false) // Anonymize IP/Location
-  dataRetentionDays     Int      @default(365)   // Auto-delete scans after N days
-  anonymizeScans        Boolean  @default(false) // Don't store IP/Location
-  allowDataExport       Boolean  @default(true)  // User can export their data
-  allowDataDeletion     Boolean  @default(true)  // User can delete their data
-  cookieConsentRequired Boolean  @default(true)  // Show cookie banner
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@index([userId])
 }
 
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Webhook {
+  id           String       @id
+  userId       String
+  url          String
+  events       String[]
+  secret       String
+  active       Boolean      @default(true)
+  lastUsedAt   DateTime?
+  failureCount Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime
+  User         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  WebhookLog   WebhookLog[]
+
+  @@index([active])
+  @@index([userId])
+}
+
+model WebhookLog {
+  id         String   @id
+  webhookId  String
+  event      String
+  payload    Json
+  response   Json?
+  statusCode Int?
+  success    Boolean
+  attempt    Int      @default(1)
+  error      String?
+  createdAt  DateTime @default(now())
+  Webhook    Webhook  @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([event])
+  @@index([webhookId])
+}

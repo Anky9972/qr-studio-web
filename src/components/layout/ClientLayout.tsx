@@ -6,6 +6,8 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import CookieConsentBanner from "@/components/CookieConsent";
 
+import { Toaster } from 'sonner';
+
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
@@ -15,6 +17,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
           <main className="flex-1">{children}</main>
           <Footer />
           <CookieConsentBanner />
+          <Toaster position="bottom-right" theme="dark" richColors />
         </div>
       </ThemeProvider>
     </SessionProvider>

@@ -1,9 +1,12 @@
-import { render } from '@react-email/render';
-import NotificationEmail from '@/emails/NotificationEmail';
-
-// Use standalone SMTP server
+// SMTP Server Configuration for Email Service
 const SMTP_SERVER_URL = process.env.SMTP_SERVER_URL || 'http://localhost:3001';
 const SMTP_API_KEY = process.env.SMTP_API_KEY || '';
+
+interface EmailResponse {
+  success: boolean;
+  messageId?: string;
+  error?: string;
+}
 
 interface SendEmailOptions {
   to: string;
@@ -12,9 +15,9 @@ interface SendEmailOptions {
 }
 
 /**
- * Send email via standalone SMTP server
+ * Send email via SMTP server API
  */
-export async function sendEmail({ to, subject, html }: SendEmailOptions) {
+async function sendEmailViaAPI({ to, subject, html }: SendEmailOptions): Promise<EmailResponse> {
   try {
     const response = await fetch(`${SMTP_SERVER_URL}/api/email/send`, {
       method: 'POST',
@@ -30,23 +33,24 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions) {
       throw new Error(error.error || 'Failed to send email');
     }
 
-    const result = await response.json();
-    console.log('Email sent:', result.messageId);
-    return { success: true, messageId: result.messageId };
+    return await response.json();
   } catch (error) {
-    console.error('Email send error:', error);
-    return { success: false, error };
+    console.error('Email API error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
   }
 }
 
 /**
- * Send welcome email via SMTP server template
+ * Send welcome email
  */
 export async function sendWelcomeEmail(
   to: string,
   userName: string,
   userEmail: string
-) {
+): Promise<EmailResponse> {
   try {
     const response = await fetch(`${SMTP_SERVER_URL}/api/email/templates/welcome`, {
       method: 'POST',
@@ -65,52 +69,22 @@ export async function sendWelcomeEmail(
     return await response.json();
   } catch (error) {
     console.error('Welcome email error:', error);
-    return { success: false, error };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
   }
 }
 
 /**
- * Send team invitation email via SMTP server template
- */
-export async function sendTeamInvitationEmail(
-  to: string,
-  inviterName: string,
-  inviterEmail: string,
-  teamName: string,
-  role: string,
-  inviteUrl: string
-) {
-  try {
-    const response = await fetch(`${SMTP_SERVER_URL}/api/email/templates/team-invitation`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SMTP_API_KEY}`,
-      },
-      body: JSON.stringify({ to, inviterName, inviterEmail, teamName, role, inviteUrl }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to send team invitation email');
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Team invitation email error:', error);
-    return { success: false, error };
-  }
-}
-
-/**
- * Send password reset email via SMTP server template
+ * Send password reset email
  */
 export async function sendPasswordResetEmail(
   to: string,
   userName: string,
   resetUrl: string,
   expiryTime?: string
-) {
+): Promise<EmailResponse> {
   try {
     const response = await fetch(`${SMTP_SERVER_URL}/api/email/templates/password-reset`, {
       method: 'POST',
@@ -129,12 +103,51 @@ export async function sendPasswordResetEmail(
     return await response.json();
   } catch (error) {
     console.error('Password reset email error:', error);
-    return { success: false, error };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
   }
 }
 
 /**
- * Send QR scan notification email via SMTP server template
+ * Send team invitation email
+ */
+export async function sendTeamInvitationEmail(
+  to: string,
+  inviterName: string,
+  inviterEmail: string,
+  teamName: string,
+  role: string,
+  inviteUrl: string
+): Promise<EmailResponse> {
+  try {
+    const response = await fetch(`${SMTP_SERVER_URL}/api/email/templates/team-invitation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SMTP_API_KEY}`,
+      },
+      body: JSON.stringify({ to, inviterName, inviterEmail, teamName, role, inviteUrl }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to send team invitation email');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Team invitation email error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Send QR scan notification email
  */
 export async function sendQRScanNotificationEmail(
   to: string,
@@ -145,7 +158,7 @@ export async function sendQRScanNotificationEmail(
   dashboardUrl: string,
   location?: string,
   device?: string
-) {
+): Promise<EmailResponse> {
   try {
     const response = await fetch(`${SMTP_SERVER_URL}/api/email/templates/scan-notification`, {
       method: 'POST',
@@ -173,39 +186,45 @@ export async function sendQRScanNotificationEmail(
     return await response.json();
   } catch (error) {
     console.error('Scan notification email error:', error);
-    return { success: false, error };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
   }
 }
 
 /**
- * Send admin notification email
+ * Send generic email with custom HTML
  */
-export async function sendAdminNotificationEmail(
-  to: string,
-  name: string,
-  title: string,
-  message: string,
-  actionUrl: string = 'https://qrstudio.live/dashboard',
-  actionText: string = 'View Dashboard'
-) {
-  try {
-    const emailHtml = await render(
-      NotificationEmail({
-        name,
-        title,
-        message,
-        actionUrl,
-        actionText,
-      })
-    );
+export async function sendEmail({ to, subject, html }: SendEmailOptions): Promise<EmailResponse> {
+  return sendEmailViaAPI({ to, subject, html });
+}
 
-    return await sendEmail({
-      to,
-      subject: title,
-      html: emailHtml,
+/**
+ * Send bulk emails (queued processing)
+ */
+export async function sendBulkEmails(emails: SendEmailOptions[]): Promise<EmailResponse> {
+  try {
+    const response = await fetch(`${SMTP_SERVER_URL}/api/email/send-bulk-queued`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SMTP_API_KEY}`,
+      },
+      body: JSON.stringify({ emails }),
     });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to send bulk emails');
+    }
+
+    return await response.json();
   } catch (error) {
-    console.error('Notification email error:', error);
-    return { success: false, error };
+    console.error('Bulk email error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
   }
 }
