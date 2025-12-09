@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
+import { sendAdminNotificationEmail } from '@/lib/emailService';
 
 // Middleware to check admin access
 async function checkAdmin(session: any) {
@@ -87,12 +88,25 @@ export async function POST(request: NextRequest) {
       type: notificationType || 'admin_message',
       subject,
       message,
-      success: true,
+      success: true, // Used for unread status in some logic? Or maybe just 'log created successfully'
     }));
 
     await prisma.notificationLog.createMany({
       data: notificationLogs,
     });
+
+    // Send emails asynchronously (don't block response)
+    const emailPromises = users.map(user =>
+      sendAdminNotificationEmail(
+        user.email!,
+        user.name || 'User',
+        subject,
+        message
+      )
+    );
+
+    // Note: In a production serverless env (Vercel), this might be cut off if not awaited.
+    await Promise.allSettled(emailPromises);
 
     return NextResponse.json({
       message: 'Notifications sent successfully',

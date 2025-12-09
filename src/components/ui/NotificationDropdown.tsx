@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import { Bell, X, Check, AlertCircle, BarChart2, Clock, CheckCircle } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 interface Notification {
   id: string
@@ -20,26 +22,49 @@ interface NotificationDropdownProps {
 }
 
 export default function NotificationDropdown({ className }: NotificationDropdownProps) {
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [loading, setLoading] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  // Track previous unread count to trigger toasts
+  const prevUnreadCountRef = useRef(0)
+
   // Fetch notifications
-  const fetchNotifications = async () => {
+  const fetchNotifications = async (isPolling = false) => {
     try {
-      setLoading(true)
+      if (!isPolling) setLoading(true)
       const response = await fetch('/api/notifications?limit=20')
       if (response.ok) {
         const data = await response.json()
+        const newUnreadCount = data.unreadCount || 0
+
+        // Trigger toast if unread count increased
+        if (newUnreadCount > prevUnreadCountRef.current && isPolling) {
+          const newNotification = data.notifications[0];
+          if (newNotification) {
+            toast(newNotification.subject, {
+              description: newNotification.message,
+              action: {
+                label: 'View',
+                onClick: () => router.push('/dashboard/notifications')
+              },
+            })
+          } else {
+            toast.info(`You have ${newUnreadCount} new notifications`)
+          }
+        }
+
         setNotifications(data.notifications || [])
-        setUnreadCount(data.unreadCount || 0)
+        setUnreadCount(newUnreadCount)
+        prevUnreadCountRef.current = newUnreadCount
       }
     } catch (error) {
       console.error('Error fetching notifications:', error)
     } finally {
-      setLoading(false)
+      if (!isPolling) setLoading(false)
     }
   }
 
@@ -54,7 +79,11 @@ export default function NotificationDropdown({ className }: NotificationDropdown
 
       if (response.ok) {
         setNotifications(prev => prev.filter(n => n.id !== notificationId))
-        setUnreadCount(prev => Math.max(0, prev - 1))
+        setUnreadCount(prev => {
+          const newCount = Math.max(0, prev - 1);
+          prevUnreadCountRef.current = newCount;
+          return newCount;
+        })
       }
     } catch (error) {
       console.error('Error marking notification as read:', error)
@@ -73,6 +102,7 @@ export default function NotificationDropdown({ className }: NotificationDropdown
       if (response.ok) {
         setNotifications([])
         setUnreadCount(0)
+        prevUnreadCountRef.current = 0
       }
     } catch (error) {
       console.error('Error marking all as read:', error)
@@ -106,7 +136,7 @@ export default function NotificationDropdown({ className }: NotificationDropdown
   // Fetch notifications on mount and set up polling
   useEffect(() => {
     fetchNotifications()
-    const interval = setInterval(fetchNotifications, 60000) // Poll every minute
+    const interval = setInterval(() => fetchNotifications(true), 60000) // Poll every minute
     return () => clearInterval(interval)
   }, [])
 
@@ -197,7 +227,11 @@ export default function NotificationDropdown({ className }: NotificationDropdown
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className="p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group"
+                    className="p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group cursor-pointer"
+                    onClick={() => {
+                      // Optional: View details or mark as read?
+                      // For now just mark as read if user wants to keep it in the list they can use the View All page
+                    }}
                   >
                     <div className="flex items-start gap-3">
                       <div className={cn('mt-0.5', getNotificationColor(notification.type))}>
@@ -217,7 +251,10 @@ export default function NotificationDropdown({ className }: NotificationDropdown
                         )}
                       </div>
                       <button
-                        onClick={() => markAsRead(notification.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          markAsRead(notification.id);
+                        }}
                         className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-white/10 rounded"
                         title="Mark as read"
                       >
@@ -231,19 +268,17 @@ export default function NotificationDropdown({ className }: NotificationDropdown
           </div>
 
           {/* Footer */}
-          {notifications.length > 0 && (
-            <div className="p-3 border-t border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-800/50">
-              <button
-                onClick={() => {
-                  setIsOpen(false)
-                  // Could navigate to a full notifications page here
-                }}
-                className="w-full text-sm text-center text-blue-600 dark:text-blue-400 hover:underline"
-              >
-                View all notifications
-              </button>
-            </div>
-          )}
+          <div className="p-3 border-t border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-800/50">
+            <button
+              onClick={() => {
+                setIsOpen(false)
+                router.push('/dashboard/notifications')
+              }}
+              className="w-full text-sm text-center text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              View all notifications
+            </button>
+          </div>
         </div>
       )}
     </div>

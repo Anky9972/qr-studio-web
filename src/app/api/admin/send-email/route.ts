@@ -2,20 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
-import nodemailer from 'nodemailer';
-
-// Create transporter with SMTP configuration
-function createTransporter() {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
-    auth: {
-      user: process.env.SMTP_USER || '',
-      pass: process.env.SMTP_PASS || '',
-    },
-  });
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -45,13 +31,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if SMTP is configured
-    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-      return NextResponse.json(
-        { error: 'SMTP server not configured. Please set SMTP environment variables.' },
-        { status: 500 }
-      );
-    }
+    // Get SMTP server configuration
+    const SMTP_SERVER_URL = process.env.SMTP_SERVER_URL || 'http://localhost:3001';
+    const SMTP_API_KEY = process.env.SMTP_API_KEY || '';
+
+    console.log('[Send Email] Using SMTP server:', SMTP_SERVER_URL);
 
     // Get recipient emails based on filter
     let recipientFilter: any = {};
@@ -90,29 +74,54 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send emails immediately
-    const transporter = createTransporter();
-    const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER;
-
+    // Send emails immediately via SMTP server
+    console.log('[Send Email] Sending to', users.length, 'recipients');
+    
     let successCount = 0;
     let failureCount = 0;
 
-    for (const recipient of users) {
+    const emailPromises = users.map(async (recipient) => {
       try {
-        if (!recipient.email) continue;
+        if (!recipient.email) return { success: false };
         
-        await transporter.sendMail({
-          from: `"QR Studio" <${fromEmail}>`,
-          to: recipient.email,
-          subject,
-          html: emailBody,
+        const response = await fetch(`${SMTP_SERVER_URL}/api/email/send`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SMTP_API_KEY}`,
+          },
+          body: JSON.stringify({
+            to: recipient.email,
+            subject,
+            html: emailBody,
+          }),
         });
-        successCount++;
+
+        if (response.ok) {
+          console.log('[Send Email] ✓ Sent to', recipient.email);
+          return { success: true };
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('[Send Email] ✗ Failed to send to', recipient.email, errorData);
+          return { success: false };
+        }
       } catch (error) {
-        console.error(`Failed to send email to ${recipient.email}:`, error);
+        console.error('[Send Email] ✗ Error sending to', recipient.email, error);
+        return { success: false };
+      }
+    });
+
+    const results = await Promise.allSettled(emailPromises);
+    
+    results.forEach((result) => {
+      if (result.status === 'fulfilled' && result.value.success) {
+        successCount++;
+      } else {
         failureCount++;
       }
-    }
+    });
+
+    console.log('[Send Email] Results:', successCount, 'success,', failureCount, 'failed');
 
     return NextResponse.json({
       message: 'Emails sent',
@@ -121,7 +130,11 @@ export async function POST(request: NextRequest) {
       failureCount,
     });
   } catch (error) {
-    console.error('Error sending emails:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('[Send Email] Error:', error);
+    console.error('[Send Email] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }

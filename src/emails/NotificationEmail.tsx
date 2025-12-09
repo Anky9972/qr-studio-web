@@ -8,6 +8,9 @@ import {
   Preview,
   Section,
   Text,
+  Link,
+  Hr,
+  Img,
 } from '@react-email/components';
 
 interface NotificationEmailProps {
@@ -31,16 +34,21 @@ export default function NotificationEmail({
       <Preview>{title}</Preview>
       <Body style={main}>
         <Container style={container}>
+          {/* Header with Logo */}
+          <Section style={header}>
+            <Text style={logoText}>QR STUDIO</Text>
+          </Section>
+
           <Heading style={h1}>{title}</Heading>
-          
-          <Text style={text}>
+
+          <Text style={greeting}>
             Hi {name},
           </Text>
-          
+
           <Text style={text}>
             {message}
           </Text>
-          
+
           {actionUrl && (
             <Section style={buttonContainer}>
               <Button style={button} href={actionUrl}>
@@ -48,13 +56,13 @@ export default function NotificationEmail({
               </Button>
             </Section>
           )}
-          
-          <Text style={text}>
-            If you have any questions, please contact our support team.
-          </Text>
-          
-          <Text style={footer}>
-            © {new Date().getFullYear()} QR Studio. All rights reserved.
+
+          <Hr style={hr} />
+
+          <Text style={footerText}>
+            This notification was sent from your QR Studio dashboard.
+            <br />
+            &copy; {new Date().getFullYear()} QR Studio. All rights reserved.
           </Text>
         </Container>
       </Body>
@@ -63,54 +71,84 @@ export default function NotificationEmail({
 }
 
 const main = {
-  backgroundColor: '#f6f9fc',
-  fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
+  backgroundColor: '#000000',
+  fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+  color: '#e0e0e0',
 };
 
 const container = {
-  backgroundColor: '#ffffff',
-  margin: '0 auto',
-  padding: '20px 0 48px',
-  marginBottom: '64px',
+  backgroundColor: '#111111',
+  margin: '40px auto',
+  padding: '40px',
+  borderRadius: '16px',
+  border: '1px solid #333333',
   maxWidth: '600px',
 };
 
+const header = {
+  marginBottom: '32px',
+  textAlign: 'center' as const,
+};
+
+const logoText = {
+  fontSize: '24px',
+  fontWeight: 'bold',
+  color: '#ffffff',
+  letterSpacing: '2px',
+  margin: '0',
+};
+
 const h1 = {
-  color: '#1976d2',
+  color: '#00ffee', // Electric Cyan
   fontSize: '28px',
   fontWeight: 'bold',
-  margin: '40px 0',
-  padding: '0 40px',
+  margin: '0 0 24px',
+  textAlign: 'center' as const,
+  textShadow: '0 0 10px rgba(0, 255, 238, 0.3)',
+};
+
+const greeting = {
+  color: '#ffffff',
+  fontSize: '18px',
+  fontWeight: '600',
+  marginBottom: '16px',
 };
 
 const text = {
-  color: '#333',
+  color: '#cccccc',
   fontSize: '16px',
   lineHeight: '26px',
-  margin: '16px 0',
-  padding: '0 40px',
+  marginBottom: '24px',
 };
 
 const buttonContainer = {
-  padding: '27px 40px 27px',
+  textAlign: 'center' as const,
+  marginTop: '32px',
+  marginBottom: '32px',
 };
 
 const button = {
-  backgroundColor: '#1976d2',
+  backgroundColor: '#2563eb', // Electric Blue base
+  backgroundImage: 'linear-gradient(90deg, #2563eb 0%, #00ffee 100%)',
   borderRadius: '8px',
-  color: '#fff',
+  color: '#000000',
   fontSize: '16px',
   fontWeight: 'bold',
   textDecoration: 'none',
   textAlign: 'center' as const,
-  display: 'block',
-  padding: '14px 20px',
+  display: 'inline-block',
+  padding: '14px 32px',
+  boxShadow: '0 0 15px rgba(37, 99, 235, 0.5)',
 };
 
-const footer = {
-  color: '#898989',
+const hr = {
+  borderColor: '#333333',
+  margin: '30px 0',
+};
+
+const footerText = {
+  color: '#666666',
   fontSize: '12px',
-  lineHeight: '16px',
-  padding: '0 40px',
-  marginTop: '40px',
+  lineHeight: '18px',
+  textAlign: 'center' as const,
 };

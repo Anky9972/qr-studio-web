@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
+    "postinstall": "prisma generate",
     "lint": "eslint",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -78,6 +79,7 @@
     "sharp": "^0.34.5",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
+    "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
     "tailwindcss-animate": "^1.0.7",
     "xlsx": "^0.18.5",
