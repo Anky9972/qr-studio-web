@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
+import { sendAdminNotificationEmail } from '@/lib/emailService';
 
 export async function GET(request: NextRequest) {
   try {
@@ -42,11 +43,6 @@ export async function GET(request: NextRequest) {
     }, { status: 500 });
   }
 }
-
-// ... imports
-import { sendAdminNotificationEmail } from '@/lib/emailService';
-
-// ... (GET handler remains the same)
 
 export async function POST(request: NextRequest) {
   try {
