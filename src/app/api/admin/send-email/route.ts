@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     console.log('[Send Email] Using SMTP server:', SMTP_SERVER_URL);
 
     // Get recipient emails based on filter
-    let recipientFilter: any = {};
+    const recipientFilter: any = {};
     
     if (recipients === 'free') {
       recipientFilter.subscription = 'FREE';

@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user exists
-    let invitedUser = await prisma.user.findUnique({
+    const invitedUser = await prisma.user.findUnique({
       where: { email },
     });
 

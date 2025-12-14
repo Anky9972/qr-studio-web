@@ -128,7 +128,7 @@ export async function DELETE(
 
     // Prevent admin from deleting themselves
     const currentUser = await prisma.user.findUnique({
-      where: { email: session?.user?.email! },
+      where: { email: session?.user?.email ?? '' },
       select: { id: true },
     });
 

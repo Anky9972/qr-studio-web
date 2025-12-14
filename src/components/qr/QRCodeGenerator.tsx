@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useTheme } from '@/components/providers/theme-provider'
 import QRCodeStyling from 'qr-code-styling'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from '@/components/ui/Button'
@@ -26,8 +25,8 @@ import { cn } from '@/lib/utils'
 type QRType = 'url' | 'text' | 'email' | 'wifi' | 'vcard'
 
 export function QRCodeGenerator() {
-  const { theme } = useTheme()
-  const isDark = theme === 'dark'
+  // Always use dark mode
+  const isDark = true
   const qrRef = useRef<HTMLDivElement>(null)
   const [qrCode, setQrCode] = useState<QRCodeStyling | null>(null)
 

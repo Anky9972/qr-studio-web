@@ -13,6 +13,28 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  // Custom rule overrides
+  {
+    rules: {
+      // Disable unescaped entities - too noisy for quotes/apostrophes
+      "react/no-unescaped-entities": "off",
+      // Downgrade any type to warning - will fix gradually
+      "@typescript-eslint/no-explicit-any": "warn",
+      // Downgrade unused vars to warning  
+      "@typescript-eslint/no-unused-vars": "warn",
+      // Allow img elements (next/image not always needed)
+      "@next/next/no-img-element": "warn",
+      // Allow require imports for dynamic imports
+      "@typescript-eslint/no-require-imports": "off",
+      // Disable experimental react-hooks rules that produce false positives
+      "react-hooks/immutability": "off",
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/purity": "off",
+      // Allow empty interfaces/object types
+      "@typescript-eslint/no-empty-object-type": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;
+

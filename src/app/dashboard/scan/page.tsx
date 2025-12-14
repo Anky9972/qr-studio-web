@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import {
   Camera,
   Upload,
@@ -43,6 +43,21 @@ export default function ScanPage() {
   const streamRef = useRef<MediaStream | null>(null)
   const barcodeReaderRef = useRef<BrowserMultiFormatReader | null>(null)
 
+  // Define stopCamera before useEffect that uses it
+  const stopCamera = useCallback(() => {
+    setScanning(false)
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop())
+      streamRef.current = null
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null
+    }
+  }, [])
+
   // Initialize barcode reader
   useEffect(() => {
     const hints = new Map()
@@ -62,7 +77,7 @@ export default function ScanPage() {
     return () => {
       stopCamera()
     }
-  }, [])
+  }, [stopCamera])
 
   const startCamera = async () => {
     try {
@@ -110,8 +125,8 @@ export default function ScanPage() {
           formatName
         )
       }
-    } catch (err: any) {
-      if (err?.name !== 'NotFoundException') {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name !== 'NotFoundException') {
         console.error('Barcode scan error:', err)
       }
       // Continue scanning
@@ -121,19 +136,7 @@ export default function ScanPage() {
     }
   }
 
-  const stopCamera = () => {
-    setScanning(false)
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current)
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop())
-      streamRef.current = null
-    }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null
-    }
-  }
+  // stopCamera is now defined above as useCallback
 
   const scanFrame = () => {
     if (!scanning || !videoRef.current || !canvasRef.current) return
@@ -168,7 +171,7 @@ export default function ScanPage() {
     barcodeType?: string
   ) => {
     const scanResult: ScanResult = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       content,
       type: detectQRType(content),
       format,

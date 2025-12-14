@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Info, CheckCircle, AlertTriangle, AlertOctagon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -17,16 +17,7 @@ export default function AnnouncementBanner() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    fetchAnnouncements();
-    // Load dismissed state
-    const stored = localStorage.getItem('dismissed-announcements');
-    if (stored) {
-      setDismissed(new Set(JSON.parse(stored)));
-    }
-  }, []);
-
-  const fetchAnnouncements = async () => {
+  const fetchAnnouncements = useCallback(async () => {
     try {
       const response = await fetch('/api/announcements');
       if (response.ok) {
@@ -36,7 +27,16 @@ export default function AnnouncementBanner() {
     } catch (error) {
       console.error('Failed to fetch announcements:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchAnnouncements();
+    // Load dismissed state
+    const stored = localStorage.getItem('dismissed-announcements');
+    if (stored) {
+      setDismissed(new Set(JSON.parse(stored)));
+    }
+  }, [fetchAnnouncements]);
 
   const handleDismiss = (id: string) => {
     const newDismissed = new Set(dismissed).add(id);

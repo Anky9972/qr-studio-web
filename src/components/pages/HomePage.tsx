@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { QRCodeGenerator } from '@/components/qr/QRCodeGenerator'
-import { useTheme } from '@/components/providers/theme-provider'
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner'
 import QrCode2Icon from '@mui/icons-material/QrCode2'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
@@ -14,8 +13,8 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
 export default function HomePage() {
-  const { theme } = useTheme()
-  const isDark = theme === 'dark'
+  // Always use dark mode
+  const isDark = true
 
   const features = [
     {
@@ -78,63 +77,58 @@ export default function HomePage() {
                   Professional QR Code Platform
                 </span>
               </div>
-              
-              <h1 className={`text-4xl md:text-6xl font-bold leading-tight ${
-                isDark ? 'text-md-dark-on-background' : 'text-md-light-on-background'
-              }`}>
+
+              <h1 className={`text-4xl md:text-6xl font-bold leading-tight ${isDark ? 'text-md-dark-on-background' : 'text-md-light-on-background'
+                }`}>
                 Create & Scan QR Codes{' '}
                 <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
                   Like a Pro
                 </span>
               </h1>
-              
-              <p className={`text-lg md:text-xl ${
-                isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
-              }`}>
-                Professional-grade QR code generator and scanner with beautiful design, 
-                powerful features, and complete privacy control. Perfect for individuals, 
+
+              <p className={`text-lg md:text-xl ${isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
+                }`}>
+                Professional-grade QR code generator and scanner with beautiful design,
+                powerful features, and complete privacy control. Perfect for individuals,
                 businesses, and enterprises.
               </p>
-              
+
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   href="/dashboard"
-                  className={`inline-flex items-center justify-center px-8 py-4 rounded-lg font-semibold transition-all hover:scale-105 shadow-md-3 ${
-                    isDark
+                  className={`inline-flex items-center justify-center px-8 py-4 rounded-lg font-semibold transition-all hover:scale-105 shadow-md-3 ${isDark
                       ? 'bg-md-dark-primary text-md-dark-on-primary'
                       : 'bg-md-light-primary text-md-light-on-primary'
-                  }`}
+                    }`}
                 >
                   Get Started Free
                   <ArrowForwardIcon className="ml-2" />
                 </Link>
-                
+
                 <Link
                   href="/features"
-                  className={`inline-flex items-center justify-center px-8 py-4 rounded-lg font-semibold transition-all border-2 ${
-                    isDark
+                  className={`inline-flex items-center justify-center px-8 py-4 rounded-lg font-semibold transition-all border-2 ${isDark
                       ? 'border-md-dark-outline text-md-dark-on-surface hover:bg-md-dark-surface-container'
                       : 'border-md-light-outline text-md-light-on-surface hover:bg-md-light-surface-container'
-                  }`}
+                    }`}
                 >
                   View Features
                 </Link>
               </div>
-              
+
               <div className="flex flex-wrap items-center gap-4 pt-4">
                 {['Chrome Extension', 'No Credit Card', '100% Free Tier'].map((item) => (
                   <div key={item} className="flex items-center space-x-2">
                     <CheckCircleIcon className="text-green-500 text-sm" />
-                    <span className={`text-sm ${
-                      isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
-                    }`}>
+                    <span className={`text-sm ${isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
+                      }`}>
                       {item}
                     </span>
                   </div>
                 ))}
               </div>
             </div>
-            
+
             <div className="animate-slide-up">
               <QRCodeGenerator />
             </div>
@@ -143,9 +137,8 @@ export default function HomePage() {
       </section>
 
       {/* Stats Section */}
-      <section className={`py-16 border-y ${
-        isDark ? 'bg-md-dark-surface border-md-dark-outline' : 'bg-md-light-surface border-md-light-outline'
-      }`}>
+      <section className={`py-16 border-y ${isDark ? 'bg-md-dark-surface border-md-dark-outline' : 'bg-md-light-surface border-md-light-outline'
+        }`}>
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat) => (
@@ -153,9 +146,8 @@ export default function HomePage() {
                 <div className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
                   {stat.value}
                 </div>
-                <div className={`text-sm md:text-base ${
-                  isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
-                }`}>
+                <div className={`text-sm md:text-base ${isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
+                  }`}>
                   {stat.label}
                 </div>
               </div>
@@ -168,44 +160,38 @@ export default function HomePage() {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${
-              isDark ? 'text-md-dark-on-background' : 'text-md-light-on-background'
-            }`}>
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${isDark ? 'text-md-dark-on-background' : 'text-md-light-on-background'
+              }`}>
               Powerful Features for Everyone
             </h2>
-            <p className={`text-lg max-w-2xl mx-auto ${
-              isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
-            }`}>
+            <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
+              }`}>
               From simple QR generation to advanced analytics, we've got everything you need
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature) => {
               const Icon = feature.icon
               return (
                 <div
                   key={feature.title}
-                  className={`p-6 rounded-xl transition-all hover:scale-105 hover:shadow-md-4 ${
-                    isDark
+                  className={`p-6 rounded-xl transition-all hover:scale-105 hover:shadow-md-4 ${isDark
                       ? 'bg-md-dark-surface-container-highest'
                       : 'bg-md-light-surface-container-highest'
-                  }`}
+                    }`}
                 >
-                  <div className={`inline-flex p-3 rounded-lg mb-4 ${
-                    isDark
+                  <div className={`inline-flex p-3 rounded-lg mb-4 ${isDark
                       ? 'bg-md-dark-primary-container'
                       : 'bg-md-light-primary-container'
-                  }`}>
-                    <Icon className={`text-2xl ${
-                      isDark
+                    }`}>
+                    <Icon className={`text-2xl ${isDark
                         ? 'text-md-dark-on-primary-container'
                         : 'text-md-light-on-primary-container'
-                    }`} />
+                      }`} />
                   </div>
-                  <h3 className={`text-xl font-semibold mb-2 ${
-                    isDark ? 'text-md-dark-on-surface' : 'text-md-light-on-surface'
-                  }`}>
+                  <h3 className={`text-xl font-semibold mb-2 ${isDark ? 'text-md-dark-on-surface' : 'text-md-light-on-surface'
+                    }`}>
                     {feature.title}
                   </h3>
                   <p className={isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'}>
@@ -222,37 +208,32 @@ export default function HomePage() {
       <section className={`py-20 ${isDark ? 'bg-md-dark-surface' : 'bg-md-light-surface'}`}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${
-              isDark ? 'text-md-dark-on-background' : 'text-md-light-on-background'
-            }`}>
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${isDark ? 'text-md-dark-on-background' : 'text-md-light-on-background'
+              }`}>
               Trusted by Businesses Worldwide
             </h2>
-            <p className={`text-lg max-w-2xl mx-auto ${
-              isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
-            }`}>
+            <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
+              }`}>
               See how QR Studio is being used across different industries
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {useCases.map((useCase) => (
               <div
                 key={useCase.title}
-                className={`p-6 rounded-xl text-center transition-all hover:scale-105 ${
-                  isDark
+                className={`p-6 rounded-xl text-center transition-all hover:scale-105 ${isDark
                     ? 'bg-md-dark-surface-container-highest'
                     : 'bg-md-light-surface-container-highest'
-                }`}
+                  }`}
               >
                 <div className="text-5xl mb-4">{useCase.emoji}</div>
-                <h3 className={`text-lg font-semibold mb-2 ${
-                  isDark ? 'text-md-dark-on-surface' : 'text-md-light-on-surface'
-                }`}>
+                <h3 className={`text-lg font-semibold mb-2 ${isDark ? 'text-md-dark-on-surface' : 'text-md-light-on-surface'
+                  }`}>
                   {useCase.title}
                 </h3>
-                <p className={`text-sm ${
-                  isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
-                }`}>
+                <p className={`text-sm ${isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
+                  }`}>
                   {useCase.description}
                 </p>
               </div>
@@ -264,28 +245,24 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className={`rounded-2xl p-12 text-center relative overflow-hidden ${
-            isDark ? 'bg-md-dark-primary' : 'bg-md-light-primary'
-          }`}>
+          <div className={`rounded-2xl p-12 text-center relative overflow-hidden ${isDark ? 'bg-md-dark-primary' : 'bg-md-light-primary'
+            }`}>
             <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent" />
             <div className="relative z-10">
-              <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${
-                isDark ? 'text-md-dark-on-primary' : 'text-md-light-on-primary'
-              }`}>
+              <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${isDark ? 'text-md-dark-on-primary' : 'text-md-light-on-primary'
+                }`}>
                 Ready to Get Started?
               </h2>
-              <p className={`text-lg mb-8 max-w-2xl mx-auto ${
-                isDark ? 'text-md-dark-on-primary' : 'text-md-light-on-primary'
-              }`}>
+              <p className={`text-lg mb-8 max-w-2xl mx-auto ${isDark ? 'text-md-dark-on-primary' : 'text-md-light-on-primary'
+                }`}>
                 Join thousands of users creating professional QR codes today
               </p>
               <Link
                 href="/dashboard"
-                className={`inline-flex items-center px-8 py-4 rounded-lg font-semibold transition-all hover:scale-105 shadow-md-4 ${
-                  isDark
+                className={`inline-flex items-center px-8 py-4 rounded-lg font-semibold transition-all hover:scale-105 shadow-md-4 ${isDark
                     ? 'bg-white text-md-dark-primary'
                     : 'bg-md-dark-primary text-white'
-                }`}
+                  }`}
               >
                 Create Your First QR Code
                 <ArrowForwardIcon className="ml-2" />
