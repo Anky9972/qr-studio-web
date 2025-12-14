@@ -2,6 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { Metadata } from 'next';
 import {
   QrCode,
   BarChart3,
@@ -27,9 +28,26 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
+import { StructuredData, createFAQItems, createBreadcrumbs } from '@/components/StructuredData';
+import { featuresFaqs } from '@/lib/data';
+
+export const metadata: Metadata = {
+  title: "Features - QR Studio | Advanced QR Code Management & Analytics",
+  description: "Explore QR Studio features: Dynamic QR codes, advanced analytics, custom designs, bulk generation, team collaboration, and more.",
+  openGraph: {
+    title: "Features - QR Studio | Advanced QR Code Management",
+    description: "Discover the powerful features of QR Studio. From dynamic codes to team collaboration and detailed analytics.",
+    images: ["/images/og-features.png"] // Assuming this exists or falls back
+  }
+};
 
 export default function FeaturesPage() {
   const { data: session } = useSession();
+
+  const breadcrumbs = [
+    { name: "Home", url: "/" },
+    { name: "Features", url: "/features" }
+  ];
 
   const featureCategories = [
     {
@@ -192,35 +210,10 @@ export default function FeaturesPage() {
     { name: 'Export Formats', qrStudio: 'PNG/SVG/PDF/JPEG', competitor1: 'PNG only', competitor2: 'PNG/SVG' }
   ];
 
-  const faqs = [
-    {
-      question: 'What are dynamic QR codes?',
-      answer: 'Dynamic QR codes allow you to change the destination URL without reprinting the code. The QR code points to a short URL that redirects to your actual destination, which you can edit anytime from your dashboard.'
-    },
-    {
-      question: 'How does bulk generation work?',
-      answer: 'Upload a CSV or Excel file with your data, map the columns to QR code fields, and generate thousands of codes in minutes. Each code is unique and can be customized with your brand settings. Download all codes as a ZIP file.'
-    },
-    {
-      question: 'Can I track who scans my QR codes?',
-      answer: 'Yes! Our analytics show scan counts, timestamps, geographic locations (city/country), device types, browsers, and referral sources. All data is anonymized and GDPR-compliant.'
-    },
-    {
-      question: 'Do QR codes expire?',
-      answer: 'Static QR codes never expire. Dynamic QR codes remain active as long as your subscription is active. You can also set optional expiration dates for time-sensitive campaigns.'
-    },
-    {
-      question: 'Can I use my own domain?',
-      answer: 'Yes! Business and Enterprise plans support custom domains for dynamic QR codes (e.g., qr.yourbrand.com). This provides white-label branding and increases user trust.'
-    },
-    {
-      question: 'Is there an API for developers?',
-      answer: 'Yes! Our REST API allows you to programmatically generate QR codes, manage campaigns, and retrieve analytics. API access is included in Business and Enterprise plans with rate limiting based on your tier.'
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-black text-white">
+      <StructuredData type="BreadcrumbList" data={{ items: createBreadcrumbs(breadcrumbs) }} />
+      <StructuredData type="FAQPage" data={{ questions: createFAQItems(featuresFaqs) }} />
       {/* Hero Section */}
       <section className="relative py-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-black pointer-events-none" />
@@ -380,7 +373,7 @@ export default function FeaturesPage() {
           </div>
 
           <div className="space-y-4">
-            {faqs.map((faq, index) => (
+            {featuresFaqs.map((faq, index) => (
               <FaqItem key={index} question={faq.question} answer={faq.answer} />
             ))}
           </div>

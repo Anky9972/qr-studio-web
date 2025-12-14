@@ -28,36 +28,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/dashboard`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/dashboard/qr-codes`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/dashboard/campaigns`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/dashboard/analytics`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/dashboard/settings`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
       url: `${baseUrl}/api-docs`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
@@ -88,26 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     }))
 
-    // Get all campaigns
-    const campaigns = await prisma.campaign.findMany({
-      select: {
-        id: true,
-        updatedAt: true,
-      },
-      take: 1000,
-      orderBy: {
-        updatedAt: 'desc',
-      },
-    })
-
-    const campaignPages: MetadataRoute.Sitemap = campaigns.map((campaign) => ({
-      url: `${baseUrl}/dashboard/campaigns/${campaign.id}`,
-      lastModified: campaign.updatedAt,
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    }))
-
-    return [...staticPages, ...qrCodePages, ...campaignPages]
+    return [...staticPages, ...qrCodePages]
   } catch (error) {
     console.error('Error generating sitemap:', error)
     // Return static pages if database query fails

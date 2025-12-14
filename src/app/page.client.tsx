@@ -17,7 +17,6 @@ import {
   Lock,
   LayoutDashboard
 } from 'lucide-react';
-import { StructuredData, createFAQItems } from '@/components/StructuredData';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -25,6 +24,7 @@ import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { useTranslations } from '@/lib/useTranslations';
+import { landingFaqs } from '@/lib/data';
 
 interface Stats {
   activeUsers: string;
@@ -56,26 +56,6 @@ export default function HomePageClient() {
   const qrRef = useRef<HTMLDivElement>(null);
   const qrInstance = useRef<any>(null);
   const [mounted, setMounted] = useState(false);
-
-  // FAQ data for structured data
-  const faqs = [
-    {
-      question: "What is a QR code generator?",
-      answer: "A QR code generator is a tool that creates Quick Response (QR) codes that can store URLs, text, contact information, WiFi credentials, and more. QR Studio allows you to create custom, trackable QR codes with advanced features."
-    },
-    {
-      question: "How do I create a QR code for free?",
-      answer: "Simply enter your URL or data in the QR code generator above, customize the design and colors if desired, and download your QR code instantly. No registration required for basic QR codes."
-    },
-    {
-      question: "What are dynamic QR codes?",
-      answer: "Dynamic QR codes can be edited after creation without changing the printed code. They include analytics tracking, link updating, password protection, and expiration dates. Perfect for marketing campaigns."
-    },
-    {
-      question: "Can I track QR code scans?",
-      answer: "Yes! QR Studio provides comprehensive analytics including scan count, location, device type, time of scan, and unique vs returning visitors. Upgrade to Pro for full analytics access."
-    }
-  ];
 
   // Initialize QR Code
   useEffect(() => {
@@ -222,10 +202,6 @@ export default function HomePageClient() {
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/20 rounded-full blur-[120px] animate-pulse-slow" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/20 rounded-full blur-[120px] animate-pulse-slow delay-1000" />
       </div>
-
-      <StructuredData type="Organization" />
-      <StructuredData type="WebApplication" />
-      <StructuredData type="FAQPage" data={{ questions: createFAQItems(faqs) }} />
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 lg:pt-28 lg:pb-32 px-4 z-10">

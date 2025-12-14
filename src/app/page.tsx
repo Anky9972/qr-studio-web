@@ -1,6 +1,8 @@
 import { Metadata } from 'next'
 import HomePageClient from './page.client'
 import { ClientLayout } from '@/components/layout/ClientLayout'
+import { StructuredData, createFAQItems } from '@/components/StructuredData'
+import { landingFaqs } from '@/lib/data'
 
 export const metadata: Metadata = {
   title: "Free QR Code Generator & Scanner - Create Custom QR Codes Online",
@@ -38,6 +40,9 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <ClientLayout>
+      <StructuredData type="Organization" />
+      <StructuredData type="WebApplication" />
+      <StructuredData type="FAQPage" data={{ questions: createFAQItems(landingFaqs) }} />
       <HomePageClient />
     </ClientLayout>
   )
