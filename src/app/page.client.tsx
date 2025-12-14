@@ -321,61 +321,83 @@ export default function HomePageClient() {
 
             {/* Right Content - QR Generator */}
             <div className="relative animate-in slide-in-from-right duration-700 delay-200">
-              {/* Decorative elements */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl blur opacity-30 animate-pulse" />
+              {/* Modern dark card design with subtle accents */}
+              <div className="relative group">
+                {/* Subtle corner glow accents */}
+                <div className="absolute -top-2 -left-2 w-16 h-16 bg-cyan-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute -bottom-2 -right-2 w-16 h-16 bg-amber-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-              <Card variant="glass" className="relative p-6 lg:p-8 space-y-6">
-                <div className="text-center space-y-2">
-                  <h3 className="text-xl font-bold text-white">{tDemo('title')}</h3>
-                  <p className="text-sm text-gray-400">{tDemo('subtitle')}</p>
-                </div>
+                {/* Main card */}
+                <div className="relative bg-gray-900/80 backdrop-blur-xl border border-gray-800 rounded-2xl p-6 lg:p-8 space-y-6 overflow-hidden">
+                  {/* Corner decorations */}
+                  <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-cyan-500/50 rounded-tl-xl" />
+                  <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-cyan-500/50 rounded-tr-xl" />
+                  <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-amber-500/50 rounded-bl-xl" />
+                  <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-amber-500/50 rounded-br-xl" />
 
-                <div className="space-y-4">
-                  <Input
-                    type="url"
-                    placeholder={tDemo('placeholder')}
-                    value={demoUrl}
-                    onChange={(e) => setDemoUrl(e.target.value)}
-                    className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
-                  />
-
-                  <div className="bg-white rounded-xl p-8 flex items-center justify-center min-h-[280px] relative overflow-hidden group">
-                    {/* Scan Me Frame */}
-                    <div className="absolute inset-4 border-2 border-dashed border-gray-200 rounded-lg pointer-events-none group-hover:border-blue-500 transition-colors" />
-
-                    {!qrGenerated && isLoading && (
-                      <div className="text-center absolute z-10">
-                        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                        <span className="text-sm text-gray-500">Generating...</span>
-                      </div>
-                    )}
-                    <div ref={qrRef} className={cn("transition-transform duration-300 hover:scale-105", !qrGenerated && "opacity-0")} />
+                  {/* Header with icon */}
+                  <div className="text-center space-y-2 relative">
+                    <div className="inline-flex items-center gap-2 text-cyan-400">
+                      <Zap className="w-5 h-5" />
+                      <h3 className="text-xl font-bold text-white">{tDemo('title')}</h3>
+                    </div>
+                    <p className="text-sm text-gray-500">{tDemo('subtitle')}</p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <Button
-                      className="bg-white/10 text-white hover:bg-white/20 border border-white/10"
-                      onClick={handleDownloadQR}
-                    >
-                      <Download className="mr-2 w-4 h-4" />
-                      {tDemo('download')}
-                    </Button>
-                    <Button
-                      variant="premium"
-                      asChild
-                    >
-                      <Link href={session?.user ? "/dashboard/generate" : "/signup"}>
-                        {session?.user ? <QrCode className="mr-2 w-4 h-4" /> : <Lock className="mr-2 w-4 h-4" />}
-                        {session?.user ? tDemo('createAdvanced') : tDemo('unlockPro')}
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
+                  <div className="space-y-4">
+                    <Input
+                      type="url"
+                      placeholder={tDemo('placeholder')}
+                      value={demoUrl}
+                      onChange={(e) => setDemoUrl(e.target.value)}
+                      className="bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-600 focus:border-cyan-500/50 focus:ring-cyan-500/20"
+                    />
 
-                <p className="text-xs text-center text-gray-500">
-                  {tDemo('secureNote')}
-                </p>
-              </Card>
+                    {/* QR Display area with modern styling */}
+                    <div className="bg-white rounded-xl p-6 flex items-center justify-center min-h-[260px] relative overflow-hidden group/qr">
+                      {/* Corner markers - QR code style */}
+                      <div className="absolute top-3 left-3 w-6 h-6 border-t-[3px] border-l-[3px] border-gray-300 group-hover/qr:border-cyan-500 transition-colors duration-300" />
+                      <div className="absolute top-3 right-3 w-6 h-6 border-t-[3px] border-r-[3px] border-gray-300 group-hover/qr:border-cyan-500 transition-colors duration-300" />
+                      <div className="absolute bottom-3 left-3 w-6 h-6 border-b-[3px] border-l-[3px] border-gray-300 group-hover/qr:border-amber-500 transition-colors duration-300" />
+                      <div className="absolute bottom-3 right-3 w-6 h-6 border-b-[3px] border-r-[3px] border-gray-300 group-hover/qr:border-amber-500 transition-colors duration-300" />
+
+                      {!qrGenerated && isLoading && (
+                        <div className="text-center absolute z-10">
+                          <div className="w-8 h-8 border-3 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                          <span className="text-sm text-gray-500">Generating...</span>
+                        </div>
+                      )}
+                      <div ref={qrRef} className={cn("transition-transform duration-300 hover:scale-105", !qrGenerated && "opacity-0")} />
+                    </div>
+
+                    {/* Action buttons with modern styling */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button
+                        className="bg-gray-800 text-white hover:bg-gray-700 border border-gray-700 hover:border-gray-600 transition-all"
+                        onClick={handleDownloadQR}
+                      >
+                        <Download className="mr-2 w-4 h-4" />
+                        {tDemo('download')}
+                      </Button>
+                      <Button
+                        className="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white border-0 shadow-lg shadow-cyan-500/25"
+                        asChild
+                      >
+                        <Link href={session?.user ? "/dashboard/generate" : "/signup"}>
+                          {session?.user ? <QrCode className="mr-2 w-4 h-4" /> : <Lock className="mr-2 w-4 h-4" />}
+                          {session?.user ? tDemo('createAdvanced') : tDemo('unlockPro')}
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Footer note */}
+                  <p className="text-xs text-center text-gray-600 flex items-center justify-center gap-1.5">
+                    <Shield className="w-3 h-3" />
+                    {tDemo('secureNote')}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
