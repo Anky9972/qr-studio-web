@@ -9,7 +9,7 @@ async function checkAdmin(session: any) {
   }
 
   const user = await prisma.user.findUnique({
-    where: { email: session.user.email! },
+    where: { email: session.user?.email ?? '' },
     select: { isAdmin: true },
   });
 

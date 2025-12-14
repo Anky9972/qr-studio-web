@@ -340,6 +340,7 @@ model QRCode {
   leadGateId    String?
   linkInBioId   String?
   vCardPlusId   String?
+  landingPageId String?
   PixelConfig   PixelConfig[]
   Campaign      Campaign?     @relation(fields: [campaignId], references: [id])
   DigitalMenu   DigitalMenu?  @relation(fields: [digitalMenuId], references: [id])
@@ -347,6 +348,7 @@ model QRCode {
   LinkInBio     LinkInBio?    @relation(fields: [linkInBioId], references: [id])
   User          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   VCardPlus     VCardPlus?    @relation(fields: [vCardPlusId], references: [id])
+  LandingPage   LandingPage?  @relation(fields: [landingPageId], references: [id])
   RoutingRule   RoutingRule[]
   Scan          Scan[]
 
@@ -464,6 +466,8 @@ model User {
   limitWarnings       Boolean               @default(true)
   scanAlerts          Boolean               @default(false)
   weeklyReports       Boolean               @default(true)
+  twoFactorEnabled    Boolean               @default(false)
+  twoFactorSecret     String?
   Account             Account[]
   ApiKey              ApiKey[]
   AuditLog            AuditLog[]
@@ -481,6 +485,7 @@ model User {
   Template            Template[]
   VCardPlus           VCardPlus[]
   Webhook             Webhook[]
+  LandingPage         LandingPage[]
 
   @@index([lastLoginAt])
 }
@@ -559,3 +564,41 @@ model WebhookLog {
   @@index([event])
   @@index([webhookId])
 }
+
+model LandingPage {
+  id              String           @id @default(cuid())
+  userId          String
+  slug            String           @unique
+  title           String
+  description     String?
+  content         Json
+  theme           Json?
+  published       Boolean          @default(false)
+  views           Int              @default(0)
+  seoTitle        String?
+  seoDescription  String?
+  customCss       String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  User            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  FormSubmissions FormSubmission[]
+  QRCode          QRCode[]
+
+  @@index([published])
+  @@index([slug])
+  @@index([userId])
+}
+
+model FormSubmission {
+  id            String      @id @default(cuid())
+  landingPageId String
+  data          Json
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime    @default(now())
+  LandingPage   LandingPage @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
+
+  @@index([landingPageId])
+  @@index([createdAt])
+}
+

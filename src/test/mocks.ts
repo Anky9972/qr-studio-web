@@ -20,6 +20,8 @@ export const mockUser: User = {
   weeklyReports: true,
   limitWarnings: true,
   expirationReminders: true,
+  twoFactorEnabled: false,
+  twoFactorSecret: null,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -89,6 +91,7 @@ export const mockQRCode: QRCode = {
   vCardPlusId: null,
   digitalMenuId: null,
   leadGateId: null,
+  landingPageId: null,
   utmParams: null,
   createdAt: new Date(),
   updatedAt: new Date(),
