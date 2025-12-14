@@ -247,7 +247,14 @@ export default function WebhooksSettingsPage() {
 
     return (
         <Box sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Box sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: { xs: 'flex-start', sm: 'center' },
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: 2,
+                mb: 3
+            }}>
                 <Box>
                     <Typography variant="h5" sx={{ fontWeight: 600 }}>
                         Webhooks
@@ -260,6 +267,8 @@ export default function WebhooksSettingsPage() {
                     variant="contained"
                     startIcon={<Add />}
                     onClick={() => handleOpenDialog()}
+                    fullWidth
+                    sx={{ maxWidth: { xs: '100%', sm: 'auto' } }}
                 >
                     Add Webhook
                 </Button>
@@ -283,8 +292,8 @@ export default function WebhooksSettingsPage() {
 
             {tabValue === 0 && (
                 <Card>
-                    <TableContainer component={Paper}>
-                        <Table>
+                    <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+                        <Table sx={{ minWidth: 700 }}>
                             <TableHead>
                                 <TableRow>
                                     <TableCell>URL</TableCell>

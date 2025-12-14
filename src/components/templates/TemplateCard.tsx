@@ -1,4 +1,4 @@
-import { Star, Eye } from 'lucide-react';
+import { Star, Eye, QrCode, Wifi, Store, Calendar, MapPin, Mail, CreditCard, Share2, Utensils, Package } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -16,6 +16,23 @@ interface TemplateCardProps {
   isAuthenticated?: boolean;
 }
 
+// Get category-specific icon and color
+const getCategoryStyle = (category: string) => {
+  const styles: Record<string, { icon: React.ReactNode; color: string; bgColor: string }> = {
+    'Business Cards': { icon: <QrCode className="w-8 h-8" />, color: 'text-blue-400', bgColor: 'from-blue-600/20 to-blue-800/30' },
+    'WiFi Access': { icon: <Wifi className="w-8 h-8" />, color: 'text-green-400', bgColor: 'from-green-600/20 to-green-800/30' },
+    'Restaurant Menus': { icon: <Utensils className="w-8 h-8" />, color: 'text-orange-400', bgColor: 'from-orange-600/20 to-orange-800/30' },
+    'Event Tickets': { icon: <Calendar className="w-8 h-8" />, color: 'text-purple-400', bgColor: 'from-purple-600/20 to-purple-800/30' },
+    'Product Labels': { icon: <Package className="w-8 h-8" />, color: 'text-cyan-400', bgColor: 'from-cyan-600/20 to-cyan-800/30' },
+    'Social Media': { icon: <Share2 className="w-8 h-8" />, color: 'text-pink-400', bgColor: 'from-pink-600/20 to-pink-800/30' },
+    'URLs & Links': { icon: <QrCode className="w-8 h-8" />, color: 'text-indigo-400', bgColor: 'from-indigo-600/20 to-indigo-800/30' },
+    'Location/Maps': { icon: <MapPin className="w-8 h-8" />, color: 'text-red-400', bgColor: 'from-red-600/20 to-red-800/30' },
+    'Contact Information': { icon: <QrCode className="w-8 h-8" />, color: 'text-teal-400', bgColor: 'from-teal-600/20 to-teal-800/30' },
+    'Email & SMS': { icon: <Mail className="w-8 h-8" />, color: 'text-yellow-400', bgColor: 'from-yellow-600/20 to-yellow-800/30' },
+  };
+  return styles[category] || { icon: <QrCode className="w-8 h-8" />, color: 'text-blue-400', bgColor: 'from-blue-600/20 to-blue-800/30' };
+};
+
 export default function TemplateCard({
   id,
   name,
@@ -27,10 +44,12 @@ export default function TemplateCard({
   isPro = false,
   isAuthenticated = false
 }: TemplateCardProps) {
+  const categoryStyle = getCategoryStyle(category);
+
   return (
     <Card className="h-full flex flex-col group hover:shadow-neon-blue transition-all duration-300 border-white/10 hover:border-blue-500/50 bg-white/5 backdrop-blur-sm">
       {/* Thumbnail */}
-      <div className="relative h-48 bg-black/40 border-b border-white/10 flex items-center justify-center p-4 overflow-hidden">
+      <div className={`relative h-48 bg-gradient-to-br ${categoryStyle.bgColor} border-b border-white/10 flex items-center justify-center p-4 overflow-hidden`}>
         {thumbnail ? (
           <img
             src={thumbnail}
@@ -38,8 +57,44 @@ export default function TemplateCard({
             className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="w-24 h-24 bg-blue-500/10 rounded-xl flex items-center justify-center">
-            <div className="w-16 h-16 bg-blue-500/20 rounded-lg animate-pulse" />
+          <div className="relative flex flex-col items-center justify-center">
+            {/* QR Code Visual */}
+            <div className="relative">
+              <div className="w-28 h-28 bg-white rounded-lg p-2 shadow-xl transform transition-transform duration-300 group-hover:scale-110">
+                {/* QR Pattern */}
+                <div className="w-full h-full grid grid-cols-7 grid-rows-7 gap-0.5">
+                  {/* Position markers */}
+                  <div className="col-span-3 row-span-3 bg-black rounded-sm flex items-center justify-center">
+                    <div className="w-3/5 h-3/5 bg-white rounded-sm flex items-center justify-center">
+                      <div className="w-2/3 h-2/3 bg-black rounded-sm" />
+                    </div>
+                  </div>
+                  <div className="bg-white" /><div className="bg-black" /><div className="bg-white" />
+                  <div className="col-span-3 row-span-3 bg-black rounded-sm flex items-center justify-center">
+                    <div className="w-3/5 h-3/5 bg-white rounded-sm flex items-center justify-center">
+                      <div className="w-2/3 h-2/3 bg-black rounded-sm" />
+                    </div>
+                  </div>
+                  <div className="bg-white" /><div className="bg-black" /><div className="bg-white" /><div className="bg-black" />
+                  <div className="bg-white" /><div className="bg-black" /><div className="bg-white" />
+                  <div className="bg-black" /><div className="bg-white" /><div className="bg-black" /><div className="bg-white" />
+                  <div className="bg-black" /><div className="bg-white" /><div className="bg-black" />
+                  <div className="col-span-3 row-span-3 bg-black rounded-sm flex items-center justify-center">
+                    <div className="w-3/5 h-3/5 bg-white rounded-sm flex items-center justify-center">
+                      <div className="w-2/3 h-2/3 bg-black rounded-sm" />
+                    </div>
+                  </div>
+                  <div className="bg-white" /><div className="bg-black" /><div className="bg-white" /><div className="bg-black" />
+                  <div className="bg-white" /><div className="bg-black" /><div className="bg-white" />
+                  <div className="bg-black" /><div className="bg-white" /><div className="bg-black" /><div className="bg-white" />
+                  <div className="bg-black" /><div className="bg-white" /><div className="bg-black" />
+                </div>
+              </div>
+              {/* Category Icon Overlay */}
+              <div className={`absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-black/80 border-2 border-white/20 flex items-center justify-center ${categoryStyle.color}`}>
+                {categoryStyle.icon}
+              </div>
+            </div>
           </div>
         )}
         {isPro && (

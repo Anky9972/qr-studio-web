@@ -180,7 +180,14 @@ export default function LandingPagesPage() {
 
     return (
         <Box sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Box sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: { xs: 'flex-start', sm: 'center' },
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: 2,
+                mb: 3
+            }}>
                 <Box>
                     <Typography variant="h5" sx={{ fontWeight: 600 }}>
                         Landing Pages
@@ -189,7 +196,13 @@ export default function LandingPagesPage() {
                         Create custom landing pages for your QR codes
                     </Typography>
                 </Box>
-                <Button variant="contained" startIcon={<Add />} onClick={() => setOpenDialog(true)}>
+                <Button
+                    variant="contained"
+                    startIcon={<Add />}
+                    onClick={() => setOpenDialog(true)}
+                    fullWidth
+                    sx={{ maxWidth: { xs: '100%', sm: 'auto' } }}
+                >
                     Create Page
                 </Button>
             </Box>
