@@ -80,8 +80,8 @@ export async function GET(request: NextRequest) {
           lastLoginAt: true,
           _count: {
             select: {
-              qrCodes: true,
-              teamMembers: true,
+              QRCode: true,
+              TeamMember: true,
             },
           },
         },

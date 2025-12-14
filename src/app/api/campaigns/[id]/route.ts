@@ -36,7 +36,7 @@ export async function GET(
           },
         },
         _count: {
-          select: { qrCodes: true },
+          select: { QRCode: true },
         },
       },
     });

@@ -21,10 +21,10 @@ export async function GET(request: NextRequest) {
         plan: true,
         _count: {
           select: {
-            qrCodes: true,
-            campaigns: true,
-            teamMembers: true,
-            apiKeys: true,
+            QRCode: true,
+            Campaign: true,
+            TeamMember: true,
+            ApiKey: true,
           },
         },
       },
@@ -60,12 +60,12 @@ export async function GET(request: NextRequest) {
           : 0,
       },
       teamMembers: {
-        used: user._count.TeamMember,
+        used: (user._count as any).TeamMember,
         limit: limits.teamMembers,
-        percentage: Math.round((user._count.TeamMember / limits.teamMembers) * 100),
+        percentage: Math.round(((user._count as any).TeamMember / limits.teamMembers) * 100),
       },
       campaigns: {
-        used: user._count.Campaign,
+        used: (user._count as any).Campaign,
         limit: 999999, // No limit for campaigns
         percentage: 0,
       },

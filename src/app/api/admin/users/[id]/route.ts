@@ -39,8 +39,8 @@ export async function GET(
       include: {
         _count: {
           select: {
-            qrCodes: true,
-            teamMembers: true,
+            QRCode: true,
+            TeamMember: true,
           },
         },
         QRCode: {

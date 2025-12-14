@@ -1,0 +1,21 @@
+   Γû▓ Next.js 16.0.7 (Turbopack)
+   - Environments: .env
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully in 34.6s
+   Running TypeScript ...
+Failed to compile.
+
+./src/app/api/api-keys/route.ts:84:7
+Type error: Type '{ userId: any; name: any; keyHash: string; keyPrefix: string; expiresAt: Date | null; }' is not assignable to type '(Without<ApiKeyCreateInput, ApiKeyUncheckedCreateInput> & ApiKeyUncheckedCreateInput) | (Without<...> & ApiKeyCreateInput)'.
+  Type '{ userId: any; name: any; keyHash: string; keyPrefix: string; expiresAt: Date | null; }' is not assignable to type 'Without<ApiKeyUncheckedCreateInput, ApiKeyCreateInput> & ApiKeyCreateInput'.
+    Type '{ userId: any; name: any; keyHash: string; keyPrefix: string; expiresAt: Date | null; }' is missing the following properties from type 'ApiKeyCreateInput': id, User
+
+  82 |     // Create API key in database
+  83 |     const newKey = await prisma.apiKey.create({
+> 84 |       data: {
+     |       ^
+  85 |         userId,
+  86 |         name: name || 'API Key',
+  87 |         keyHash,
+Next.js build worker exited with code: 1 and signal: null

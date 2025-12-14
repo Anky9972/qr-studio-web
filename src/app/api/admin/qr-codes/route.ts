@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
-          user: {
+          User: {
             select: {
               id: true,
               name: true,

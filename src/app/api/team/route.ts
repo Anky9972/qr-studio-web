@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     }
 
     const team = user.TeamMember[0].Team;
-    const members = team.TeamMember.map((member: any) => ({ ({
+    const members = team.TeamMember.map((member: any) => ({
       id: member.id,
       name: member.User.name || member.User.email,
       email: member.User.email,

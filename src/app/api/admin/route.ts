@@ -154,7 +154,7 @@ export async function GET(request: NextRequest) {
           plan: true,
           _count: {
             select: {
-              qrCodes: true,
+              QRCode: true,
             },
           },
         },
