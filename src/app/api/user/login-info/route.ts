@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     const [newScans, newQRCodes] = await Promise.all([
       prisma.scan.count({
         where: {
-          qrCode: {
+          QRCode: {
             userId,
           },
           scannedAt: {
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
       lastLoginAt: user.lastLoginAt,
       newScans,
       newQRCodes,
-      daysSinceLastLogin: user.lastLoginAt 
+      daysSinceLastLogin: user.lastLoginAt
         ? Math.floor((now.getTime() - new Date(user.lastLoginAt).getTime()) / (1000 * 60 * 60 * 24))
         : 0,
     })
