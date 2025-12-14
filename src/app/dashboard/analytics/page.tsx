@@ -24,21 +24,26 @@ import {
   Eye,
   Smartphone,
   Calendar,
-  Filter
+  Filter,
+  RefreshCw,
+  MapPin
 } from 'lucide-react';
-import { useScanHistoryStore } from '@/store/scanHistoryStore';
-import { useQRCodeStore } from '@/store/qrCodeStore';
+import { Button } from '@/components/ui/Button';
+import { toast } from 'sonner';
 import { Card } from '@/components/ui/Card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/Badge';
 import { DataAssistant } from '@/components/analytics/DataAssistant';
 
-interface AnalyticsData {
+interface AnalyticsAPIData {
   totalScans: number;
   totalQRCodes: number;
-  avgScansPerDay: number;
-  topQRType: string;
+  scansByDevice: Array<{ device: string; count: number }>;
+  scansByBrowser: Array<{ browser: string; count: number }>;
+  scansByCountry: Array<{ country: string; count: number }>;
+  scansOverTime: Array<{ date: string; scans: number }>;
+  topQRCodes: Array<{ id: string; name: string; scanCount: number }>;
 }
 
 const COLORS = ['#3b82f6', '#06b6d4', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b'];
@@ -60,152 +65,127 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function AnalyticsPage() {
-  const { scans } = useScanHistoryStore();
-  const { qrCodes } = useQRCodeStore();
   const [timeRange, setTimeRange] = useState('7d');
-  const [analytics, setAnalytics] = useState<AnalyticsData>({
-    totalScans: 0,
-    totalQRCodes: 0,
-    avgScansPerDay: 0,
-    topQRType: 'url',
-  });
+  const [loading, setLoading] = useState(true);
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsAPIData | null>(null);
 
   useEffect(() => {
-    calculateAnalytics();
-  }, [scans, qrCodes, timeRange]);
+    fetchAnalytics();
+  }, [timeRange]);
 
-  const calculateAnalytics = () => {
-    const now = new Date();
-    const daysMap: Record<string, number> = {
-      '7d': 7,
-      '30d': 30,
-      '90d': 90,
-      'all': 365 * 10,
-    };
-    const days = daysMap[timeRange];
-    const cutoffDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
-
-    const filteredScans = scans.filter(
-      scan => new Date(scan.timestamp) >= cutoffDate
-    );
-
-    const qrTypeCount: Record<string, number> = {};
-    filteredScans.forEach(scan => {
-      qrTypeCount[scan.type] = (qrTypeCount[scan.type] || 0) + 1;
-    });
-
-    const topQRType = Object.entries(qrTypeCount).sort((a, b) => b[1] - a[1])[0]?.[0] || 'url';
-
-    setAnalytics({
-      totalScans: filteredScans.length,
-      totalQRCodes: qrCodes.length,
-      avgScansPerDay: days > 0 ? filteredScans.length / days : 0,
-      topQRType,
-    });
+  const fetchAnalytics = async () => {
+    try {
+      setLoading(true);
+      console.log('📊 Fetching analytics for range:', timeRange);
+      const response = await fetch(`/api/analytics?range=${timeRange}`);
+      console.log('📊 Analytics response status:', response.status);
+      
+      if (response.ok) {
+        const json = await response.json();
+        console.log('📊 Analytics raw data:', json);
+        // Handle both {data: ...} and direct data formats
+        const data = json.data || json;
+        console.log('📊 Analytics processed data:', data);
+        setAnalyticsData(data);
+        toast.success('Analytics data loaded');
+      } else {
+        const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('📊 Analytics API error:', error);
+        toast.error(error.error || 'Failed to fetch analytics data');
+      }
+    } catch (error) {
+      console.error('📊 Error fetching analytics:', error);
+      toast.error('Error loading analytics');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getDailyScanData = () => {
-    const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : timeRange === '90d' ? 90 : 30;
-    const data = [];
-    const now = new Date();
-
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-      const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-      const dayScans = scans.filter(scan => {
-        const scanDate = new Date(scan.timestamp);
-        return scanDate.toDateString() === date.toDateString();
-      });
-
-      data.push({
-        date: dateStr,
-        scans: dayScans.length,
-      });
+    if (!analyticsData?.scansOverTime) {
+      console.log('📊 No scansOverTime data available');
+      return [];
     }
-
-    return data;
-  };
-
-  const getQRTypeDistribution = () => {
-    const typeCount: Record<string, number> = {};
-    scans.forEach(scan => {
-      typeCount[scan.type] = (typeCount[scan.type] || 0) + 1;
-    });
-
-    return Object.entries(typeCount).map(([name, value]) => ({
-      name: name.toUpperCase(),
-      value,
+    console.log('📊 Processing scansOverTime:', analyticsData.scansOverTime);
+    return analyticsData.scansOverTime.map(item => ({
+      date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      scans: Number(item.scans),
     }));
   };
 
-  const getScanSourceData = () => {
-    const sourceCount: Record<string, number> = {};
-    scans.forEach(scan => {
-      sourceCount[scan.source] = (sourceCount[scan.source] || 0) + 1;
-    });
-
-    return Object.entries(sourceCount).map(([name, value]) => ({
-      name: name.charAt(0).toUpperCase() + name.slice(1),
-      value,
+  const getDeviceDistribution = () => {
+    if (!analyticsData?.scansByDevice) {
+      console.log('📊 No scansByDevice data available');
+      return [];
+    }
+    console.log('📊 Processing scansByDevice:', analyticsData.scansByDevice);
+    return analyticsData.scansByDevice.map(item => ({
+      name: item.device,
+      value: item.count,
     }));
   };
 
-  const getHourlyDistribution = () => {
-    const hourCount: Record<number, number> = {};
-
-    scans.forEach(scan => {
-      const hour = new Date(scan.timestamp).getHours();
-      hourCount[hour] = (hourCount[hour] || 0) + 1;
-    });
-
-    const data = [];
-    for (let i = 0; i < 24; i++) {
-      // Format hour to 12h format simply
-      const hourLabel = i === 0 ? '12am' : i < 12 ? `${i}am` : i === 12 ? '12pm' : `${i - 12}pm`;
-      data.push({
-        hour: hourLabel,
-        // use raw i for sorting if needed but label for display. Actually rechart uses original data.
-        hourOriginal: i,
-        scans: hourCount[i] || 0,
-      });
+  const getBrowserDistribution = () => {
+    if (!analyticsData?.scansByBrowser) {
+      console.log('📊 No scansByBrowser data available');
+      return [];
     }
+    console.log('📊 Processing scansByBrowser:', analyticsData.scansByBrowser);
+    return analyticsData.scansByBrowser.map(item => ({
+      name: item.browser || 'Unknown',
+      value: item.count,
+    }));
+  };
 
-    return data;
+  const getTopCountries = () => {
+    if (!analyticsData?.scansByCountry) {
+      console.log('📊 No scansByCountry data available');
+      return [];
+    }
+    console.log('📊 Processing scansByCountry:', analyticsData.scansByCountry);
+    return analyticsData.scansByCountry.slice(0, 10).map(item => ({
+      country: item.country || 'Unknown',
+      scans: item.count,
+    }));
+  };
+
+  const getDaysInRange = () => {
+    const daysMap: Record<string, number> = { '7d': 7, '30d': 30, '90d': 90, 'all': 365 };
+    return daysMap[timeRange] || 7;
   };
 
   const statCards = [
     {
       title: 'Total Scans',
-      value: analytics.totalScans,
+      value: analyticsData?.totalScans || 0,
       icon: Eye,
-      color: 'text-blue-400',
-      bg: 'bg-blue-400/10',
-      change: '+12% vs last period',
-    },
-    {
-      title: 'Total QR Codes',
-      value: analytics.totalQRCodes,
-      icon: QrCode,
-      color: 'text-emerald-400',
-      bg: 'bg-emerald-400/10',
-      change: `${qrCodes.filter(qr => qr.type === 'dynamic').length} dynamic`,
-    },
-    {
-      title: 'Avg Scans/Day',
-      value: analytics.avgScansPerDay.toFixed(1),
-      icon: TrendingUp,
-      color: 'text-cyan-400',
-      bg: 'bg-cyan-400/10',
+      color: 'text-electric-blue',
+      bg: 'bg-electric-blue/10',
       change: `Last ${timeRange}`,
     },
     {
-      title: 'Top QR Type',
-      value: analytics.topQRType.toUpperCase(),
-      icon: Smartphone,
-      color: 'text-amber-400',
-      bg: 'bg-amber-400/10',
-      change: 'Most popular',
+      title: 'Total QR Codes',
+      value: analyticsData?.totalQRCodes || 0,
+      icon: QrCode,
+      color: 'text-electric-emerald',
+      bg: 'bg-electric-emerald/10',
+      change: 'All created codes',
+    },
+    {
+      title: 'Avg Scans/Day',
+      value: analyticsData ? ((analyticsData.totalScans / getDaysInRange()).toFixed(1)) : '0',
+      icon: TrendingUp,
+      color: 'text-electric-cyan',
+      bg: 'bg-electric-cyan/10',
+      change: `Over ${getDaysInRange()} days`,
+    },
+    {
+      title: 'Top Countries',
+      value: analyticsData?.scansByCountry?.[0]?.country || 'N/A',
+      icon: MapPin,
+      color: 'text-electric-violet',
+      bg: 'bg-electric-violet/10',
+      change: 'Most active location',
     },
   ];
 
@@ -219,25 +199,50 @@ export default function AnalyticsPage() {
           </h1>
           <p className="text-muted-foreground mt-1">Track your QR code performance and insights.</p>
         </div>
-        <div className="w-[180px]">
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Time Range" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7d">Last 7 Days</SelectItem>
-              <SelectItem value="30d">Last 30 Days</SelectItem>
-              <SelectItem value="90d">Last 90 Days</SelectItem>
-              <SelectItem value="all">All Time</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex gap-3">
+          <Button
+            onClick={fetchAnalytics}
+            disabled={loading}
+            variant="outline"
+            className="border-white/10 hover:bg-white/5"
+          >
+            <RefreshCw className={cn("w-4 h-4 mr-2", loading && "animate-spin")} />
+            Refresh
+          </Button>
+          <div className="w-[180px]">
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Time Range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7d">Last 7 Days</SelectItem>
+                <SelectItem value="30d">Last 30 Days</SelectItem>
+                <SelectItem value="90d">Last 90 Days</SelectItem>
+                <SelectItem value="all">All Time</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        {statCards.map((stat) => (
-          <Card key={stat.title} variant="glass" className="p-6">
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} variant="glass" className="p-6 animate-pulse">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="h-4 bg-white/10 rounded w-24 mb-3"></div>
+                  <div className="h-8 bg-white/10 rounded w-16 mb-3"></div>
+                  <div className="h-3 bg-white/10 rounded w-20"></div>
+                </div>
+                <div className="w-12 h-12 bg-white/10 rounded-xl"></div>
+              </div>
+            </Card>
+          ))
+        ) : (
+          statCards.map((stat) => (
+            <Card key={stat.title} variant="glass" className="p-6">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-muted-foreground font-medium mb-1">{stat.title}</p>
@@ -251,7 +256,8 @@ export default function AnalyticsPage() {
               </div>
             </div>
           </Card>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Main Chart Section */}
@@ -262,117 +268,168 @@ export default function AnalyticsPage() {
             <TrendingUp size={18} className="mr-2 text-primary" /> Scan Activity
           </h3>
           <div className="flex-1 min-h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={getDailyScanData()}>
-                <defs>
-                  <linearGradient id="colorScans" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
-                <XAxis dataKey="date" stroke="rgba(255,255,255,0.4)" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="rgba(255,255,255,0.4)" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip content={<CustomTooltip />} />
-                <Area
-                  type="monotone"
-                  dataKey="scans"
-                  stroke="#3b82f6"
-                  strokeWidth={3}
-                  fillOpacity={1}
-                  fill="url(#colorScans)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            {loading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-electric-blue"></div>
+              </div>
+            ) : getDailyScanData().length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                <TrendingUp className="w-12 h-12 mb-2 opacity-20" />
+                <p className="text-sm">No scan activity in this period</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={getDailyScanData()}>
+                  <defs>
+                    <linearGradient id="colorScans" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                  <XAxis dataKey="date" stroke="rgba(255,255,255,0.4)" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="rgba(255,255,255,0.4)" fontSize={12} tickLine={false} axisLine={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Area
+                    type="monotone"
+                    dataKey="scans"
+                    stroke="#3b82f6"
+                    strokeWidth={3}
+                    fillOpacity={1}
+                    fill="url(#colorScans)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </Card>
 
-        {/* QR Type Pie Chart */}
+        {/* Device Distribution Pie Chart */}
         <Card variant="glass" className="p-6 flex flex-col">
           <h3 className="text-lg font-semibold mb-6 flex items-center">
-            <QrCode size={18} className="mr-2 text-primary" /> Type Distribution
+            <Smartphone size={18} className="mr-2 text-primary" /> Device Distribution
           </h3>
           <div className="flex-1 min-h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={getQRTypeDistribution()}
+            {loading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-electric-blue"></div>
+              </div>
+            ) : getDeviceDistribution().length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                <Smartphone className="w-12 h-12 mb-2 opacity-20" />
+                <p className="text-sm">No device data available</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={getDeviceDistribution()}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
                   outerRadius={80}
                   paddingAngle={5}
-                  dataKey="value"
-                >
-                  {getQRTypeDistribution().map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="rgba(0,0,0,0.2)" strokeWidth={1} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend iconType="circle" />
-              </PieChart>
-            </ResponsiveContainer>
+                    dataKey="value"
+                  >
+                    {getDeviceDistribution().map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="rgba(0,0,0,0.2)" strokeWidth={1} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend iconType="circle" />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </Card>
       </div>
 
       {/* Secondary Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Hourly Bar Chart */}
+        {/* Top Countries Bar Chart */}
         <Card variant="glass" className="lg:col-span-2 p-6 flex flex-col">
           <h3 className="text-lg font-semibold mb-6 flex items-center">
-            <Calendar size={18} className="mr-2 text-primary" /> Scans by Time of Day
+            <MapPin size={18} className="mr-2 text-primary" /> Top Countries
           </h3>
           <div className="flex-1 min-h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={getHourlyDistribution()}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
-                <XAxis dataKey="hour" stroke="rgba(255,255,255,0.4)" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="rgba(255,255,255,0.4)" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="scans" fill="#10b981" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            {loading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-electric-blue"></div>
+              </div>
+            ) : getTopCountries().length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                <MapPin className="w-12 h-12 mb-2 opacity-20" />
+                <p className="text-sm">No location data available</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={getTopCountries()}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                  <XAxis dataKey="country" stroke="rgba(255,255,255,0.4)" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="rgba(255,255,255,0.4)" fontSize={12} tickLine={false} axisLine={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar dataKey="scans" fill="#10b981" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </Card>
 
-        {/* Source Pie Chart */}
+        {/* Browser Distribution Pie Chart */}
         <Card variant="glass" className="p-6 flex flex-col">
           <h3 className="text-lg font-semibold mb-6 flex items-center">
-            <Filter size={18} className="mr-2 text-primary" /> Scan Sources
+            <Filter size={18} className="mr-2 text-primary" /> Browser Distribution
           </h3>
           <div className="flex-1 min-h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={getScanSourceData()}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {getScanSourceData().map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[(index + 3) % COLORS.length]} stroke="rgba(0,0,0,0.2)" strokeWidth={1} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend iconType="circle" />
-              </PieChart>
-            </ResponsiveContainer>
+            {loading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-electric-blue"></div>
+              </div>
+            ) : getBrowserDistribution().length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                <Filter className="w-12 h-12 mb-2 opacity-20" />
+                <p className="text-sm">No browser data available</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={getBrowserDistribution()}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {getBrowserDistribution().map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[(index + 3) % COLORS.length]} stroke="rgba(0,0,0,0.2)" strokeWidth={1} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend iconType="circle" />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </Card>
       </div>
 
-      <DataAssistant data={{
-        title: "Analytics Dashboard",
-        summary: analytics,
-        trends: getDailyScanData(),
-        distribution: getQRTypeDistribution(),
-        sources: getScanSourceData(),
-        history: scans.slice(0, 50) // Limit granular history to save context
-      }} />
+      {analyticsData && (
+        <DataAssistant data={{
+          title: "Analytics Dashboard",
+          summary: {
+            totalScans: analyticsData.totalScans,
+            totalQRCodes: analyticsData.totalQRCodes,
+            topCountry: analyticsData.scansByCountry?.[0]?.country || 'N/A',
+            topDevice: analyticsData.scansByDevice?.[0]?.device || 'N/A',
+          },
+          trends: getDailyScanData(),
+          distribution: getDeviceDistribution(),
+          browsers: getBrowserDistribution(),
+          countries: getTopCountries(),
+        }} />
+      )}
     </div>
   );
 }

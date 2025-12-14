@@ -1,15 +1,18 @@
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
-import { Box, Container, Avatar, Typography, Button, IconButton, Link as MuiLink } from '@mui/material';
+import Image from 'next/image';
+import Link from 'next/link';
 import type { Metadata } from 'next';
+import { ExternalLink } from 'lucide-react';
 
 type Props = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
   const linkInBio = await prisma.linkInBio.findUnique({
-    where: { slug: params.slug, published: true },
+    where: { slug },
   });
 
   if (!linkInBio) {
@@ -23,8 +26,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function LinkInBioPage({ params }: Props) {
+  const { slug } = await params;
   const linkInBio = await prisma.linkInBio.findUnique({
-    where: { slug: params.slug, published: true },
+    where: { slug },
   });
 
   if (!linkInBio) {
@@ -32,102 +36,141 @@ export default async function LinkInBioPage({ params }: Props) {
   }
 
   const theme = linkInBio.theme as any || {
-    backgroundColor: '#ffffff',
-    buttonColor: '#1976D2',
-    buttonTextColor: '#ffffff',
-    fontFamily: 'Inter',
+    backgroundColor: '#0f172a',
+    primaryColor: '#3b82f6',
+    textColor: '#ffffff',
+    backgroundType: 'solid',
+    backgroundGradient: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+    buttonStyle: 'rounded',
+    cardStyle: 'glass',
+    fontFamily: 'Inter, sans-serif',
   };
 
   const links = linkInBio.links as any[] || [];
-  const socialLinks = linkInBio.socialLinks as Record<string, string> || {};
+  const socialLinks = linkInBio.socialLinks as any[] || [];
+
+  // Determine background style
+  const getBackgroundStyle = () => {
+    if (theme.backgroundType === 'gradient' && theme.backgroundGradient) {
+      return { background: theme.backgroundGradient };
+    }
+    if (theme.backgroundType === 'image' && theme.backgroundImage) {
+      return { 
+        backgroundImage: `url(${theme.backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      };
+    }
+    return { backgroundColor: theme.backgroundColor || '#0f172a' };
+  };
+
+  // Button style classes
+  const getButtonClasses = () => {
+    const baseClasses = 'w-full py-4 px-6 font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg flex items-center justify-center gap-2';
+    const styleMap = {
+      rounded: 'rounded-lg',
+      pill: 'rounded-full',
+      square: 'rounded-none',
+      soft: 'rounded-2xl',
+    };
+    return `${baseClasses} ${styleMap[theme.buttonStyle as keyof typeof styleMap] || 'rounded-lg'}`;
+  };
+
+  // Card style classes
+  const getCardClasses = () => {
+    const baseClasses = 'backdrop-blur-sm border transition-all duration-300';
+    const styleMap = {
+      glass: 'bg-white/5 border-white/10',
+      solid: 'bg-white/10 border-white/20',
+      outline: 'bg-transparent border-white/30',
+      none: 'bg-transparent border-transparent',
+    };
+    return `${baseClasses} ${styleMap[theme.cardStyle as keyof typeof styleMap] || 'bg-white/5 border-white/10'}`;
+  };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        backgroundColor: theme.backgroundColor,
-        fontFamily: theme.fontFamily,
-        py: 6,
+    <div 
+      className="min-h-screen py-12 px-4"
+      style={{
+        ...getBackgroundStyle(),
+        color: theme.textColor || '#ffffff',
+        fontFamily: theme.fontFamily || 'Inter, sans-serif',
       }}
     >
-      <Container maxWidth="sm">
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
+      <div className="max-w-2xl mx-auto">
+        {/* Profile Section */}
+        <div className="text-center mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
           {linkInBio.profileImage && (
-            <Avatar
-              src={linkInBio.profileImage}
-              alt={linkInBio.title}
-              sx={{ width: 120, height: 120, mx: 'auto', mb: 3, border: '4px solid white', boxShadow: 3 }}
-            />
+            <div className="relative w-32 h-32 mx-auto mb-6">
+              <Image
+                src={linkInBio.profileImage}
+                alt={linkInBio.title}
+                fill
+                className="rounded-full object-cover border-4 border-white/20 shadow-2xl"
+              />
+            </div>
           )}
-          <Typography variant="h4" fontWeight={700} gutterBottom>
+          <h1 className="text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80">
             {linkInBio.title}
-          </Typography>
+          </h1>
           {linkInBio.description && (
-            <Typography variant="body1" color="text.secondary">
+            <p className="text-lg opacity-80 max-w-md mx-auto">
               {linkInBio.description}
-            </Typography>
+            </p>
           )}
-        </Box>
+        </div>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 4 }}>
-          {links.filter((link: any) => link.visible).map((link: any, index: number) => (
-            <Button
-              key={index}
-              component="a"
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              fullWidth
-              sx={{
-                backgroundColor: theme.buttonColor,
-                color: theme.buttonTextColor,
-                py: 2,
-                borderRadius: 3,
-                fontSize: '1rem',
-                fontWeight: 600,
-                textTransform: 'none',
-                '&:hover': {
-                  backgroundColor: theme.buttonColor,
-                  opacity: 0.9,
-                  transform: 'translateY(-2px)',
-                },
-                transition: 'all 0.3s',
-              }}
-            >
-              {link.title}
-            </Button>
-          ))}
-        </Box>
-
-        {Object.keys(socialLinks).length > 0 && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
-            {Object.entries(socialLinks).map(([platform, url]) => (
-              <IconButton
-                key={platform}
-                component="a"
-                href={url as string}
+        {/* Links Section */}
+        <div className="space-y-4 mb-8">
+          {links.filter((link: any) => link.visible).length > 0 ? (
+            links.filter((link: any) => link.visible).map((link: any, index: number) => (
+              <a
+                key={link.id || index}
+                href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                sx={{
-                  backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(0, 0, 0, 0.2)',
-                  },
+                className={`${getButtonClasses()} ${getCardClasses()} group`}
+                style={{
+                  backgroundColor: theme.primaryColor ? `${theme.primaryColor}20` : 'rgba(59, 130, 246, 0.2)',
+                  borderColor: theme.primaryColor ? `${theme.primaryColor}40` : 'rgba(59, 130, 246, 0.4)',
                 }}
               >
-                {/* Add social icons based on platform */}
-                <Typography>{platform}</Typography>
-              </IconButton>
+                <span className="flex-1 text-center">{link.title}</span>
+                <ExternalLink size={18} className="opacity-60 group-hover:opacity-100 transition-opacity" />
+              </a>
+            ))
+          ) : (
+            <div className={`${getCardClasses()} p-8 text-center opacity-60`}>
+              <p className="text-lg">No links added yet</p>
+            </div>
+          )}
+        </div>
+
+        {/* Social Links */}
+        {socialLinks.length > 0 && (
+          <div className="flex justify-center gap-4 mb-8">
+            {socialLinks.filter((link: any) => link.visible).map((link: any, index: number) => (
+              <a
+                key={index}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 hover:scale-110 transition-all duration-300"
+                title={link.platform}
+              >
+                <span className="text-sm font-medium">{link.platform}</span>
+              </a>
             ))}
-          </Box>
+          </div>
         )}
 
-        <Box sx={{ textAlign: 'center', mt: 6 }}>
-          <MuiLink href="/" sx={{ color: 'text.secondary', textDecoration: 'none', fontSize: '0.875rem' }}>
+        {/* Footer */}
+        <div className="text-center mt-12 opacity-60 hover:opacity-100 transition-opacity">
+          <Link href="/" className="text-sm">
             Powered by QR Studio
-          </MuiLink>
-        </Box>
-      </Container>
-    </Box>
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -6,9 +6,8 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import AnnouncementBanner from '@/components/AnnouncementBanner'
-import ThemeToggle from '@/components/ui/ThemeToggle'
 import NotificationDropdown from '@/components/ui/NotificationDropdown'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import {
   Menu,
   LayoutDashboard,
@@ -250,8 +249,6 @@ export default function DashboardLayout({
           </div>
 
           <div className="flex items-center gap-3">
-            {/* <ThemeToggle /> */}
-
             <LanguageSwitcher />
 
             <NotificationDropdown />

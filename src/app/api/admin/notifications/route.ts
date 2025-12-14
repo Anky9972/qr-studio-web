@@ -84,6 +84,7 @@ export async function POST(request: NextRequest) {
 
     // Create notification logs for all users
     const notificationLogs = users.map((user) => ({
+      id: `notif_${Date.now()}_${Math.random().toString(36).substring(2, 9)}_${user.id}`,
       userId: user.id,
       type: notificationType || 'admin_message',
       subject,

@@ -24,7 +24,7 @@ export async function GET(
         userId,
       },
       include: {
-        qrCodes: {
+        QRCode: {
           select: {
             id: true,
             name: true,
@@ -48,7 +48,7 @@ export async function GET(
     // Get total scans
     const totalScans = await prisma.scan.count({
       where: {
-        qrCode: {
+        QRCode: {
           campaignId: campaign.id,
         },
       },

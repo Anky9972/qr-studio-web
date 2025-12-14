@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
       prisma.qRCode.findMany({
         where: { userId },
         include: {
-          campaign: true,
+          Campaign: true,
           scans: {
             select: {
               id: true,
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
 
       prisma.scan.findMany({
         where: {
-          qrCode: {
+          QRCode: {
             userId,
           },
         },

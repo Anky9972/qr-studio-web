@@ -32,12 +32,12 @@ export async function PUT(
         userId,
       },
       include: {
-        logs: {
+        WebhookLog: {
           orderBy: { createdAt: 'desc' },
           take: 50,
         },
         _count: {
-          select: { logs: true },
+          select: { WebhookLog: true },
         },
       },
     });

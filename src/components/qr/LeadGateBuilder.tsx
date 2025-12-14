@@ -71,7 +71,7 @@ interface LeadGateData {
 }
 
 interface LeadGateBuilderProps {
-  data?: LeadGateData;
+  initialData?: LeadGateData;
   onSave: (data: LeadGateData) => Promise<void>;
   onPreview?: () => void;
 }
@@ -87,19 +87,19 @@ const commonFields: Omit<FormField, 'id'>[] = [
 ];
 
 export default function LeadGateBuilder({
-  data,
+  initialData,
   onSave,
   onPreview,
 }: LeadGateBuilderProps) {
-  const [name, setName] = useState(data?.name || '');
-  const [title, setTitle] = useState(data?.title || '');
-  const [description, setDescription] = useState(data?.description || '');
-  const [fields, setFields] = useState<FormField[]>(data?.fields || []);
-  const [redirectUrl, setRedirectUrl] = useState(data?.redirectUrl || '');
-  const [submitText, setSubmitText] = useState(data?.submitText || 'Get Access');
-  const [theme, setTheme] = useState(data?.theme || defaultTheme);
-  const [submissions, setSubmissions] = useState<Submission[]>(data?.submissions || []);
-  const [published, setPublished] = useState(data?.published || false);
+  const [name, setName] = useState(initialData?.name || '');
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [description, setDescription] = useState(initialData?.description || '');
+  const [fields, setFields] = useState<FormField[]>(initialData?.fields || []);
+  const [redirectUrl, setRedirectUrl] = useState(initialData?.redirectUrl || '');
+  const [submitText, setSubmitText] = useState(initialData?.submitText || 'Get Access');
+  const [theme, setTheme] = useState(initialData?.theme || defaultTheme);
+  const [submissions, setSubmissions] = useState<Submission[]>(initialData?.submissions || []);
+  const [published, setPublished] = useState(initialData?.published || false);
   const [activeTab, setActiveTab] = useState<'content' | 'design' | 'results'>('content');
 
   // Field Dialog State

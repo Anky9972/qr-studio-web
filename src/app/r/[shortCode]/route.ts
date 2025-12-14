@@ -5,6 +5,7 @@ import { generatePixelLandingPage } from '@/lib/pixelManager';
 import { appendUTMParameters } from '@/lib/utmBuilder';
 import { RedirectContext } from '@/types/routing';
 import { getGeolocation } from '@/lib/geolocation';
+import { parseUserAgent } from '@/lib/user-agent-parser';
 import { 
   generateVisitorFingerprint, 
   checkUniqueVisitor, 
@@ -106,18 +107,10 @@ export async function GET(
     const visitorInfo = await checkUniqueVisitor(qrCode.id, visitorId, prisma);
 
     // Parse user agent for analytics
-    const device = userAgent.includes('Mobile') ? 'Mobile' : userAgent.includes('Tablet') ? 'Tablet' : 'Desktop';
-    const browser = 
-      userAgent.includes('Chrome') ? 'Chrome' :
-      userAgent.includes('Safari') ? 'Safari' :
-      userAgent.includes('Firefox') ? 'Firefox' :
-      userAgent.includes('Edge') ? 'Edge' : 'Other';
-    const os = 
-      userAgent.includes('Windows') ? 'Windows' :
-      userAgent.includes('Mac') ? 'Mac' :
-      userAgent.includes('Linux') ? 'Linux' :
-      userAgent.includes('Android') ? 'Android' :
-      userAgent.includes('iOS') ? 'iOS' : 'Other';
+    const parsed = parseUserAgent(userAgent);
+    const device = parsed.device;
+    const browser = parsed.browser;
+    const os = parsed.os;
 
     // Build redirect context
     const context: RedirectContext = {

@@ -53,29 +53,30 @@ export default function PasswordResetEmail({ name, resetUrl }: PasswordResetEmai
 }
 
 const main = {
-  backgroundColor: '#f6f9fc',
+  backgroundColor: '#0f172a',
   fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
 };
 
 const container = {
-  backgroundColor: '#ffffff',
+  backgroundColor: '#1e293b',
   margin: '0 auto',
   padding: '40px 20px',
   marginBottom: '64px',
   maxWidth: '600px',
-  borderRadius: '8px',
+  borderRadius: '12px',
+  border: '1px solid rgba(59, 130, 246, 0.2)',
 };
 
 const heading = {
   fontSize: '28px',
   fontWeight: 'bold',
-  color: '#1976d2',
+  color: '#3b82f6',
   marginBottom: '24px',
 };
 
 const text = {
   fontSize: '16px',
-  color: '#333',
+  color: '#e5e7eb',
   lineHeight: '24px',
   marginBottom: '16px',
 };
@@ -86,31 +87,32 @@ const buttonContainer = {
 };
 
 const button = {
-  backgroundColor: '#1976d2',
+  background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
   color: '#ffffff',
   padding: '14px 32px',
   fontSize: '16px',
   fontWeight: 'bold',
   textDecoration: 'none',
-  borderRadius: '6px',
+  borderRadius: '8px',
   display: 'inline-block',
+  boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)',
 };
 
 const link = {
   fontSize: '14px',
-  color: '#1976d2',
+  color: '#06b6d4',
   wordBreak: 'break-all' as const,
   marginBottom: '16px',
 };
 
 const hr = {
-  borderColor: '#e0e0e0',
+  borderColor: 'rgba(255, 255, 255, 0.1)',
   margin: '32px 0',
 };
 
 const footer = {
   fontSize: '14px',
-  color: '#666',
+  color: '#64748b',
   lineHeight: '20px',
   marginBottom: '8px',
 };

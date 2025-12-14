@@ -72,7 +72,7 @@ interface LinkInBioData {
 }
 
 interface LinkInBioBuilderProps {
-  data?: LinkInBioData;
+  initialData?: LinkInBioData;
   onSave: (data: LinkInBioData) => Promise<void>;
   onPreview?: () => void;
 }
@@ -91,17 +91,17 @@ const socialPlatforms = [
 ];
 
 export default function LinkInBioBuilder({
-  data,
+  initialData,
   onSave,
   onPreview,
 }: LinkInBioBuilderProps) {
-  const [title, setTitle] = useState(data?.title || '');
-  const [description, setDescription] = useState(data?.description || '');
-  const [profileImage, setProfileImage] = useState(data?.profileImage || '');
-  const [links, setLinks] = useState<BioLink[]>(data?.links || []);
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>(data?.socialLinks || []);
-  const [theme, setTheme] = useState(data?.theme || defaultTheme);
-  const [published, setPublished] = useState(data?.published || false);
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [description, setDescription] = useState(initialData?.description || '');
+  const [profileImage, setProfileImage] = useState(initialData?.profileImage || '');
+  const [links, setLinks] = useState<BioLink[]>(initialData?.links || []);
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>(initialData?.socialLinks || []);
+  const [theme, setTheme] = useState(initialData?.theme || defaultTheme);
+  const [published, setPublished] = useState(initialData?.published || false);
   const [activeTab, setActiveTab] = useState<'content' | 'design'>('content');
 
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);

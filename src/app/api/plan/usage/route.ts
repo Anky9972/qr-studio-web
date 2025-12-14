@@ -48,24 +48,24 @@ export async function GET(request: NextRequest) {
     // Calculate usage percentages
     const usage = {
       qrCodes: {
-        used: user._count.qrCodes,
+        used: user._count.QRCode,
         limit: limits.qrCodes,
-        percentage: Math.round((user._count.qrCodes / limits.qrCodes) * 100),
+        percentage: Math.round((user._count.QRCode / limits.qrCodes) * 100),
       },
       dynamicQrCodes: {
         used: dynamicQrCount,
         limit: limits.dynamicQrCodes,
-        percentage: limits.dynamicQrCodes > 0 
+        percentage: limits.dynamicQrCodes > 0
           ? Math.round((dynamicQrCount / limits.dynamicQrCodes) * 100)
           : 0,
       },
       teamMembers: {
-        used: user._count.teamMembers,
+        used: user._count.TeamMember,
         limit: limits.teamMembers,
-        percentage: Math.round((user._count.teamMembers / limits.teamMembers) * 100),
+        percentage: Math.round((user._count.TeamMember / limits.teamMembers) * 100),
       },
       campaigns: {
-        used: user._count.campaigns,
+        used: user._count.Campaign,
         limit: 999999, // No limit for campaigns
         percentage: 0,
       },

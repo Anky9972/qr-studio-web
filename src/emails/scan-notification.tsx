@@ -106,21 +106,22 @@ export default QRScanNotificationEmail;
 
 // Styles
 const main = {
-  backgroundColor: '#f6f9fc',
+  backgroundColor: '#0f172a',
   fontFamily:
     '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
 };
 
 const container = {
-  backgroundColor: '#ffffff',
+  backgroundColor: '#1e293b',
   margin: '0 auto',
   padding: '40px 20px',
   maxWidth: '600px',
-  borderRadius: '8px',
+  borderRadius: '12px',
+  border: '1px solid rgba(59, 130, 246, 0.2)',
 };
 
 const h1 = {
-  color: '#1976D2',
+  color: '#10b981',
   fontSize: '32px',
   fontWeight: 'bold',
   margin: '0 0 20px',
@@ -128,22 +129,22 @@ const h1 = {
 };
 
 const text = {
-  color: '#333333',
+  color: '#e5e7eb',
   fontSize: '16px',
   lineHeight: '26px',
   margin: '16px 0',
 };
 
 const statsBox = {
-  backgroundColor: '#f0f7ff',
-  border: '2px solid #1976D2',
+  backgroundColor: 'rgba(16, 185, 129, 0.1)',
+  border: '1px solid rgba(16, 185, 129, 0.3)',
   borderRadius: '8px',
   padding: '20px',
   margin: '24px 0',
 };
 
 const statsTitle = {
-  color: '#1976D2',
+  color: '#10b981',
   fontSize: '18px',
   fontWeight: 'bold',
   margin: '0 0 16px',
@@ -155,18 +156,18 @@ const statRow = {
   justifyContent: 'space-between',
   alignItems: 'center',
   padding: '8px 0',
-  borderBottom: '1px solid #e0e0e0',
+  borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
 };
 
 const statLabel = {
-  color: '#666666',
+  color: '#94a3b8',
   fontSize: '14px',
   fontWeight: '600',
   margin: 0,
 };
 
 const statValue = {
-  color: '#1976D2',
+  color: '#10b981',
   fontSize: '14px',
   fontWeight: 'bold',
   margin: 0,
@@ -178,7 +179,7 @@ const buttonContainer = {
 };
 
 const button = {
-  backgroundColor: '#1976D2',
+  background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
   borderRadius: '8px',
   color: '#ffffff',
   fontSize: '16px',
@@ -187,17 +188,18 @@ const button = {
   textAlign: 'center' as const,
   display: 'inline-block',
   padding: '14px 32px',
+  boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)',
 };
 
 const footer = {
-  color: '#666666',
+  color: '#cbd5e1',
   fontSize: '16px',
   lineHeight: '26px',
   margin: '32px 0 16px',
 };
 
 const footerText = {
-  color: '#999999',
+  color: '#64748b',
   fontSize: '12px',
   lineHeight: '20px',
   margin: '16px 0',

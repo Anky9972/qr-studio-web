@@ -18,13 +18,13 @@ export async function GET(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        teamMembers: {
+        TeamMember: {
           include: {
-            team: {
+            Team: {
               include: {
-                members: {
+                TeamMember: {
                   include: {
-                    user: {
+                    User: {
                       select: {
                         id: true,
                         name: true,
@@ -41,17 +41,17 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    if (!user?.teamMembers || user.teamMembers.length === 0) {
+    if (!user?.TeamMember || user.TeamMember.length === 0) {
       return NextResponse.json({ members: [] });
     }
 
-    const team = user.teamMembers[0].team;
-    const members = team.members.map((member: any) => ({
+    const team = user.TeamMember[0].Team;
+    const members = team.TeamMember.map((member: any) => ({ ({
       id: member.id,
-      name: member.user.name || member.user.email,
-      email: member.user.email,
+      name: member.User.name || member.User.email,
+      email: member.User.email,
       role: member.role,
-      avatar: member.user.image,
+      avatar: member.User.image,
       joinedAt: member.createdAt.toISOString(),
       lastActive: member.updatedAt.toISOString(),
       status: 'active',

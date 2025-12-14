@@ -21,7 +21,8 @@ import {
   BarChart3,
   ExternalLink,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -246,9 +247,20 @@ export default function QRCodesPage() {
           </h1>
           <p className="text-muted-foreground mt-1">Manage, track, and customize your QR codes.</p>
         </div>
-        <Button variant="glow" onClick={() => router.push('/dashboard/generate')}>
-          <Plus size={18} className="mr-2" /> Create New
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            onClick={fetchQRCodes}
+            disabled={loading}
+            variant="outline"
+            className="border-white/10 hover:bg-white/5"
+          >
+            <RefreshCw className={cn("w-4 h-4 mr-2", loading && "animate-spin")} />
+            Refresh
+          </Button>
+          <Button variant="glow" onClick={() => router.push('/dashboard/generate')}>
+            <Plus size={18} className="mr-2" /> Create New
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}

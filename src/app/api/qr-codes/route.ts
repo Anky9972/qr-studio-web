@@ -72,9 +72,9 @@ export async function GET(request: NextRequest) {
       prisma.qRCode.findMany({
         where,
         include: {
-          campaign: true,
+          Campaign: true,
           _count: {
-            select: { scans: true },
+            select: { Scan: true },
           },
         },
         orderBy: { createdAt: 'desc' },
@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
         expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
       },
       include: {
-        campaign: true,
+        Campaign: true,
       },
     })
 

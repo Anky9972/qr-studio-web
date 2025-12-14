@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         where,
         include: {
           _count: {
-            select: { qrCodes: true },
+            select: { QRCode: true },
           },
         },
         orderBy: { createdAt: 'desc' },
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
       campaigns.map(async (campaign: any) => {
         const totalScans = await prisma.scan.count({
           where: {
-            qrCode: {
+            QRCode: {
               campaignId: campaign.id,
             },
           },
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
       },
       include: {
         _count: {
-          select: { qrCodes: true },
+          select: { QRCode: true },
         },
       },
     });

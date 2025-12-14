@@ -1,15 +1,18 @@
 'use client';
 
 import { SessionProvider } from 'next-auth/react';
-import { DashboardThemeProvider } from '@/components/providers/DashboardThemeProvider';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useEffect } from 'react';
 
 export default function DashboardClientLayout({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    // Force dark mode permanently
+    document.documentElement.classList.add('dark');
+  }, []);
+
   return (
     <SessionProvider>
-      <DashboardThemeProvider>
-        <DashboardLayout>{children}</DashboardLayout>
-      </DashboardThemeProvider>
+      <DashboardLayout>{children}</DashboardLayout>
     </SessionProvider>
   );
 }

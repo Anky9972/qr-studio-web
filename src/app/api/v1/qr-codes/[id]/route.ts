@@ -16,7 +16,7 @@ export async function GET(
 
   const context = authResult.context!;
   const rateLimit = await checkRateLimit(context.apiKeyId, context.subscription);
-  
+
   if (!rateLimit.allowed) {
     const response = createApiError('Rate limit exceeded', 429);
     addRateLimitHeaders(response.headers, rateLimit.limit, rateLimit.remaining, rateLimit.resetAt);
@@ -33,7 +33,7 @@ export async function GET(
       },
       include: {
         _count: {
-          select: { scans: true },
+          select: { Scan: true },
         },
       },
     });
@@ -64,7 +64,7 @@ export async function GET(
         foreground: qrCode.foreground,
         background: qrCode.background,
         errorLevel: qrCode.errorLevel,
-        scanCount: qrCode._count.scans,
+        scanCount: qrCode._count.Scan,
         qrCode: qrDataUrl,
         createdAt: qrCode.createdAt,
         updatedAt: qrCode.updatedAt,
@@ -91,7 +91,7 @@ export async function PATCH(
 
   const context = authResult.context!;
   const rateLimit = await checkRateLimit(context.apiKeyId, context.subscription);
-  
+
   if (!rateLimit.allowed) {
     const response = createApiError('Rate limit exceeded', 429);
     addRateLimitHeaders(response.headers, rateLimit.limit, rateLimit.remaining, rateLimit.resetAt);
@@ -155,7 +155,7 @@ export async function DELETE(
 
   const context = authResult.context!;
   const rateLimit = await checkRateLimit(context.apiKeyId, context.subscription);
-  
+
   if (!rateLimit.allowed) {
     const response = createApiError('Rate limit exceeded', 429);
     addRateLimitHeaders(response.headers, rateLimit.limit, rateLimit.remaining, rateLimit.resetAt);

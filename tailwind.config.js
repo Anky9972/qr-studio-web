@@ -66,6 +66,7 @@ module.exports = {
           cyan: '#06b6d4',
           emerald: '#10b981',
           violet: '#8b5cf6',
+          pink: '#ec4899',
           amber: '#f59e0b',
         }
       },
@@ -116,6 +117,7 @@ module.exports = {
         'neon-cyan': '0 0 5px #06b6d4, 0 0 20px #06b6d4',
         'neon-blue': '0 0 5px #3b82f6, 0 0 20px #3b82f6',
         'neon-emerald': '0 0 5px #10b981, 0 0 20px #10b981',
+        'glow-pink': '0 0 15px rgba(236, 72, 153, 0.5)',
       }
     },
   },

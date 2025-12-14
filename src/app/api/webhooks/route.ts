@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       where: { userId },
       include: {
         _count: {
-          select: { logs: true },
+          select: { WebhookLog: true },
         },
       },
       orderBy: { createdAt: 'desc' },

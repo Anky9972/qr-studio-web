@@ -30,14 +30,14 @@ export async function GET(request: NextRequest) {
             // 1. Today's Scans
             prisma.scan.count({
                 where: {
-                    qrCode: { userId },
+                    QRCode: { userId },
                     scannedAt: { gte: todayStart },
                 },
             }),
             // 2. Yesterday's Scans (for trend)
             prisma.scan.count({
                 where: {
-                    qrCode: { userId },
+                    QRCode: { userId },
                     scannedAt: {
                         gte: yesterdayStart,
                         lt: todayStart,
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
             prisma.scan.groupBy({
                 by: ['country'],
                 where: {
-                    qrCode: { userId },
+                    QRCode: { userId },
                     scannedAt: { gte: todayStart },
                     country: { not: null },
                 },
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
             prisma.scan.groupBy({
                 by: ['qrCodeId'],
                 where: {
-                    qrCode: { userId },
+                    QRCode: { userId },
                     scannedAt: { gte: todayStart },
                 },
                 _count: {

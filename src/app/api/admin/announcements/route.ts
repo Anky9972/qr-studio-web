@@ -79,6 +79,7 @@ export async function POST(request: NextRequest) {
     // Create the announcement record (for banners etc)
     const announcement = await prisma.announcement.create({
       data: {
+        id: `ann_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
         title,
         message,
         type: type || 'info',
@@ -86,6 +87,7 @@ export async function POST(request: NextRequest) {
         targetAudience: targetAudience || 'all',
         sendEmail: sendEmail || false,
         sendWebNotification: sendWebNotification !== undefined ? sendWebNotification : true,
+        updatedAt: new Date(),
       },
     });
 
@@ -110,6 +112,7 @@ export async function POST(request: NextRequest) {
       // The user requested that announcements show in the notification icon.
       if (sendWebNotification) {
         const notificationLogs = users.map((u) => ({
+          id: `notif_${Date.now()}_${Math.random().toString(36).substring(2, 9)}_${u.id}`,
           userId: u.id,
           type: 'announcement',
           subject: title,

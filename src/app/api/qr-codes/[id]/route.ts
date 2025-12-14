@@ -22,9 +22,9 @@ export async function GET(
         userId,
       },
       include: {
-        campaign: true,
+        Campaign: true,
         _count: {
-          select: { scans: true },
+          select: { Scan: true },
         },
       },
     })
@@ -77,7 +77,7 @@ export async function PATCH(
         ...(body.expiresAt && { expiresAt: new Date(body.expiresAt) }),
       },
       include: {
-        campaign: true,
+        Campaign: true,
       },
     })
 

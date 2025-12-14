@@ -100,6 +100,10 @@ export const metadata: Metadata = {
   },
   category: 'technology',
   classification: 'Business Software',
+  icons: {
+    icon: '/icon.png',
+    apple: '/icon.png',
+  },
 };
 
 export default function RootLayout({
@@ -108,9 +112,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="dark">
       <body className={`${jakarta.variable} ${spaceGrotesk.variable} font-sans antialiased`}>
-        <ClientLayout>{children}</ClientLayout>
+        {children}
       </body>
     </html>
   );

@@ -23,7 +23,7 @@ export async function GET(
       },
       include: {
         _count: {
-          select: { scans: true },
+          select: { Scan: true },
         },
       },
     });
@@ -42,7 +42,7 @@ export async function GET(
         destination: qrCode.destination,
         password: !!qrCode.password,
         expiresAt: qrCode.expiresAt,
-        scanCount: qrCode._count.scans,
+        scanCount: qrCode._count.Scan,
         qrCode: qrCode.content,
         design: qrCode.design,
         createdAt: qrCode.createdAt,

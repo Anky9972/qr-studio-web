@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 // Middleware to check admin access
 async function checkAdminAccess(request: NextRequest) {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user) {
     return { authorized: false, response: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
   }
@@ -142,7 +142,7 @@ export async function GET(request: NextRequest) {
       // Top users by QR codes
       prisma.user.findMany({
         orderBy: {
-          qrCodes: {
+          QRCode: {
             _count: 'desc',
           },
         },

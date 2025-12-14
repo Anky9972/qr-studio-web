@@ -89,9 +89,9 @@ export async function DELETE(
     const member = await prisma.teamMember.findUnique({
       where: { id },
       include: {
-        team: {
+        Team: {
           include: {
-            members: {
+            TeamMember: {
               where: { role: 'ADMIN' },
             },
           },
@@ -99,7 +99,7 @@ export async function DELETE(
       },
     });
 
-    if (member?.role === 'ADMIN' && member.team.members.length === 1) {
+    if (member?.role === 'ADMIN' && member.Team.TeamMember.length === 1) {
       return NextResponse.json(
         { error: 'Cannot remove the last admin' },
         { status: 400 }

@@ -32,6 +32,9 @@ export default function AdminPage() {
   const [announcementDialogOpen, setAnnouncementDialogOpen] = useState(false);
   const [offerDialogOpen, setOfferDialogOpen] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  
+  // Loading States
+  const [announcementLoading, setAnnouncementLoading] = useState(false);
 
   // Forms
   const [announcementForm, setAnnouncementForm] = useState({
@@ -121,6 +124,7 @@ export default function AdminPage() {
 
   const handleCreateAnnouncement = async () => {
     try {
+      setAnnouncementLoading(true);
       const response = await fetch('/api/admin/announcements', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -142,6 +146,8 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error('Failed to create announcement:', error);
+    } finally {
+      setAnnouncementLoading(false);
     }
   };
 
@@ -263,6 +269,7 @@ export default function AdminPage() {
             setDialogOpen={setAnnouncementDialogOpen}
             handleCreate={handleCreateAnnouncement}
             onRefresh={fetchAdminData}
+            isLoading={announcementLoading}
           />
         </TabsContent>
 

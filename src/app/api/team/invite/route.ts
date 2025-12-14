@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       userTeam = await prisma.team.create({
         data: {
           name: `${session.user.name || session.user.email}'s Team`,
-          members: {
+          TeamMember: {
             create: {
               userId,
               role: 'ADMIN',
@@ -69,13 +69,13 @@ export async function POST(request: NextRequest) {
           },
         },
         include: {
-          members: true,
+          TeamMember: true,
         },
       });
     }
 
     // Check if already a member
-    const existingMember = userTeam.members.find((m: any) => m.userId === invitedUser?.id);
+    const existingMember = userTeam.TeamMember.find((m: any) => m.userId === invitedUser?.id);
     if (existingMember) {
       return NextResponse.json({ error: 'User is already a team member' }, { status: 400 });
     }

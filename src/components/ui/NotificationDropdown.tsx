@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Bell, X, Check, AlertCircle, BarChart2, Clock, CheckCircle } from 'lucide-react'
+import { Bell, X, Check, AlertCircle, BarChart2, Clock, CheckCircle, Megaphone } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -27,6 +27,8 @@ export default function NotificationDropdown({ className }: NotificationDropdown
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null)
+  const [showDetailModal, setShowDetailModal] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Track previous unread count to trigger toasts
@@ -143,6 +145,9 @@ export default function NotificationDropdown({ className }: NotificationDropdown
   // Get icon based on notification type
   const getNotificationIcon = (type: string) => {
     switch (type) {
+      case 'announcement':
+      case 'admin_message':
+        return <Megaphone className="w-4 h-4" />
       case 'scan_alert':
         return <BarChart2 className="w-4 h-4" />
       case 'weekly_report':
@@ -161,6 +166,9 @@ export default function NotificationDropdown({ className }: NotificationDropdown
   // Get color based on notification type
   const getNotificationColor = (type: string) => {
     switch (type) {
+      case 'announcement':
+      case 'admin_message':
+        return 'text-electric-cyan dark:text-electric-cyan'
       case 'scan_alert':
         return 'text-blue-500 dark:text-blue-400'
       case 'weekly_report':
@@ -185,7 +193,9 @@ export default function NotificationDropdown({ className }: NotificationDropdown
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-electric-pink shadow-glow-pink"></span>
+          <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 flex items-center justify-center rounded-full bg-gradient-to-r from-electric-pink to-electric-violet text-white text-xs font-bold shadow-lg shadow-electric-pink/50">
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </span>
         )}
       </button>
 
@@ -229,8 +239,9 @@ export default function NotificationDropdown({ className }: NotificationDropdown
                     key={notification.id}
                     className="p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group cursor-pointer"
                     onClick={() => {
-                      // Optional: View details or mark as read?
-                      // For now just mark as read if user wants to keep it in the list they can use the View All page
+                      setSelectedNotification(notification)
+                      setShowDetailModal(true)
+                      setIsOpen(false)
                     }}
                   >
                     <div className="flex items-start gap-3">
@@ -274,10 +285,74 @@ export default function NotificationDropdown({ className }: NotificationDropdown
                 setIsOpen(false)
                 router.push('/dashboard/notifications')
               }}
-              className="w-full text-sm text-center text-blue-600 dark:text-blue-400 hover:underline"
+              className="w-full text-sm text-center text-electric-cyan hover:text-electric-blue transition-colors font-medium"
             >
               View all notifications
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Notification Detail Modal */}
+      {showDetailModal && selectedNotification && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowDetailModal(false)}>
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-white/10 max-w-2xl w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="p-6 border-b border-gray-200 dark:border-white/10 flex items-start justify-between">
+              <div className="flex items-start gap-3 flex-1">
+                <div className={cn('mt-1 p-2 rounded-lg bg-opacity-10', getNotificationColor(selectedNotification.type))}>
+                  {getNotificationIcon(selectedNotification.type)}
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{selectedNotification.subject}</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {formatDistanceToNow(new Date(selectedNotification.sentAt), { addSuffix: true })}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+              </button>
+            </div>
+            
+            {/* Body */}
+            <div className="p-6">
+              <div className="prose prose-sm dark:prose-invert max-w-none">
+                <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+                  {selectedNotification.message}
+                </p>
+              </div>
+              {selectedNotification.error && (
+                <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
+                  <p className="text-sm text-red-800 dark:text-red-400 font-medium">Error Details:</p>
+                  <p className="text-sm text-red-700 dark:text-red-300 mt-1">{selectedNotification.error}</p>
+                </div>
+              )}
+            </div>
+            
+            {/* Footer */}
+            <div className="p-6 border-t border-gray-200 dark:border-white/10 flex justify-end gap-3">
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="px-4 py-2 border border-white/10 hover:bg-white/5 text-gray-300 rounded-lg transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  markAsRead(selectedNotification.id)
+                  setShowDetailModal(false)
+                }}
+                className="px-4 py-2 bg-gradient-to-r from-electric-cyan to-electric-blue hover:from-electric-blue hover:to-electric-cyan text-white rounded-lg transition-all duration-300 flex items-center gap-2 shadow-lg shadow-electric-cyan/20"
+              >
+                <Check className="w-4 h-4" />
+                Mark as Read
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -58,35 +58,35 @@ export async function GET(request: NextRequest) {
       prisma.qRCode.count({ where: { userId } }),
 
       // Total scans in range
-      prisma.scan.count({
+      qrCodeIds.length > 0 ? prisma.scan.count({
         where: {
           qrCodeId: { in: qrCodeIds },
           scannedAt: { gte: startDate },
         },
-      }),
+      }) : 0,
 
       // Scans by device
-      prisma.scan.groupBy({
+      qrCodeIds.length > 0 ? prisma.scan.groupBy({
         by: ['device'],
         where: {
           qrCodeId: { in: qrCodeIds },
           scannedAt: { gte: startDate },
         },
         _count: { id: true },
-      }),
+      }) : [],
 
       // Scans by browser
-      prisma.scan.groupBy({
+      qrCodeIds.length > 0 ? prisma.scan.groupBy({
         by: ['browser'],
         where: {
           qrCodeId: { in: qrCodeIds },
           scannedAt: { gte: startDate },
         },
         _count: { id: true },
-      }),
+      }) : [],
 
       // Scans by country
-      prisma.scan.groupBy({
+      qrCodeIds.length > 0 ? prisma.scan.groupBy({
         by: ['country'],
         where: {
           qrCodeId: { in: qrCodeIds },
@@ -94,25 +94,27 @@ export async function GET(request: NextRequest) {
         },
         _count: { id: true },
         orderBy: { _count: { id: 'desc' } },
-      }),
+      }) : [],
 
       // Scans over time (daily aggregation)
-      prisma.$queryRaw`
-        SELECT 
-          DATE(scannedAt) as date,
-          COUNT(*) as scans
-        FROM Scan
-        WHERE qrCodeId IN (${qrCodeIds.length > 0 ? qrCodeIds.join(',') : '""'})
-          AND scannedAt >= ${startDate}
-        GROUP BY DATE(scannedAt)
-        ORDER BY date ASC
-      `,
+      qrCodeIds.length > 0 
+        ? prisma.$queryRaw`
+            SELECT 
+              DATE("scannedAt") as date,
+              COUNT(*) as scans
+            FROM "Scan"
+            WHERE "qrCodeId" = ANY(${qrCodeIds}::text[])
+              AND "scannedAt" >= ${startDate}
+            GROUP BY DATE("scannedAt")
+            ORDER BY date ASC
+          `
+        : Promise.resolve([]),
 
       // Top QR codes
       prisma.qRCode.findMany({
         where: {
           userId,
-          scans: {
+          Scan: {
             some: {
               scannedAt: { gte: startDate },
             },
@@ -123,7 +125,7 @@ export async function GET(request: NextRequest) {
           name: true,
           _count: {
             select: {
-              scans: {
+              Scan: {
                 where: {
                   scannedAt: { gte: startDate },
                 },
@@ -132,7 +134,7 @@ export async function GET(request: NextRequest) {
           },
         },
         orderBy: {
-          scans: {
+          Scan: {
             _count: 'desc',
           },
         },
@@ -163,14 +165,11 @@ export async function GET(request: NextRequest) {
       topQRCodes: topQRCodes.map((qr: any) => ({
         id: qr.id,
         name: qr.name || 'Unnamed',
-        scanCount: qr._count.scans,
+        scanCount: qr._count.Scan,
       })),
     };
 
-    return NextResponse.json({
-      success: true,
-      data: formattedData,
-    });
+    return NextResponse.json(formattedData);
   } catch (error: any) {
     console.error('Error fetching analytics:', error);
     return NextResponse.json(

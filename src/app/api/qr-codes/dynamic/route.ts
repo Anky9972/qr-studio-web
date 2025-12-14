@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
         orderBy: { createdAt: 'desc' },
         include: {
           _count: {
-            select: { scans: true },
+            select: { Scan: true },
           },
         },
       }),
@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
           shortUrl: qr.shortUrl,
           fullUrl: `${process.env.NEXT_PUBLIC_APP_URL}/r/${qr.shortUrl}`,
           destination: qr.destination,
-          scanCount: qr._count.scans,
+          scanCount: qr._count.Scan,
           expiresAt: qr.expiresAt,
           createdAt: qr.createdAt,
         })),

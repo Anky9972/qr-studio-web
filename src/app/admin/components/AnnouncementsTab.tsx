@@ -20,7 +20,7 @@ import {
 import { Input } from "@/components/ui/Input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
 import { Switch } from "@/components/ui/switch";
-import { Megaphone, Plus, Edit, Trash2, AlertCircle, CheckCircle, Info, AlertTriangle } from 'lucide-react';
+import { Megaphone, Plus, Edit, Trash2, AlertCircle, CheckCircle, Info, AlertTriangle, Bell, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/Textarea';
 
@@ -47,6 +47,7 @@ interface AnnouncementsTabProps {
     setDialogOpen: (open: boolean) => void;
     handleCreate: () => void;
     onRefresh: () => void;
+    isLoading?: boolean;
 }
 
 const TypeBadge = ({ type }: { type: string }) => {
@@ -81,7 +82,8 @@ export function AnnouncementsTab({
     dialogOpen,
     setDialogOpen,
     handleCreate,
-    onRefresh
+    onRefresh,
+    isLoading = false
 }: AnnouncementsTabProps) {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
@@ -264,69 +266,101 @@ export function AnnouncementsTab({
             </Card>
 
             <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
-                <DialogContent className="sm:max-w-[500px]">
+                <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>{editingId ? 'Edit Announcement' : 'Create Announcement'}</DialogTitle>
+                        <DialogTitle className="text-xl font-bold flex items-center gap-2">
+                            <Megaphone className="w-5 h-5 text-electric-cyan" />
+                            {editingId ? 'Edit Announcement' : 'Create New Announcement'}
+                        </DialogTitle>
+                        <p className="text-sm text-gray-400 mt-1">
+                            {editingId ? 'Update announcement details' : 'Broadcast an important message to your users'}
+                        </p>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                            <label className="text-sm font-medium text-gray-300">Title</label>
+                    <div className="grid gap-5 py-6">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-200">
+                                Title <span className="text-red-400">*</span>
+                            </label>
                             <Input
                                 value={form.title}
                                 onChange={(e) => setForm({ ...form, title: e.target.value })}
-                                placeholder="Important Update"
+                                placeholder="e.g., System Maintenance Notice"
+                                className="bg-black/30 border-white/10 text-white placeholder:text-gray-500"
                             />
                         </div>
 
-                        <div className="grid gap-2">
-                            <label className="text-sm font-medium text-gray-300">Message</label>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-200">
+                                Message <span className="text-red-400">*</span>
+                            </label>
                             <Textarea
                                 value={form.message}
                                 onChange={(e) => setForm({ ...form, message: e.target.value })}
-                                placeholder="Enter your announcement details..."
-                                className="min-h-[100px] bg-black/50 border-white/10 text-white"
+                                placeholder="Enter detailed announcement message for your users..."
+                                className="min-h-[120px] bg-black/30 border-white/10 text-white placeholder:text-gray-500 resize-none"
                             />
+                            <p className="text-xs text-gray-500">{form.message?.length || 0} characters</p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="grid gap-2">
-                                <label className="text-sm font-medium text-gray-300">Type</label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-200">Type</label>
                                 <Select
                                     value={form.type}
                                     onValueChange={(val) => setForm({ ...form, type: val })}
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="bg-black/30 border-white/10">
                                         <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="info">Info</SelectItem>
-                                        <SelectItem value="success">Success</SelectItem>
-                                        <SelectItem value="warning">Warning</SelectItem>
-                                        <SelectItem value="error">Error</SelectItem>
+                                        <SelectItem value="info">
+                                            <div className="flex items-center gap-2">
+                                                <Info className="w-4 h-4 text-blue-500" />
+                                                <span>Info</span>
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="success">
+                                            <div className="flex items-center gap-2">
+                                                <CheckCircle className="w-4 h-4 text-emerald-500" />
+                                                <span>Success</span>
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="warning">
+                                            <div className="flex items-center gap-2">
+                                                <AlertTriangle className="w-4 h-4 text-amber-500" />
+                                                <span>Warning</span>
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="error">
+                                            <div className="flex items-center gap-2">
+                                                <AlertCircle className="w-4 h-4 text-red-500" />
+                                                <span>Error</span>
+                                            </div>
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
 
-                            <div className="grid gap-2">
-                                <label className="text-sm font-medium text-gray-300">Audience</label>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-200">Target Audience</label>
                                 <Select
                                     value={form.targetAudience}
                                     onValueChange={(val) => setForm({ ...form, targetAudience: val })}
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="bg-black/30 border-white/10">
                                         <SelectValue placeholder="Select audience" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="all">All Users</SelectItem>
-                                        <SelectItem value="free">Free Users</SelectItem>
-                                        <SelectItem value="pro">Pro Users</SelectItem>
-                                        <SelectItem value="business">Business Users</SelectItem>
+                                        <SelectItem value="all">🌐 All Users</SelectItem>
+                                        <SelectItem value="free">🆓 Free Tier</SelectItem>
+                                        <SelectItem value="pro">⭐ Pro Tier</SelectItem>
+                                        <SelectItem value="business">💼 Business Tier</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
+                        <div className="flex items-center justify-between rounded-lg border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-4 hover:border-electric-cyan/30 transition-colors">
                             <div className="space-y-0.5 flex-1">
                                 <label htmlFor="active-status-switch" className="text-sm font-medium text-gray-200 cursor-pointer">
                                     Active Status
@@ -343,52 +377,66 @@ export function AnnouncementsTab({
                             />
                         </div>
 
-                        <div className="space-y-3 pt-2 border-t border-white/10">
-                            <label className="text-sm font-medium text-gray-200">Notification Channels</label>
+                        <div className="space-y-3 pt-4 border-t border-white/10">
+                            <div className="flex items-center gap-2">
+                                <Bell className="w-4 h-4 text-electric-cyan" />
+                                <label className="text-sm font-medium text-gray-200">Notification Channels</label>
+                            </div>
+                            <p className="text-xs text-gray-500">Choose how to deliver this announcement</p>
                             
-                            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
+                            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-gradient-to-br from-blue-500/5 to-transparent p-4 hover:border-blue-500/30 transition-colors">
                                 <div className="space-y-0.5 flex-1">
-                                    <label htmlFor="web-notification-switch" className="text-sm font-medium text-gray-200 cursor-pointer">
-                                        Web Notification
+                                    <label htmlFor="web-notification-switch" className="text-sm font-medium text-gray-200 cursor-pointer flex items-center gap-2">
+                                        <Bell className="w-4 h-4 text-blue-500" />
+                                        Dashboard Notification
                                     </label>
-                                    <p className="text-xs text-gray-400">Show banner in the app</p>
+                                    <p className="text-xs text-gray-400">Show in notification bell icon (recommended)</p>
                                 </div>
                                 <Switch
                                     id="web-notification-switch"
                                     checked={form.sendWebNotification ?? true}
-                                    onCheckedChange={(checked) => {
-                                        console.log('Web notification toggled:', checked);
-                                        setForm({ ...form, sendWebNotification: checked });
-                                    }}
+                                    onCheckedChange={(checked) => setForm({ ...form, sendWebNotification: checked })}
                                 />
                             </div>
 
-                            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
+                            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-gradient-to-br from-amber-500/5 to-transparent p-4 hover:border-amber-500/30 transition-colors">
                                 <div className="space-y-0.5 flex-1">
-                                    <label htmlFor="email-notification-switch" className="text-sm font-medium text-gray-200 cursor-pointer">
-                                        Email Notification
+                                    <label htmlFor="email-notification-switch" className="text-sm font-medium text-gray-200 cursor-pointer flex items-center gap-2">
+                                        📧 Email Notification
                                     </label>
-                                    <p className="text-xs text-gray-400">Send email to target audience</p>
+                                    <p className="text-xs text-gray-400">Send styled email to target audience (via SMTP server)</p>
                                 </div>
                                 <Switch
                                     id="email-notification-switch"
                                     checked={form.sendEmail ?? false}
-                                    onCheckedChange={(checked) => {
-                                        console.log('Email notification toggled:', checked);
-                                        setForm({ ...form, sendEmail: checked });
-                                    }}
+                                    onCheckedChange={(checked) => setForm({ ...form, sendEmail: checked })}
                                 />
                             </div>
                         </div>
                     </div>
-                    <div className="flex justify-end gap-3">
-                        <Button variant="ghost" onClick={() => handleDialogClose(false)}>Cancel</Button>
+                    <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-white/10">
+                        <Button 
+                            variant="ghost" 
+                            onClick={() => handleDialogClose(false)}
+                            className="w-full sm:w-auto"
+                            disabled={isLoading}
+                        >
+                            Cancel
+                        </Button>
                         <Button 
                             variant="glow" 
                             onClick={editingId ? handleUpdate : handleCreate} 
-                            disabled={!form.title || !form.message}
+                            disabled={!form.title || !form.message || isLoading}
+                            className="w-full sm:w-auto"
                         >
-                            {editingId ? 'Update Announcement' : 'Create Announcement'}
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    {editingId ? 'Updating...' : 'Creating...'}
+                                </>
+                            ) : (
+                                <>{editingId ? '✓ Update Announcement' : '✓ Create Announcement'}</>
+                            )}
                         </Button>
                     </div>
                 </DialogContent>

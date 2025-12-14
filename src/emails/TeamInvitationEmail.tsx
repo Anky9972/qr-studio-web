@@ -73,20 +73,22 @@ export default function TeamInvitationEmail({
 }
 
 const main = {
-  backgroundColor: '#f6f9fc',
+  backgroundColor: '#0f172a',
   fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
 };
 
 const container = {
-  backgroundColor: '#ffffff',
+  backgroundColor: '#1e293b',
   margin: '0 auto',
   padding: '20px 0 48px',
   marginBottom: '64px',
   maxWidth: '600px',
+  border: '1px solid rgba(59, 130, 246, 0.2)',
+  borderRadius: '12px',
 };
 
 const h1 = {
-  color: '#1976d2',
+  color: '#06b6d4',
   fontSize: '28px',
   fontWeight: 'bold',
   margin: '40px 0',
@@ -94,7 +96,7 @@ const h1 = {
 };
 
 const text = {
-  color: '#333',
+  color: '#e5e7eb',
   fontSize: '16px',
   lineHeight: '26px',
   margin: '16px 0',
@@ -106,7 +108,7 @@ const buttonContainer = {
 };
 
 const button = {
-  backgroundColor: '#1976d2',
+  background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
   borderRadius: '8px',
   color: '#fff',
   fontSize: '16px',
@@ -115,10 +117,11 @@ const button = {
   textAlign: 'center' as const,
   display: 'block',
   padding: '14px 20px',
+  boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)',
 };
 
 const footer = {
-  color: '#898989',
+  color: '#64748b',
   fontSize: '12px',
   lineHeight: '16px',
   padding: '0 40px',

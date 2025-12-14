@@ -24,9 +24,9 @@ export function DashboardThemeProvider({ children }: { children: React.ReactNode
   const [mode, setMode] = useState<ThemeMode>('light');
   const [mounted, setMounted] = useState(false);
 
-  // Load theme from localStorage on mount
+  // Load theme from localStorage on mount (use same key as public theme)
   useEffect(() => {
-    const savedTheme = localStorage.getItem('dashboard-theme') as ThemeMode;
+    const savedTheme = (localStorage.getItem('theme') || localStorage.getItem('dashboard-theme')) as ThemeMode;
     if (savedTheme === 'light' || savedTheme === 'dark') {
       setMode(savedTheme);
     } else {
@@ -41,6 +41,8 @@ export function DashboardThemeProvider({ children }: { children: React.ReactNode
   useEffect(() => {
     if (!mounted) return;
 
+    // Use the same localStorage key as public theme for consistency
+    localStorage.setItem('theme', mode);
     localStorage.setItem('dashboard-theme', mode);
 
     // Toggle Tailwind dark mode class

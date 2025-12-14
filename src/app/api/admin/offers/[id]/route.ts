@@ -48,6 +48,7 @@ export async function PATCH(
         ...(validUntil !== undefined && { validUntil: new Date(validUntil) }),
         ...(targetPlan !== undefined && { targetPlan }),
         ...(active !== undefined && { active }),
+        updatedAt: new Date(),
       },
     });
 

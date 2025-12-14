@@ -16,7 +16,8 @@ import {
   Zap,
   TrendingUp,
   Activity as ActivityIcon,
-  HardDrive
+  HardDrive,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -215,6 +216,16 @@ export default function DashboardPage() {
         </motion.div>
 
         <div className="flex gap-3">
+          <Button
+            onClick={fetchDashboardData}
+            disabled={loading}
+            variant="outline"
+            size="lg"
+            className="rounded-xl border-white/10 hover:bg-white/5"
+          >
+            <RefreshCw className={cn("w-5 h-5 mr-2", loading && "animate-spin")} />
+            Refresh
+          </Button>
           <Link href="/dashboard/generate">
             <Button variant="premium" size="lg" className="rounded-xl shadow-lg shadow-blue-500/20">
               <QrCode className="w-5 h-5 mr-2" />

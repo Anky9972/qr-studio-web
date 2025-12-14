@@ -74,7 +74,7 @@ interface DigitalMenuData {
 }
 
 interface DigitalMenuBuilderProps {
-  data?: DigitalMenuData;
+  initialData?: DigitalMenuData;
   onSave: (data: DigitalMenuData) => Promise<void>;
   onPreview?: () => void;
 }
@@ -88,19 +88,19 @@ const defaultSettings = {
 };
 
 export default function DigitalMenuBuilder({
-  data,
+  initialData,
   onSave,
   onPreview,
 }: DigitalMenuBuilderProps) {
-  const [title, setTitle] = useState(data?.title || '');
-  const [description, setDescription] = useState(data?.description || '');
-  const [logo, setLogo] = useState(data?.logo || '');
-  const [coverImage, setCoverImage] = useState(data?.coverImage || '');
-  const [type, setType] = useState<'menu' | 'gallery' | 'portfolio'>(data?.type || 'menu');
-  const [categories, setCategories] = useState<MenuCategory[]>(data?.categories || []);
-  const [theme, setTheme] = useState(data?.theme || defaultTheme);
-  const [settings, setSettings] = useState(data?.settings || defaultSettings);
-  const [published, setPublished] = useState(data?.published || false);
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [description, setDescription] = useState(initialData?.description || '');
+  const [logo, setLogo] = useState(initialData?.logo || '');
+  const [coverImage, setCoverImage] = useState(initialData?.coverImage || '');
+  const [type, setType] = useState<'menu' | 'gallery' | 'portfolio'>(initialData?.type || 'menu');
+  const [categories, setCategories] = useState<MenuCategory[]>(initialData?.categories || []);
+  const [theme, setTheme] = useState(initialData?.theme || defaultTheme);
+  const [settings, setSettings] = useState(initialData?.settings || defaultSettings);
+  const [published, setPublished] = useState(initialData?.published || false);
   const [activeTab, setActiveTab] = useState<'content' | 'design' | 'settings'>('content');
 
   // category dialog state

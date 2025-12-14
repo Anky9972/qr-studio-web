@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
       const qrCodes = await prisma.qRCode.findMany({
         where: { userId },
         include: {
-          scans: {
+          Scan: {
             orderBy: { scannedAt: 'desc' },
             take: 10000, // Limit to 10k scans
           },
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
       });
 
       const allScans = qrCodes.flatMap((qr) =>
-        qr.scans.map((scan) => ({
+        qr.Scan.map((scan) => ({
           ...scan,
           qrName: qr.name || 'Unnamed',
         }))

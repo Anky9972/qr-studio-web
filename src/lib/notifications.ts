@@ -350,6 +350,7 @@ async function logNotification(
   try {
     await prisma.notificationLog.create({
       data: {
+        id: `notif_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
         userId,
         type,
         subject,

@@ -16,12 +16,12 @@ export async function GET(request: NextRequest) {
     // Fetch recent scans with QR code details
     const recentScans = await prisma.scan.findMany({
       where: {
-        qrCode: {
+        QRCode: {
           userId,
         },
       },
       include: {
-        qrCode: {
+        QRCode: {
           select: {
             name: true,
             qrType: true,
@@ -38,8 +38,8 @@ export async function GET(request: NextRequest) {
       activity: recentScans.map((scan) => ({
         id: scan.id,
         type: 'scan',
-        qrCodeName: scan.qrCode.name,
-        qrType: scan.qrCode.qrType,
+        qrCodeName: scan.QRCode.name,
+        qrType: scan.QRCode.qrType,
         scannedAt: scan.scannedAt,
         location: scan.city && scan.country ? `${scan.city}, ${scan.country}` : 'Unknown',
         device: scan.device || 'Unknown',

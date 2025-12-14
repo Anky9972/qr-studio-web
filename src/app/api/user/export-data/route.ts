@@ -31,30 +31,30 @@ export async function GET() {
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
       include: {
-        qrCodes: {
+        QRCode: {
           include: {
-            scans: true
+            Scan: true
           }
         },
-        teamMembers: {
+        TeamMember: {
           include: {
-            team: {
+            Team: {
               include: {
-                members: true,
+                TeamMember: true,
               }
             }
           }
         },
-        apiKeys: true,
-        webhooks: {
+        ApiKey: true,
+        Webhook: {
           include: {
-            logs: {
+            WebhookLog: {
               take: 100,
               orderBy: { createdAt: 'desc' as const }
             }
           }
         },
-        templates: true
+        Template: true
       }
     }) as any;
 
@@ -79,7 +79,7 @@ export async function GET() {
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },
-      qrCodes: user.qrCodes?.map((qr: any) => ({
+      qrCodes: user.QRCode?.map((qr: any) => ({
         id: qr.id,
         name: qr.name,
         type: qr.type,
@@ -87,7 +87,7 @@ export async function GET() {
         design: qr.design,
         createdAt: qr.createdAt,
         updatedAt: qr.updatedAt,
-        scans: qr.scans?.map((scan: any) => ({
+        scans: qr.Scan?.map((scan: any) => ({
           id: scan.id,
           scannedAt: scan.scannedAt,
           device: scan.device,
@@ -97,17 +97,17 @@ export async function GET() {
           city: scan.city
         })) || []
       })) || [],
-      teams: user.teamMembers?.map((membership: any) => ({
+      teams: user.TeamMember?.map((membership: any) => ({
         role: membership.role,
         joinedAt: membership.joinedAt,
         team: {
-          id: membership.team.id,
-          name: membership.team.name,
-          createdAt: membership.team.createdAt,
-          memberCount: membership.team.members?.length || 0
+          id: membership.Team.id,
+          name: membership.Team.name,
+          createdAt: membership.Team.createdAt,
+          memberCount: membership.Team.TeamMember?.length || 0
         }
       })) || [],
-      apiKeys: user.apiKeys?.map((key: any) => ({
+      apiKeys: user.ApiKey?.map((key: any) => ({
         id: key.id,
         name: key.name,
         prefix: key.key.substring(0, 8) + '...',
@@ -115,37 +115,37 @@ export async function GET() {
         lastUsedAt: key.lastUsedAt,
         expiresAt: key.expiresAt
       })) || [],
-      webhooks: user.webhooks?.map((webhook: any) => ({
+      webhooks: user.Webhook?.map((webhook: any) => ({
         id: webhook.id,
         url: webhook.url,
         events: webhook.events,
         active: webhook.active,
         createdAt: webhook.createdAt,
-        recentLogs: webhook.logs?.map((log: any) => ({
+        recentLogs: webhook.WebhookLog?.map((log: any) => ({
           event: log.event,
           success: log.success,
           statusCode: log.statusCode,
           createdAt: log.createdAt
         })) || []
       })) || [],
-      templates: user.templates?.map((template: any) => ({
+      templates: user.Template?.map((template: any) => ({
         id: template.id,
         name: template.name,
         category: template.category,
         createdAt: template.createdAt
       })) || [],
       statistics: {
-        totalQRCodes: user.qrCodes?.length || 0,
-        totalScans: user.qrCodes?.reduce((sum: number, qr: any) => sum + (qr.scans?.length || 0), 0) || 0,
-        totalTeams: user.teamMembers?.length || 0,
-        totalAPIKeys: user.apiKeys?.length || 0,
-        totalWebhooks: user.webhooks?.length || 0
+        totalQRCodes: user.QRCode?.length || 0,
+        totalScans: user.QRCode?.reduce((sum: number, qr: any) => sum + (qr.Scan?.length || 0), 0) || 0,
+        totalTeams: user.TeamMember?.length || 0,
+        totalAPIKeys: user.ApiKey?.length || 0,
+        totalWebhooks: user.Webhook?.length || 0
       }
     };
 
     // Return as downloadable JSON file
     const filename = `qrstudio-data-export-${user.id}-${Date.now()}.json`;
-    
+
     return new NextResponse(JSON.stringify(exportData, null, 2), {
       status: 200,
       headers: {

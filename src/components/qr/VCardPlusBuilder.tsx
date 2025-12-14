@@ -71,7 +71,7 @@ interface VCardPlusData {
 }
 
 interface VCardPlusBuilderProps {
-  data?: VCardPlusData;
+  initialData?: VCardPlusData;
   onSave: (data: VCardPlusData) => Promise<void>;
   onPreview?: () => void;
 }
@@ -79,32 +79,32 @@ interface VCardPlusBuilderProps {
 const defaultTheme = themePresets[0].config;
 
 export default function VCardPlusBuilder({
-  data,
+  initialData,
   onSave,
   onPreview,
 }: VCardPlusBuilderProps) {
-  const [firstName, setFirstName] = useState(data?.firstName || '');
-  const [lastName, setLastName] = useState(data?.lastName || '');
-  const [company, setCompany] = useState(data?.company || '');
-  const [jobTitle, setJobTitle] = useState(data?.jobTitle || '');
-  const [email, setEmail] = useState(data?.email || '');
-  const [phone, setPhone] = useState(data?.phone || '');
-  const [website, setWebsite] = useState(data?.website || '');
-  const [address, setAddress] = useState(data?.address || '');
-  const [profilePhoto, setProfilePhoto] = useState(data?.profilePhoto || '');
-  const [coverPhoto, setCoverPhoto] = useState(data?.coverPhoto || '');
-  const [bio, setBio] = useState(data?.bio || '');
+  const [firstName, setFirstName] = useState(initialData?.firstName || '');
+  const [lastName, setLastName] = useState(initialData?.lastName || '');
+  const [company, setCompany] = useState(initialData?.company || '');
+  const [jobTitle, setJobTitle] = useState(initialData?.jobTitle || '');
+  const [email, setEmail] = useState(initialData?.email || '');
+  const [phone, setPhone] = useState(initialData?.phone || '');
+  const [website, setWebsite] = useState(initialData?.website || '');
+  const [address, setAddress] = useState(initialData?.address || '');
+  const [profilePhoto, setProfilePhoto] = useState(initialData?.profilePhoto || '');
+  const [coverPhoto, setCoverPhoto] = useState(initialData?.coverPhoto || '');
+  const [bio, setBio] = useState(initialData?.bio || '');
   const [socialLinks, setSocialLinks] = useState(
-    data?.socialLinks || { linkedin: '', twitter: '', facebook: '', instagram: '' }
+    initialData?.socialLinks || { linkedin: '', twitter: '', facebook: '', instagram: '' }
   );
   const [customFields, setCustomFields] = useState<CustomField[]>(
-    data?.customFields || []
+    initialData?.customFields || []
   );
-  const [theme, setTheme] = useState(data?.theme || defaultTheme);
+  const [theme, setTheme] = useState(initialData?.theme || defaultTheme);
   const [downloadEnabled, setDownloadEnabled] = useState(
-    data?.downloadEnabled ?? true
+    initialData?.downloadEnabled ?? true
   );
-  const [published, setPublished] = useState(data?.published ?? false);
+  const [published, setPublished] = useState(initialData?.published ?? false);
   const [activeTab, setActiveTab] = useState<'content' | 'design'>('content');
 
   const [customFieldDialog, setCustomFieldDialog] = useState(false);

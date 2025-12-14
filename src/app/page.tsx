@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import HomePageClient from './page.client'
+import { ClientLayout } from '@/components/layout/ClientLayout'
 
 export const metadata: Metadata = {
   title: "Free QR Code Generator & Scanner - Create Custom QR Codes Online",
@@ -35,5 +36,9 @@ export const metadata: Metadata = {
 }
 
 export default function HomePage() {
-  return <HomePageClient />
+  return (
+    <ClientLayout>
+      <HomePageClient />
+    </ClientLayout>
+  )
 }

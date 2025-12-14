@@ -36,6 +36,7 @@ export async function PATCH(
         ...(type !== undefined && { type }),
         ...(active !== undefined && { active }),
         ...(targetAudience !== undefined && { targetAudience }),
+        updatedAt: new Date(),
       },
     });
 

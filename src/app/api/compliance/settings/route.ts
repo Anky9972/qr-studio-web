@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-      include: { complianceSettings: true } as any,
+      include: { ComplianceSettings: true } as any,
     }) as any;
 
     if (!user) {
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Return existing settings or defaults
-    const settings = user.complianceSettings || {
+    const settings = user.ComplianceSettings || {
       gdprMode: false,
       dataRetentionDays: 365,
       anonymizeScans: false,
@@ -71,9 +71,10 @@ export async function POST(request: NextRequest) {
     const validRetentionDays = Math.max(30, Math.min(3650, dataRetentionDays || 365));
 
     // Upsert compliance settings
-    const settings = await (prisma as any).complianceSettings.upsert({
+    const settings = await prisma.complianceSettings.upsert({
       where: { userId: user.id },
       create: {
+        id: `comp_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
         userId: user.id,
         gdprMode: gdprMode ?? false,
         dataRetentionDays: validRetentionDays,
@@ -81,6 +82,7 @@ export async function POST(request: NextRequest) {
         allowDataExport: allowDataExport ?? true,
         allowDataDeletion: allowDataDeletion ?? true,
         cookieConsentRequired: cookieConsentRequired ?? true,
+        updatedAt: new Date(),
       },
       update: {
         gdprMode: gdprMode ?? false,
@@ -89,6 +91,7 @@ export async function POST(request: NextRequest) {
         allowDataExport: allowDataExport ?? true,
         allowDataDeletion: allowDataDeletion ?? true,
         cookieConsentRequired: cookieConsentRequired ?? true,
+        updatedAt: new Date(),
       },
     });
 

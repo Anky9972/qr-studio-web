@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { parseUserAgent } from '@/lib/user-agent-parser';
+import { getGeolocation } from '@/lib/geolocation';
 
 export const dynamic = 'force-dynamic';
 
@@ -74,9 +76,16 @@ async function trackScan(qrCodeId: string, request: NextRequest) {
                      'unknown';
 
     // Parse device, browser, OS from user agent
-    const device = getDeviceType(userAgent);
-    const browser = getBrowser(userAgent);
-    const os = getOS(userAgent);
+    const parsed = parseUserAgent(userAgent);
+    const device = parsed.device;
+    const browser = parsed.browser;
+    const os = parsed.os;
+
+    // Get geolocation data
+    const geoData = await getGeolocation(ipAddress).catch(() => ({ 
+      country: 'Unknown', 
+      city: 'Unknown' 
+    }));
 
     // Create scan record
     await prisma.scan.create({
@@ -87,6 +96,8 @@ async function trackScan(qrCodeId: string, request: NextRequest) {
         device,
         browser,
         os,
+        country: geoData.country,
+        city: geoData.city,
         referrer: request.headers.get('referer') || undefined,
       },
     });
@@ -103,29 +114,4 @@ async function trackScan(qrCodeId: string, request: NextRequest) {
     console.error('Scan tracking error:', error);
     // Don't block redirect if tracking fails
   }
-}
-
-// Helper functions for parsing user agent
-function getDeviceType(userAgent: string): string {
-  if (/mobile/i.test(userAgent)) return 'Mobile';
-  if (/tablet|ipad/i.test(userAgent)) return 'Tablet';
-  return 'Desktop';
-}
-
-function getBrowser(userAgent: string): string {
-  if (/edg/i.test(userAgent)) return 'Edge';
-  if (/chrome/i.test(userAgent)) return 'Chrome';
-  if (/firefox/i.test(userAgent)) return 'Firefox';
-  if (/safari/i.test(userAgent)) return 'Safari';
-  if (/opera/i.test(userAgent)) return 'Opera';
-  return 'Other';
-}
-
-function getOS(userAgent: string): string {
-  if (/windows/i.test(userAgent)) return 'Windows';
-  if (/mac/i.test(userAgent)) return 'MacOS';
-  if (/linux/i.test(userAgent)) return 'Linux';
-  if (/android/i.test(userAgent)) return 'Android';
-  if (/ios|iphone|ipad/i.test(userAgent)) return 'iOS';
-  return 'Other';
 }

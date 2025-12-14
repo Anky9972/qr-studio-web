@@ -13,7 +13,8 @@ import {
   Edit,
   Trash2,
   Megaphone,
-  X
+  X,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -193,9 +194,20 @@ export default function CampaignsPage() {
             Organize, track, and manage your marketing campaigns.
           </p>
         </div>
-        <Button variant="glow" onClick={() => { resetForm(); setCreateDialogOpen(true); }}>
-          <Plus size={16} className="mr-2" /> Create Campaign
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            onClick={fetchCampaigns}
+            disabled={loading}
+            variant="outline"
+            className="border-white/10 hover:bg-white/5"
+          >
+            <RefreshCw className={cn("w-4 h-4 mr-2", loading && "animate-spin")} />
+            Refresh
+          </Button>
+          <Button variant="glow" onClick={() => { resetForm(); setCreateDialogOpen(true); }}>
+            <Plus size={16} className="mr-2" /> Create Campaign
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}

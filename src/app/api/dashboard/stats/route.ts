@@ -39,14 +39,14 @@ export async function GET(request: NextRequest) {
       }),
       prisma.scan.count({
         where: {
-          qrCode: {
+          QRCode: {
             userId,
           },
         },
       }),
       prisma.scan.count({
         where: {
-          qrCode: {
+          QRCode: {
             userId,
           },
           scannedAt: {

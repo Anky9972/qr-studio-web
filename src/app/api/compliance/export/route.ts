@@ -14,13 +14,13 @@ export async function GET(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: (session.user as any).id },
       include: {
-        qrCodes: true,
-        campaigns: true,
-        templates: true,
-        apiKeys: true,
-        webhooks: true,
-        auditLogs: true,
-        complianceSettings: true,
+        QRCode: true,
+        Campaign: true,
+        Template: true,
+        ApiKey: true,
+        Webhook: true,
+        AuditLog: true,
+        ComplianceSettings: true,
       } as any,
     }) as any;
 
@@ -35,29 +35,29 @@ export async function GET(request: NextRequest) {
     zip.file('user_profile.json', JSON.stringify(user, null, 2));
 
     // QR Codes
-    zip.file('qr_codes.json', JSON.stringify(user.qrCodes, null, 2));
+    zip.file('qr_codes.json', JSON.stringify(user.QRCode, null, 2));
 
     // Campaigns
-    zip.file('campaigns.json', JSON.stringify(user.campaigns, null, 2));
+    zip.file('campaigns.json', JSON.stringify(user.Campaign, null, 2));
 
     // Templates
-    zip.file('templates.json', JSON.stringify(user.templates, null, 2));
+    zip.file('templates.json', JSON.stringify(user.Template, null, 2));
 
     // API Keys (redacted)
-    const redactedKeys = user.apiKeys.map((key: any) => ({
+    const redactedKeys = user.ApiKey.map((key: any) => ({
       ...key,
       key: '***REDACTED***',
     }));
     zip.file('api_keys.json', JSON.stringify(redactedKeys, null, 2));
 
     // Webhooks
-    zip.file('webhooks.json', JSON.stringify(user.webhooks, null, 2));
+    zip.file('webhooks.json', JSON.stringify(user.Webhook, null, 2));
 
     // Audit Logs
-    zip.file('audit_logs.json', JSON.stringify(user.auditLogs, null, 2));
+    zip.file('audit_logs.json', JSON.stringify(user.AuditLog, null, 2));
 
     // Compliance Settings
-    zip.file('compliance_settings.json', JSON.stringify(user.complianceSettings, null, 2));
+    zip.file('compliance_settings.json', JSON.stringify(user.ComplianceSettings, null, 2));
 
     // README
     const readme = `

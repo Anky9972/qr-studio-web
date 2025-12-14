@@ -43,10 +43,8 @@ export function Navbar() {
     setProfileMenuOpen(false)
     await signOut({ callbackUrl: '/' })
   }
-
-  // Don't show navbar on dashboard pages
-  if (!mounted) return null
-  if (pathname?.startsWith('/dashboard') || pathname?.startsWith('/admin')) {
+  
+  if (!mounted) {
     return null
   }
 

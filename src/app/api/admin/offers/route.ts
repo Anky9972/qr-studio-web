@@ -83,6 +83,7 @@ export async function POST(request: NextRequest) {
 
     const offer = await prisma.offer.create({
       data: {
+        id: `offer_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
         title,
         description: description || '',
         discountPercent,
@@ -91,6 +92,7 @@ export async function POST(request: NextRequest) {
         validUntil: new Date(validUntil),
         targetPlan: targetPlan || 'all',
         active: active !== undefined ? active : true,
+        updatedAt: new Date(),
       },
     });
 

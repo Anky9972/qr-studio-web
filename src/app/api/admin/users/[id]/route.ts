@@ -43,7 +43,7 @@ export async function GET(
             teamMembers: true,
           },
         },
-        qrCodes: {
+        QRCode: {
           take: 10,
           orderBy: { createdAt: 'desc' },
           select: {
@@ -52,7 +52,7 @@ export async function GET(
             type: true,
             createdAt: true,
             _count: {
-              select: { scans: true },
+              select: { Scan: true },
             },
           },
         },

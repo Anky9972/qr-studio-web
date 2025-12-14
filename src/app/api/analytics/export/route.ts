@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
         },
       },
       include: {
-        scans: {
+        Scan: {
           where: {
             scannedAt: {
               gte: startDate ? new Date(startDate) : undefined,
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     const exportData = qrCodes.map(qr => ({
       Name: qr.name || 'Unnamed',
       Type: qr.type,
-      'Total Scans': qr.scans.length,
+      'Total Scans': qr.Scan.length,
       'Created Date': qr.createdAt.toLocaleDateString(),
       'Short URL': qr.shortUrl || 'N/A',
     }));

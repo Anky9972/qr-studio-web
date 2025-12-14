@@ -158,7 +158,7 @@ model DigitalMenu {
   viewCount   Int      @default(0)
   published   Boolean  @default(true)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime
+  updatedAt   DateTime @updatedAt
   User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   QRCode      QRCode[]
 
@@ -182,7 +182,7 @@ model LeadGate {
   submissionCount Int      @default(0)
   published       Boolean  @default(true)
   createdAt       DateTime @default(now())
-  updatedAt       DateTime
+  updatedAt       DateTime @updatedAt
   User            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   QRCode          QRCode[]
 
@@ -206,7 +206,7 @@ model LinkInBio {
   customCss    String?
   seo          Json?
   createdAt    DateTime @default(now())
-  updatedAt    DateTime
+  updatedAt    DateTime @updatedAt
   User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   QRCode       QRCode[]
 
@@ -507,7 +507,7 @@ model VCardPlus {
   viewCount       Int      @default(0)
   published       Boolean  @default(true)
   createdAt       DateTime @default(now())
-  updatedAt       DateTime
+  updatedAt       DateTime @updatedAt
   QRCode          QRCode[]
   User            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 

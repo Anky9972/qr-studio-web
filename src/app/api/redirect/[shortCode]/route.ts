@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { parseUserAgent } from '@/lib/user-agent-parser';
+import { getGeolocation } from '@/lib/geolocation';
 
 export async function POST(
   request: NextRequest,
@@ -66,28 +68,16 @@ export async function POST(
 
     // Parse user agent for device/browser info
     const ua = userAgent || request.headers.get('user-agent') || 'unknown';
-    let deviceType = 'Desktop';
-    let browser = 'Unknown';
-    let os = 'Unknown';
+    const parsed = parseUserAgent(ua);
+    const deviceType = parsed.device;
+    const browser = parsed.browser;
+    const os = parsed.os;
 
-    // Simple user agent parsing
-    if (/mobile/i.test(ua)) deviceType = 'Mobile';
-    else if (/tablet|ipad/i.test(ua)) deviceType = 'Tablet';
-
-    if (/chrome/i.test(ua)) browser = 'Chrome';
-    else if (/safari/i.test(ua)) browser = 'Safari';
-    else if (/firefox/i.test(ua)) browser = 'Firefox';
-    else if (/edge/i.test(ua)) browser = 'Edge';
-
-    if (/windows/i.test(ua)) os = 'Windows';
-    else if (/mac/i.test(ua)) os = 'macOS';
-    else if (/linux/i.test(ua)) os = 'Linux';
-    else if (/android/i.test(ua)) os = 'Android';
-    else if (/ios|iphone|ipad/i.test(ua)) os = 'iOS';
-
-    // Get approximate location from IP (you would use a GeoIP service in production)
-    // For now, we'll use a placeholder
-    const location = 'Unknown';
+    // Get geolocation data
+    const geoData = await getGeolocation(ipAddress).catch(() => ({ 
+      country: 'Unknown', 
+      city: 'Unknown' 
+    }));
 
     // Create scan record
     await prisma.scan.create({
@@ -99,7 +89,9 @@ export async function POST(
         device: deviceType,
         browser,
         os,
-        referrer: referrer || 'direct'
+        country: geoData.country,
+        city: geoData.city,
+        referrer: referrer || undefined
       }
     });
 
