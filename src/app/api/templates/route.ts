@@ -286,11 +286,13 @@ export async function POST(request: NextRequest) {
 
     const template = await prisma.template.create({
       data: {
+        id: crypto.randomUUID(),
         name,
         description,
         category,
         design,
         userId,
+        updatedAt: new Date(),
       },
     });
 

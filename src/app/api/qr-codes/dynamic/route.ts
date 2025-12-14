@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
     // Create dynamic QR code in database
     const qrCode = await prisma.qRCode.create({
       data: {
+        id: crypto.randomUUID(),
         userId: (session.user as any).id,
         name: name || 'Dynamic QR Code',
         type: 'dynamic',
@@ -59,6 +60,7 @@ export async function POST(request: NextRequest) {
         password: password || null,
         expiresAt: expiresAt ? new Date(expiresAt) : null,
         design: design || null,
+        updatedAt: new Date(),
       },
     });
 

@@ -3,6 +3,7 @@ import { validateApiKey, createApiError, ApiAuthContext } from '@/lib/apiAuth';
 import { checkRateLimit, addRateLimitHeaders } from '@/lib/rateLimit';
 import { prisma } from '@/lib/prisma';
 import QRCode from 'qrcode';
+import crypto from 'crypto';
 
 // POST /api/v1/qr-codes - Generate QR code
 export async function POST(request: NextRequest) {
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest) {
     // Save to database
     const qrCode = await prisma.qRCode.create({
       data: {
+        id: crypto.randomUUID(),
         userId: context.userId,
         name: name || 'API Generated QR',
         type: 'static',
@@ -52,6 +54,7 @@ export async function POST(request: NextRequest) {
         foreground,
         background,
         errorLevel,
+        updatedAt: new Date(),
       },
     });
 

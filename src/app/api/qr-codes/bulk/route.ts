@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { checkQRCodeLimit, checkDynamicQRCodeLimit } from '@/middleware/planLimits';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 const bulkQRSchema = z.object({
   qrCodes: z.array(
@@ -142,10 +143,12 @@ export async function POST(request: NextRequest) {
 
         return {
           ...qr,
+          id: crypto.randomUUID(),
           userId,
           shortUrl,
           password: hashedPassword,
           expiresAt: qr.expiresAt ? new Date(qr.expiresAt) : null,
+          updatedAt: new Date(),
         };
       })
     );

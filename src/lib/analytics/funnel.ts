@@ -22,7 +22,7 @@ export async function calculateFunnelMetrics(userId: string, startDate?: Date, e
     where: {
       userId,
       createdAt: dateFilter,
-      scans: {
+      Scan: {
         some: {},
       },
     },
@@ -31,7 +31,7 @@ export async function calculateFunnelMetrics(userId: string, startDate?: Date, e
   // Stage 3: Total Scans
   const totalScans = await prisma.scan.count({
     where: {
-      qrCode: {
+      QRCode: {
         userId,
       },
       scannedAt: dateFilter,
@@ -42,7 +42,7 @@ export async function calculateFunnelMetrics(userId: string, startDate?: Date, e
   const uniqueUsers = await prisma.scan.groupBy({
     by: ['ipAddress'],
     where: {
-      qrCode: {
+      QRCode: {
         userId,
       },
       scannedAt: dateFilter,
@@ -87,7 +87,7 @@ export async function getGeographicDistribution(userId: string, limit = 50) {
   const scans = await prisma.scan.groupBy({
     by: ['country', 'city'],
     where: {
-      qrCode: {
+      QRCode: {
         userId,
       },
       country: {
@@ -124,7 +124,7 @@ export async function getGeographicDistribution(userId: string, limit = 50) {
     .map((scan) => {
       const key = `${scan.city},${scan.country}`;
       const coords = cityCoordinates[key] || { lat: 0, lng: 0 };
-      
+
       return {
         lat: coords.lat,
         lng: coords.lng,
@@ -147,7 +147,7 @@ export async function trackConversion(
 ) {
   // Store conversion in database
   // Note: You'll need to add a Conversion model to your Prisma schema
-  
+
   // For now, return success
   return {
     success: true,
@@ -173,7 +173,7 @@ export async function calculateConversionRate(
   // Total scans in period
   const totalScans = await prisma.scan.count({
     where: {
-      qrCode: {
+      QRCode: {
         userId,
       },
       scannedAt: dateFilter,
@@ -203,7 +203,7 @@ export async function getRealtimeMetrics(userId: string) {
     // Scans in the last minute
     prisma.scan.count({
       where: {
-        qrCode: {
+        QRCode: {
           userId,
         },
         scannedAt: {
@@ -216,7 +216,7 @@ export async function getRealtimeMetrics(userId: string) {
     prisma.qRCode.count({
       where: {
         userId,
-        scans: {
+        Scan: {
           some: {
             scannedAt: {
               gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
@@ -229,7 +229,7 @@ export async function getRealtimeMetrics(userId: string) {
     // Total scans today
     prisma.scan.count({
       where: {
-        qrCode: {
+        QRCode: {
           userId,
         },
         scannedAt: {

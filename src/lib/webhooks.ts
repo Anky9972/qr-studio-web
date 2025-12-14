@@ -122,6 +122,7 @@ export async function sendWebhook(
   // Log webhook delivery attempt
   await prisma.webhookLog.create({
     data: {
+      id: crypto.randomUUID(),
       webhookId,
       event,
       payload: payload as any,
@@ -245,6 +246,7 @@ export async function testWebhook(webhookId: string): Promise<{
     // Log test
     await prisma.webhookLog.create({
       data: {
+        id: crypto.randomUUID(),
         webhookId,
         event: 'qr.created',
         payload: payload as any,
@@ -263,6 +265,7 @@ export async function testWebhook(webhookId: string): Promise<{
   } catch (err: any) {
     await prisma.webhookLog.create({
       data: {
+        id: crypto.randomUUID(),
         webhookId,
         event: 'qr.created',
         payload: payload as any,

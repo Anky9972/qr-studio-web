@@ -16,6 +16,7 @@ import {
 } from '@/lib/googleSheets';
 import { prisma } from '@/lib/prisma';
 import { getPlanLimits } from '@/lib/plan-limits';
+import crypto from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
@@ -119,6 +120,7 @@ export async function POST(request: NextRequest) {
       try {
         const qrCode = await prisma.qRCode.create({
           data: {
+            id: crypto.randomUUID(),
             userId,
             name: qrData.name || `Sheet Import - ${qrData.content.substring(0, 20)}`,
             content: qrData.content,
@@ -129,6 +131,7 @@ export async function POST(request: NextRequest) {
             logo: qrData.logo || null,
             errorLevel: qrData.errorCorrection || 'M',
             size: qrData.size || 512,
+            updatedAt: new Date(),
           },
         });
 

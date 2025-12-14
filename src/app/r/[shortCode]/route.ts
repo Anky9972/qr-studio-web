@@ -6,11 +6,12 @@ import { appendUTMParameters } from '@/lib/utmBuilder';
 import { RedirectContext } from '@/types/routing';
 import { getGeolocation } from '@/lib/geolocation';
 import { parseUserAgent } from '@/lib/user-agent-parser';
-import { 
-  generateVisitorFingerprint, 
-  checkUniqueVisitor, 
-  getVisitorIdFromCookie 
+import {
+  generateVisitorFingerprint,
+  checkUniqueVisitor,
+  getVisitorIdFromCookie
 } from '@/lib/visitor-tracking';
+import crypto from 'crypto';
 
 export async function GET(
   request: NextRequest,
@@ -26,11 +27,11 @@ export async function GET(
         type: 'dynamic',
       },
       include: {
-        routingRules: {
+        RoutingRule: {
           where: { active: true },
           orderBy: { priority: 'desc' },
         },
-        pixelConfigs: {
+        PixelConfig: {
           where: { active: true },
         },
       },
@@ -48,13 +49,13 @@ export async function GET(
       // Redirect to friendly error page with optional fallback
       const errorUrl = new URL('/qr-expired', request.url);
       errorUrl.searchParams.set('type', 'expired');
-      
+
       // Check if owner set a fallback URL for expired codes
-      const fallbackRule = qrCode.routingRules.find(r => r.type === 'expired');
+      const fallbackRule = qrCode.RoutingRule.find(r => r.type === 'expired');
       if (fallbackRule && fallbackRule.destination) {
         errorUrl.searchParams.set('fallback', fallbackRule.destination);
       }
-      
+
       return NextResponse.redirect(errorUrl, 302);
     }
 
@@ -73,16 +74,16 @@ export async function GET(
     // Check scan limit
     if (shouldBlockByScanLimit(qrCode.scanCount, qrCode.maxScans || undefined)) {
       // Find scan limit rule with exceeded URL
-      const scanLimitRule = qrCode.routingRules.find(r => r.type === 'scanLimit');
-      
+      const scanLimitRule = qrCode.RoutingRule.find(r => r.type === 'scanLimit');
+
       // Redirect to friendly error page
       const errorUrl = new URL('/qr-expired', request.url);
       errorUrl.searchParams.set('type', 'limit');
-      
+
       if (scanLimitRule && scanLimitRule.destination) {
         errorUrl.searchParams.set('fallback', scanLimitRule.destination);
       }
-      
+
       return NextResponse.redirect(errorUrl, 302);
     }
 
@@ -125,7 +126,7 @@ export async function GET(
 
     // Evaluate smart routing rules
     const routingResult = await evaluateRoutingRules(
-      qrCode.routingRules as any[],
+      qrCode.RoutingRule as any[],
       context,
       qrCode.destination || ''
     );
@@ -143,6 +144,7 @@ export async function GET(
       Promise.all([
         prisma.scan.create({
           data: {
+            id: crypto.randomUUID(),
             qrCodeId: qrCode.id,
             ipAddress,
             userAgent,
@@ -168,6 +170,7 @@ export async function GET(
       Promise.all([
         prisma.scan.create({
           data: {
+            id: crypto.randomUUID(),
             qrCodeId: qrCode.id,
             ipAddress,
             userAgent,
@@ -199,11 +202,11 @@ export async function GET(
     }).catch(err => console.error('Failed to update scan count:', err));
 
     // Check if pixels are configured
-    if (qrCode.pixelConfigs && qrCode.pixelConfigs.length > 0) {
+    if (qrCode.PixelConfig && qrCode.PixelConfig.length > 0) {
       // Generate landing page with pixel injection
-      const maxDelay = Math.max(...qrCode.pixelConfigs.map(p => p.delayRedirect));
+      const maxDelay = Math.max(...qrCode.PixelConfig.map(p => p.delayRedirect));
       const landingPageHtml = generatePixelLandingPage(
-        qrCode.pixelConfigs as any[],
+        qrCode.PixelConfig as any[],
         finalDestination,
         maxDelay
       );

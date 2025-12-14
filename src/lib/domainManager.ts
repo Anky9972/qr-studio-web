@@ -29,10 +29,10 @@ export async function verifyDomainCNAME(
   try {
     // Use DNS lookup to check CNAME record
     const dns = await import('dns').then(m => m.promises);
-    
+
     try {
       const records = await dns.resolveCname(domain);
-      return records.some(record => 
+      return records.some(record =>
         record.toLowerCase() === expectedTarget.toLowerCase()
       );
     } catch (error: any) {
@@ -58,12 +58,12 @@ export async function verifyDomainTXT(
   try {
     const dns = await import('dns').then(m => m.promises);
     const records = await dns.resolveTxt(domain);
-    
+
     // Flatten TXT records (they come as arrays)
     const flatRecords = records.flat();
-    
+
     // Check if any record matches our verification token
-    return flatRecords.some(record => 
+    return flatRecords.some(record =>
       record.includes(`qrstudio-verification=${expectedToken}`)
     );
   } catch (error) {
@@ -97,11 +97,11 @@ export async function verifyCustomDomain(
 
     // Check CNAME record
     const cnameValid = await verifyDomainCNAME(domain.domain, domain.cnameTarget);
-    
+
     if (!cnameValid) {
       // Try TXT record as fallback
       const txtValid = await verifyDomainTXT(domain.domain, domain.verificationToken);
-      
+
       if (!txtValid) {
         result.errors.push('CNAME or TXT record not found or incorrect');
         result.dnsRecords = {
@@ -114,7 +114,7 @@ export async function verifyCustomDomain(
 
     // Check SSL (try HTTPS request)
     const sslValid = await checkSSL(domain.domain);
-    
+
     // Update domain in database
     await prisma.customDomain.update({
       where: { id: domainId },
@@ -128,7 +128,7 @@ export async function verifyCustomDomain(
 
     result.verified = true;
     result.sslEnabled = sslValid;
-    
+
     if (!sslValid) {
       result.errors.push('SSL certificate not yet active (may take 24-48 hours)');
     }
@@ -184,12 +184,14 @@ export async function createCustomDomain(
     // Create domain
     const newDomain = await prisma.customDomain.create({
       data: {
+        id: crypto.randomUUID(),
         userId,
         domain,
         verified: false,
         sslEnabled: false,
         cnameTarget: process.env.NEXT_PUBLIC_CNAME_TARGET || 'qrstudio.app',
         verificationToken: generateVerificationToken(),
+        updatedAt: new Date(),
       },
     });
 
@@ -283,13 +285,13 @@ export function getDomainSetupInstructions(
  */
 export async function refreshDomainStatus(domainId: string): Promise<DomainVerificationResult> {
   const result = await verifyCustomDomain(domainId);
-  
+
   // Update last checked timestamp
   await prisma.customDomain.update({
     where: { id: domainId },
     data: { lastChecked: new Date() },
   });
-  
+
   return result;
 }
 
@@ -304,7 +306,7 @@ export async function canAddDomain(userId: string): Promise<{
 }> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    include: { customDomains: true },
+    include: { CustomDomain: true },
   });
 
   if (!user) {
@@ -320,7 +322,7 @@ export async function canAddDomain(userId: string): Promise<{
   };
 
   const limit = limits[user.plan] || 0;
-  const current = user.customDomains.length;
+  const current = user.CustomDomain.length;
 
   if (current >= limit) {
     return {

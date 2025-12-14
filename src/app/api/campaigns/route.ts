@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import crypto from 'crypto';
 
 const campaignSchema = z.object({
   name: z.string().min(1),
@@ -104,8 +105,10 @@ export async function POST(request: NextRequest) {
 
     const campaign = await prisma.campaign.create({
       data: {
+        id: crypto.randomUUID(),
         ...data,
         userId,
+        updatedAt: new Date(),
         ...(startDate && { startDate: new Date(startDate) }),
         ...(endDate && { endDate: new Date(endDate) }),
       },

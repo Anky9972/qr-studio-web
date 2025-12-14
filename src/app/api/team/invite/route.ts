@@ -5,6 +5,8 @@ import { prisma } from '@/lib/prisma';
 import { sendTeamInvitationEmail } from '@/lib/email';
 import { checkTeamMemberLimit } from '@/middleware/planLimits';
 
+import crypto from 'crypto';
+
 // POST /api/team/invite - Invite a team member
 export async function POST(request: NextRequest) {
   try {
@@ -45,14 +47,14 @@ export async function POST(request: NextRequest) {
     // Get user's team or create one
     let userTeam = await prisma.team.findFirst({
       where: {
-        members: {
+        TeamMember: {
           some: {
             userId,
           },
         },
       },
       include: {
-        members: true,
+        TeamMember: true,
       },
     });
 
@@ -60,9 +62,12 @@ export async function POST(request: NextRequest) {
       // Create a team for the user
       userTeam = await prisma.team.create({
         data: {
+          id: crypto.randomUUID(),
           name: `${session.user.name || session.user.email}'s Team`,
+          updatedAt: new Date(),
           TeamMember: {
             create: {
+              id: crypto.randomUUID(),
               userId,
               role: 'ADMIN',
             },
@@ -94,6 +99,7 @@ export async function POST(request: NextRequest) {
     // Add user to team
     await prisma.teamMember.create({
       data: {
+        id: crypto.randomUUID(),
         teamId: userTeam.id,
         userId: invitedUser.id,
         role,

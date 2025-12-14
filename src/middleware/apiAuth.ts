@@ -12,7 +12,7 @@ export async function validateApiKey(
   request: NextRequest
 ): Promise<{ success: true; context: ApiAuthContext } | { success: false; error: string; status: number }> {
   const authHeader = request.headers.get('authorization');
-  
+
   if (!authHeader) {
     return {
       success: false,
@@ -22,7 +22,7 @@ export async function validateApiKey(
   }
 
   const [type, token] = authHeader.split(' ');
-  
+
   if (type !== 'Bearer' || !token) {
     return {
       success: false,
@@ -39,7 +39,7 @@ export async function validateApiKey(
     const apiKey = await prisma.apiKey.findUnique({
       where: { keyHash: hashedKey },
       include: {
-        user: {
+        User: {
           select: {
             id: true,
             plan: true,
@@ -77,7 +77,7 @@ export async function validateApiKey(
       context: {
         userId: apiKey.userId,
         apiKey: apiKey.id,
-        plan: apiKey.user.plan,
+        plan: apiKey.User.plan,
       },
     };
   } catch (error) {

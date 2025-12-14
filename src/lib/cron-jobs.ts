@@ -77,7 +77,7 @@ export async function checkUserLimits(): Promise<void> {
         plan: true,
         _count: {
           select: {
-            qrCodes: true,
+            QRCode: true,
           },
         },
       },
@@ -92,7 +92,7 @@ export async function checkUserLimits(): Promise<void> {
 
     for (const user of users) {
       const limit = planLimits[user.plan.toUpperCase()] || 50;
-      const current = user._count.qrCodes;
+      const current = user._count.QRCode;
       const percentage = (current / limit) * 100;
 
       // Send warnings at 80%, 90%, 95%, 100%

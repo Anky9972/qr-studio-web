@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { parseUserAgent } from '@/lib/user-agent-parser';
 import { getGeolocation } from '@/lib/geolocation';
+import crypto from 'crypto';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,10 +55,10 @@ export async function GET(
 
     // Redirect to destination
     const redirectUrl = qrCode.destination || qrCode.content;
-    
+
     // Ensure URL has protocol
-    const finalUrl = redirectUrl.startsWith('http') 
-      ? redirectUrl 
+    const finalUrl = redirectUrl.startsWith('http')
+      ? redirectUrl
       : `https://${redirectUrl}`;
 
     return NextResponse.redirect(finalUrl);
@@ -71,9 +72,9 @@ export async function GET(
 async function trackScan(qrCodeId: string, request: NextRequest) {
   try {
     const userAgent = request.headers.get('user-agent') || '';
-    const ipAddress = request.headers.get('x-forwarded-for') || 
-                     request.headers.get('x-real-ip') || 
-                     'unknown';
+    const ipAddress = request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
 
     // Parse device, browser, OS from user agent
     const parsed = parseUserAgent(userAgent);
@@ -82,14 +83,15 @@ async function trackScan(qrCodeId: string, request: NextRequest) {
     const os = parsed.os;
 
     // Get geolocation data
-    const geoData = await getGeolocation(ipAddress).catch(() => ({ 
-      country: 'Unknown', 
-      city: 'Unknown' 
+    const geoData = await getGeolocation(ipAddress).catch(() => ({
+      country: 'Unknown',
+      city: 'Unknown'
     }));
 
     // Create scan record
     await prisma.scan.create({
       data: {
+        id: crypto.randomUUID(),
         qrCodeId,
         ipAddress,
         userAgent,

@@ -4,6 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { generateWebhookSecret } from '@/lib/webhooks';
 import { z } from 'zod';
+import crypto from 'crypto';
 
 const webhookSchema = z.object({
   url: z.string().url('Invalid webhook URL'),
@@ -100,10 +101,12 @@ export async function POST(request: NextRequest) {
     // Create webhook
     const webhook = await prisma.webhook.create({
       data: {
+        id: crypto.randomUUID(),
         userId,
         url,
         events,
         secret,
+        updatedAt: new Date(),
       },
     });
 

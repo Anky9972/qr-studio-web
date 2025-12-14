@@ -10,13 +10,13 @@ export interface ApiAuthContext {
 
 export async function validateApiKey(request: NextRequest): Promise<{ valid: boolean; context?: ApiAuthContext; error?: string }> {
   const authHeader = request.headers.get('authorization');
-  
+
   if (!authHeader) {
     return { valid: false, error: 'Missing Authorization header' };
   }
 
   const [type, token] = authHeader.split(' ');
-  
+
   if (type !== 'Bearer' || !token) {
     return { valid: false, error: 'Invalid Authorization format. Use: Bearer <api_key>' };
   }
@@ -28,7 +28,7 @@ export async function validateApiKey(request: NextRequest): Promise<{ valid: boo
     const apiKey = await prisma.apiKey.findUnique({
       where: { keyHash },
       include: {
-        user: {
+        User: {
           select: {
             id: true,
             subscription: true,
@@ -57,7 +57,7 @@ export async function validateApiKey(request: NextRequest): Promise<{ valid: boo
       context: {
         userId: apiKey.userId,
         apiKeyId: apiKey.id,
-        subscription: apiKey.user.subscription || 'FREE',
+        subscription: apiKey.User.subscription || 'FREE',
       },
     };
   } catch (error) {

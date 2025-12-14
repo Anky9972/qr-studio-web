@@ -1,6 +1,7 @@
 // Notification Service - Email alerts and reports
 import { prisma } from './prisma';
 import { sendEmail } from './emailService';
+import crypto from 'crypto';
 
 export type NotificationType =
   | 'scan_alert'
@@ -116,7 +117,7 @@ export async function sendWeeklyReport(userId: string): Promise<void> {
       prisma.qRCode.count({ where: { userId } }),
       prisma.scan.count({
         where: {
-          qrCode: { userId },
+          QRCode: { userId },
           scannedAt: { gte: lastWeek },
         },
       }),
@@ -350,7 +351,7 @@ async function logNotification(
   try {
     await prisma.notificationLog.create({
       data: {
-        id: `notif_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+        id: crypto.randomUUID(),
         userId,
         type,
         subject,

@@ -17,6 +17,7 @@ interface LinkInBioItem {
   published: boolean;
   createdAt: string;
   links?: any[];
+  socialLinks?: any[];
   theme?: any;
 }
 
@@ -77,7 +78,7 @@ export default function LinkInBioPage() {
       {showBuilder ? (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           <LinkInBioBuilder
-            initialData={editingItem || undefined}
+            initialData={editingItem ? { ...editingItem, socialLinks: editingItem.socialLinks || [] } as any : undefined}
             onSave={async (data) => {
               try {
                 // Frontend validation
@@ -112,7 +113,7 @@ export default function LinkInBioPage() {
                 }
 
                 let response;
-                let slug = data.slug;
+                let slug = editingItem?.slug;
 
                 if (editingItem) {
                   // Update existing item (PATCH doesn't change slug)
@@ -126,24 +127,24 @@ export default function LinkInBioPage() {
                   slug = data.title.toLowerCase()
                     .replace(/[^a-z0-9]+/g, '-')
                     .replace(/(^-|-$)/g, '');
-                  
+
                   // Ensure slug is at least 3 characters
                   if (slug.length < 3) {
                     slug = `bio-${Date.now()}`;
                   }
-                  
+
                   // Make slug unique by adding timestamp
                   slug = `${slug}-${Date.now()}`;
-                  
+
                   response = await fetch('/api/link-in-bio', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ...data, slug }),
                   });
                 }
-                
+
                 const result = await response.json();
-                
+
                 if (!response.ok) {
                   // Show specific field error if available
                   if (result.field) {
@@ -151,7 +152,7 @@ export default function LinkInBioPage() {
                   }
                   throw new Error(result.error || 'Failed to save');
                 }
-                
+
                 toast.success(editingItem ? 'Link in Bio updated!' : 'Link in Bio created successfully!', {
                   description: `View it at: ${window.location.origin}/bio/${result.slug}`
                 });
@@ -202,7 +203,7 @@ export default function LinkInBioPage() {
                   <span className="px-2 py-1 text-xs rounded-full bg-yellow-500/20 text-yellow-400">Draft</span>
                 )}
               </div>
-              
+
               <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
                 <div className="flex items-center gap-1">
                   <Eye size={14} />
@@ -211,16 +212,16 @@ export default function LinkInBioPage() {
               </div>
 
               <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="flex-1"
                   onClick={() => window.open(`/bio/${item.slug}`, '_blank')}
                 >
                   <ExternalLink size={14} className="mr-1" /> View
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => {
                     setEditingItem(item);
@@ -229,8 +230,8 @@ export default function LinkInBioPage() {
                 >
                   <Edit size={14} />
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={async () => {
                     if (confirm('Are you sure you want to delete this Link in Bio?')) {

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { parseUserAgent } from '@/lib/user-agent-parser';
 import { getGeolocation } from '@/lib/geolocation';
+import crypto from 'crypto';
 
 export async function POST(
   request: NextRequest,
@@ -19,7 +20,7 @@ export async function POST(
         shortUrl: shortCode,
       },
       include: {
-        user: {
+        User: {
           select: {
             id: true,
             plan: true
@@ -74,14 +75,15 @@ export async function POST(
     const os = parsed.os;
 
     // Get geolocation data
-    const geoData = await getGeolocation(ipAddress).catch(() => ({ 
-      country: 'Unknown', 
-      city: 'Unknown' 
+    const geoData = await getGeolocation(ipAddress).catch(() => ({
+      country: 'Unknown',
+      city: 'Unknown'
     }));
 
     // Create scan record
     await prisma.scan.create({
       data: {
+        id: crypto.randomUUID(),
         qrCodeId: qrCode.id,
         scannedAt: new Date(),
         ipAddress,
@@ -101,7 +103,8 @@ export async function POST(
       data: {
         scanCount: {
           increment: 1
-        }
+        },
+        updatedAt: new Date()
       }
     });
 

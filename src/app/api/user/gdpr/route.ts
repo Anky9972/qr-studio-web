@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
         where: { userId },
         include: {
           Campaign: true,
-          scans: {
+          Scan: {
             select: {
               id: true,
               ipAddress: true,
@@ -68,8 +68,8 @@ export async function GET(request: NextRequest) {
               scannedAt: true,
             },
           },
-          routingRules: true,
-          pixelConfigs: true,
+          RoutingRule: true,
+          PixelConfig: true,
         },
       }),
 
@@ -111,7 +111,7 @@ export async function GET(request: NextRequest) {
       prisma.webhook.findMany({
         where: { userId },
         include: {
-          logs: {
+          WebhookLog: {
             take: 100,
             orderBy: {
               createdAt: 'desc',
@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
       prisma.teamMember.findMany({
         where: { userId },
         include: {
-          team: true,
+          Team: true,
         },
       }),
 

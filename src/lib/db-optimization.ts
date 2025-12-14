@@ -12,11 +12,11 @@ export async function getBatchQRCodesWithScans(userId: string) {
   return prisma.qRCode.findMany({
     where: { userId },
     include: {
-      scans: {
+      Scan: {
         orderBy: { scannedAt: 'desc' },
         take: 10, // Limit scans per QR code
       },
-      campaign: true,
+      Campaign: true,
     },
     orderBy: { createdAt: 'desc' },
   });
@@ -114,20 +114,20 @@ export async function getQRCodeAnalytics(qrCodeId: string, days: number = 30) {
 export async function getUserDashboardStats(userId: string) {
   const [qrCodeCount, totalScans, activeQRCodes, recentQRCodes] = await Promise.all([
     prisma.qRCode.count({ where: { userId } }),
-    
+
     prisma.scan.count({
       where: {
-        qrCode: { userId },
+        QRCode: { userId },
       },
     }),
-    
+
     prisma.qRCode.count({
       where: {
         userId,
         scanCount: { gt: 0 },
       },
     }),
-    
+
     prisma.qRCode.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },

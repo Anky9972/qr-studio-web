@@ -3,6 +3,7 @@ import { validateApiKey, createApiError } from '@/lib/apiAuth';
 import { checkRateLimit, addRateLimitHeaders } from '@/lib/rateLimit';
 import { prisma } from '@/lib/prisma';
 import QRCode from 'qrcode';
+import crypto from 'crypto';
 
 // POST /api/v1/qr-codes/bulk - Bulk generate QR codes
 export async function POST(request: NextRequest) {
@@ -13,7 +14,7 @@ export async function POST(request: NextRequest) {
 
   const context = authResult.context!;
   const rateLimit = await checkRateLimit(context.apiKeyId, context.subscription);
-  
+
   if (!rateLimit.allowed) {
     const response = createApiError('Rate limit exceeded', 429);
     addRateLimitHeaders(response.headers, rateLimit.limit, rateLimit.remaining, rateLimit.resetAt);
@@ -65,6 +66,7 @@ export async function POST(request: NextRequest) {
         // Save to database
         const qrCode = await prisma.qRCode.create({
           data: {
+            id: crypto.randomUUID(),
             userId: context.userId,
             name: item.name || `Bulk Generated - ${item.content.substring(0, 20)}`,
             type: 'static',
@@ -74,6 +76,7 @@ export async function POST(request: NextRequest) {
             foreground: item.foreground || foreground,
             background: item.background || background,
             errorLevel: item.errorLevel || errorLevel,
+            updatedAt: new Date(),
           },
         });
 

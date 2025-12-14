@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 import { RoutingCondition } from '@/types/routing';
+import crypto from 'crypto';
 
 // GET /api/qr-codes/[id]/routing - Get routing rules for a QR code
 export async function GET(
@@ -20,10 +21,10 @@ export async function GET(
     const qrCode = await prisma.qRCode.findFirst({
       where: {
         id,
-        user: { email: session.user.email },
+        User: { email: session.user.email },
       },
       include: {
-        routingRules: {
+        RoutingRule: {
           orderBy: { priority: 'desc' },
         },
       },
@@ -33,7 +34,7 @@ export async function GET(
       return NextResponse.json({ error: 'QR code not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ rules: qrCode.routingRules });
+    return NextResponse.json({ rules: qrCode.RoutingRule });
   } catch (error: any) {
     console.error('Error fetching routing rules:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -67,7 +68,7 @@ export async function POST(
     const qrCode = await prisma.qRCode.findFirst({
       where: {
         id,
-        user: { email: session.user.email },
+        User: { email: session.user.email },
       },
     });
 
@@ -78,12 +79,14 @@ export async function POST(
     // Create routing rule
     const rule = await prisma.routingRule.create({
       data: {
+        id: crypto.randomUUID(),
         qrCodeId: id,
         type,
         condition: condition as any,
         destination,
         priority,
         active: true,
+        updatedAt: new Date(),
       },
     });
 

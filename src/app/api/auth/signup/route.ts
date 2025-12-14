@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { hash } from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
+import crypto from 'crypto'
 
 export async function POST(req: NextRequest) {
   try {
@@ -48,11 +49,13 @@ export async function POST(req: NextRequest) {
     // Create user
     const user = await prisma.user.create({
       data: {
+        id: crypto.randomUUID(),
         name,
         email: email.toLowerCase(),
         password: hashedPassword,
         plan: 'free',
         role: 'user',
+        updatedAt: new Date(),
       },
     })
 
@@ -69,7 +72,7 @@ export async function POST(req: NextRequest) {
     )
   } catch (error: any) {
     console.error('Signup error:', error)
-    
+
     // Log specific error details for debugging
     if (error.code) {
       console.error('Error code:', error.code)
@@ -94,9 +97,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Database connection errors
-    if (error.message?.includes('Can\'t reach database') || 
-        error.message?.includes('Connection') ||
-        error.code === 'P1001') {
+    if (error.message?.includes('Can\'t reach database') ||
+      error.message?.includes('Connection') ||
+      error.code === 'P1001') {
       return NextResponse.json(
         { error: 'Database connection failed. Please check DATABASE_URL configuration.' },
         { status: 503 }
@@ -104,7 +107,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { 
+      {
         error: 'Internal server error',
         ...(process.env.NODE_ENV === 'development' && { details: error.message })
       },

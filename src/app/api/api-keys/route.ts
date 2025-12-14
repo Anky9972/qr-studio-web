@@ -82,6 +82,7 @@ export async function POST(request: NextRequest) {
     // Create API key in database
     const newKey = await prisma.apiKey.create({
       data: {
+        id: crypto.randomUUID(),
         userId,
         name: name || 'API Key',
         keyHash,

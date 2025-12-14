@@ -176,11 +176,13 @@ export async function POST(request: NextRequest) {
 
     const qrCode = await prisma.qRCode.create({
       data: {
+        id: crypto.randomUUID(),
         ...data,
         userId,
         shortUrl,
         password: hashedPassword,
         expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+        updatedAt: new Date(),
       },
       include: {
         Campaign: true,
