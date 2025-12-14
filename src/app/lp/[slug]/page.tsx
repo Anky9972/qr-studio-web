@@ -77,6 +77,36 @@ export default async function PublicLandingPage({
             }}
         >
             <style dangerouslySetInnerHTML={{ __html: page.customCss || '' }} />
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                .landing-page h1 {
+                    font-size: clamp(1.75rem, 5vw, 3rem) !important;
+                    padding: 0 1rem;
+                }
+                .landing-page p {
+                    padding: 0 1rem;
+                }
+                .landing-page a[style*="inline-block"] {
+                    display: block !important;
+                    max-width: 300px;
+                    margin-left: auto;
+                    margin-right: auto;
+                    text-align: center;
+                }
+                @media (min-width: 640px) {
+                    .landing-page a[style*="inline-block"] {
+                        display: inline-block !important;
+                        max-width: none;
+                    }
+                }
+                .landing-page form {
+                    padding: 0 1rem;
+                }
+                .landing-page img {
+                    max-width: 100%;
+                    height: auto;
+                }
+            ` }} />
 
             {sections.map((section: Section) => (
                 <div key={section.id}>

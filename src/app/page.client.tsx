@@ -253,12 +253,12 @@ export default function HomePageClient() {
                 }
               </p>
 
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                 {session?.user ? (
                   <>
                     <Button
                       size="lg"
-                      className="bg-white text-black hover:bg-gray-100"
+                      className="bg-white text-black hover:bg-gray-100 w-full sm:w-auto justify-center"
                       asChild
                     >
                       <Link href="/dashboard">
@@ -269,7 +269,7 @@ export default function HomePageClient() {
                     <Button
                       variant="outline"
                       size="lg"
-                      className="border-white/20 text-white hover:bg-white/10"
+                      className="border-white/20 text-white hover:bg-white/10 w-full sm:w-auto justify-center"
                       asChild
                     >
                       <Link href="/dashboard/generate">
@@ -283,7 +283,7 @@ export default function HomePageClient() {
                     <Button
                       variant="premium"
                       size="lg"
-                      className="text-lg px-8 py-6 h-auto"
+                      className="text-lg px-8 py-6 h-auto w-full sm:w-auto justify-center"
                       asChild
                     >
                       <Link href="/signup">
@@ -294,7 +294,7 @@ export default function HomePageClient() {
                     <Button
                       variant="outline"
                       size="lg"
-                      className="border-white/20 text-white hover:bg-white/10 text-lg px-8 py-6 h-auto"
+                      className="border-white/20 text-white hover:bg-white/10 text-lg px-8 py-6 h-auto w-full sm:w-auto justify-center"
                       asChild
                     >
                       <Link href="/features">

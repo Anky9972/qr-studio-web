@@ -243,13 +243,13 @@ export default function FeaturesPage() {
             }
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-md sm:max-w-none mx-auto">
             {session?.user ? (
               <>
                 <Button
                   size="lg"
                   variant="premium"
-                  className="px-8 shadow-lg shadow-blue-500/25"
+                  className="px-8 shadow-lg shadow-blue-500/25 w-full sm:w-auto"
                   onClick={() => window.location.href = '/dashboard'}
                 >
                   <LayoutDashboard className="mr-2" size={20} />
@@ -258,7 +258,7 @@ export default function FeaturesPage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="px-8 bg-white/5 border-white/10 hover:bg-white/10"
+                  className="px-8 bg-white/5 border-white/10 hover:bg-white/10 w-full sm:w-auto"
                   onClick={() => window.location.href = '/dashboard/generate'}
                 >
                   <QrCode className="mr-2" size={20} />
@@ -269,7 +269,7 @@ export default function FeaturesPage() {
               <Button
                 size="lg"
                 variant="premium"
-                className="px-8 text-lg h-14 shadow-lg shadow-blue-500/25"
+                className="px-8 text-lg h-14 shadow-lg shadow-blue-500/25 w-full sm:w-auto"
                 onClick={() => window.location.href = '/signup'}
               >
                 Start Free Trial
@@ -396,11 +396,11 @@ export default function FeaturesPage() {
           <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
             Start your free trial today. No credit card required.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-md sm:max-w-none mx-auto">
             <Button
               size="lg"
               variant="premium"
-              className="px-8 h-14 text-lg shadow-lg shadow-blue-500/25"
+              className="px-8 h-14 text-lg shadow-lg shadow-blue-500/25 w-full sm:w-auto"
               onClick={() => window.location.href = '/signup'}
             >
               Start Free Trial
@@ -409,7 +409,7 @@ export default function FeaturesPage() {
             <Button
               size="lg"
               variant="outline"
-              className="px-8 h-14 text-lg bg-white/5 border-white/10 hover:bg-white/10"
+              className="px-8 h-14 text-lg bg-white/5 border-white/10 hover:bg-white/10 w-full sm:w-auto"
               onClick={() => window.location.href = '/pricing'}
             >
               View Pricing
