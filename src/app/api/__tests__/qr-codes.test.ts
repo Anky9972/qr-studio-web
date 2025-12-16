@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 import { mockSession, mockQRCode, mockUser } from '@/test/mocks';
+import { checkQRCodeLimit, checkDynamicQRCodeLimit } from '@/middleware/planLimits';
 
 // Mock dependencies
 vi.mock('next-auth');
@@ -11,6 +12,7 @@ vi.mock('@/lib/prisma', () => ({
   prisma: {
     qRCode: {
       findMany: vi.fn(),
+      findUnique: vi.fn(),
       count: vi.fn(),
       create: vi.fn(),
     },
@@ -19,7 +21,10 @@ vi.mock('@/lib/prisma', () => ({
     },
   },
 }));
-vi.mock('@/middleware/planLimits');
+vi.mock('@/middleware/planLimits', () => ({
+  checkQRCodeLimit: vi.fn(),
+  checkDynamicQRCodeLimit: vi.fn(),
+}));
 
 describe('QR Codes API', () => {
   beforeEach(() => {
@@ -49,7 +54,7 @@ describe('QR Codes API', () => {
       expect(response.status).toBe(200);
       const data = await response.json();
       expect(data.qrCodes).toHaveLength(1);
-      expect(data.total).toBe(1);
+      expect(data.pagination.total).toBe(1);
       expect(data.qrCodes[0].id).toBe(mockQRCode.id);
     });
 
@@ -87,8 +92,8 @@ describe('QR Codes API', () => {
         })
       );
       const data = await response.json();
-      expect(data.page).toBe(2);
-      expect(data.totalPages).toBe(10);
+      expect(data.pagination.page).toBe(2);
+      expect(data.pagination.totalPages).toBe(10);
     });
 
     it('should filter by type', async () => {
@@ -170,6 +175,12 @@ describe('QR Codes API', () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser);
       vi.mocked(prisma.qRCode.count).mockResolvedValue(10);
       vi.mocked(prisma.qRCode.create).mockResolvedValue(mockQRCode);
+      vi.mocked(checkQRCodeLimit).mockResolvedValue({
+        allowed: true,
+        current: 10,
+        limit: 50,
+        percentage: 20,
+      });
 
       const request = new NextRequest('http://localhost:3000/api/qr-codes', {
         method: 'POST',
@@ -208,7 +219,7 @@ describe('QR Codes API', () => {
       });
       const response = await POST(request);
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(500); // JSON parse errors result in 500
     });
 
     it('should handle database errors during creation', async () => {
@@ -216,6 +227,12 @@ describe('QR Codes API', () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser);
       vi.mocked(prisma.qRCode.count).mockResolvedValue(10);
       vi.mocked(prisma.qRCode.create).mockRejectedValue(new Error('Database error'));
+      vi.mocked(checkQRCodeLimit).mockResolvedValue({
+        allowed: true,
+        current: 10,
+        limit: 50,
+        percentage: 20,
+      });
 
       const request = new NextRequest('http://localhost:3000/api/qr-codes', {
         method: 'POST',

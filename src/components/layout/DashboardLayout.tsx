@@ -113,7 +113,7 @@ export default function DashboardLayout({
     return null
   }
 
-  const SidebarContent = () => (
+  const sidebarContent = (
     <div className="flex flex-col h-full bg-white dark:bg-black/90 backdrop-blur-xl border-r border-gray-200 dark:border-white/10">
       {/* Logo */}
       <div className="h-16 flex items-center px-6 border-b border-gray-100 dark:border-white/5">
@@ -203,7 +203,7 @@ export default function DashboardLayout({
         </div>
       </div>
     </div>
-  )
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black transition-colors duration-300">
@@ -222,7 +222,7 @@ export default function DashboardLayout({
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <SidebarContent />
+        {sidebarContent}
       </aside>
 
       {/* Main Content Area */}
