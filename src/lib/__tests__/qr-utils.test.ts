@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { generateQRCode, downloadQRCode, copyToClipboard } from '../qr-utils';
 
 // Mock QRCode library
@@ -10,6 +10,9 @@ vi.mock('qrcode', () => ({
 
 import QRCode from 'qrcode';
 
+// Cast the mock for proper typing
+const mockToDataURL = QRCode.toDataURL as Mock;
+
 describe('QR Utils', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -18,7 +21,7 @@ describe('QR Utils', () => {
   describe('generateQRCode', () => {
     it('should generate QR code with default options', async () => {
       const mockDataURL = 'data:image/png;base64,mockdata';
-      vi.mocked(QRCode.toDataURL).mockResolvedValue(mockDataURL);
+      mockToDataURL.mockResolvedValue(mockDataURL);
 
       const result = await generateQRCode({ text: 'https://example.com' });
 
@@ -36,7 +39,7 @@ describe('QR Utils', () => {
 
     it('should generate QR code with custom options', async () => {
       const mockDataURL = 'data:image/png;base64,customdata';
-      vi.mocked(QRCode.toDataURL).mockResolvedValue(mockDataURL);
+      mockToDataURL.mockResolvedValue(mockDataURL);
 
       const result = await generateQRCode({
         text: 'Custom Text',
@@ -60,14 +63,14 @@ describe('QR Utils', () => {
     });
 
     it('should handle generation errors', async () => {
-      vi.mocked(QRCode.toDataURL).mockRejectedValue(new Error('QR generation failed'));
+      mockToDataURL.mockRejectedValue(new Error('QR generation failed'));
 
       await expect(generateQRCode({ text: 'Test' })).rejects.toThrow('Failed to generate QR code');
     });
 
     it('should handle empty text', async () => {
       const mockDataURL = 'data:image/png;base64,emptydata';
-      vi.mocked(QRCode.toDataURL).mockResolvedValue(mockDataURL);
+      mockToDataURL.mockResolvedValue(mockDataURL);
 
       const result = await generateQRCode({ text: '' });
 
@@ -78,7 +81,7 @@ describe('QR Utils', () => {
     it('should handle long URLs', async () => {
       const longUrl = 'https://example.com/' + 'a'.repeat(2000);
       const mockDataURL = 'data:image/png;base64,longdata';
-      vi.mocked(QRCode.toDataURL).mockResolvedValue(mockDataURL);
+      mockToDataURL.mockResolvedValue(mockDataURL);
 
       const result = await generateQRCode({ text: longUrl });
 
@@ -89,7 +92,7 @@ describe('QR Utils', () => {
     it('should handle special characters', async () => {
       const specialText = '日本語 한국어 中文 🎉';
       const mockDataURL = 'data:image/png;base64,specialdata';
-      vi.mocked(QRCode.toDataURL).mockResolvedValue(mockDataURL);
+      mockToDataURL.mockResolvedValue(mockDataURL);
 
       const result = await generateQRCode({ text: specialText });
 
