@@ -308,6 +308,33 @@ export default function DashboardLayout({
         <main className="flex-1 p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full animate-in fade-in duration-500">
           {children}
         </main>
+
+        {/* Floating Scan Button - Hidden on scan page */}
+        {pathname !== '/dashboard/scan' && (
+          <Link
+            href="/dashboard/scan"
+            className={cn(
+              "fixed z-40 flex items-center justify-center gap-2 transition-all duration-300",
+              // Mobile: centered at bottom
+              "bottom-6 left-1/2 -translate-x-1/2",
+              // Desktop: bottom right
+              "md:bottom-8 md:right-8 md:left-auto md:translate-x-0",
+              // Styling
+              "bg-gradient-to-r from-electric-blue to-electric-cyan text-white",
+              "rounded-full shadow-lg shadow-cyan-500/30",
+              "hover:shadow-xl hover:shadow-cyan-500/40 hover:scale-105",
+              "active:scale-95",
+              // Size: larger circle on mobile, button with text on desktop
+              "w-14 h-14 md:w-auto md:h-auto md:px-5 md:py-3"
+            )}
+          >
+            <Scan className="w-6 h-6" />
+            <span className="hidden md:inline font-semibold">Scan QR</span>
+
+            {/* Pulse animation ring */}
+            <span className="absolute inset-0 rounded-full bg-cyan-400/30 animate-ping" />
+          </Link>
+        )}
       </div>
     </div>
   )

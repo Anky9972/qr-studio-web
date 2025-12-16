@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useSession } from 'next-auth/react';
 import { QrCode, ArrowRight, TrendingUp, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import TemplateCard from '@/components/templates/TemplateCard';
@@ -200,7 +201,8 @@ export default function TemplatesPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [previewTemplate, setPreviewTemplate] = useState<typeof TEMPLATES[0] | null>(null);
-  const isAuthenticated = false; // TODO: Get from auth context
+  const { data: session } = useSession();
+  const isAuthenticated = !!session?.user;
 
   // Filter templates
   const filteredTemplates = useMemo(() => {

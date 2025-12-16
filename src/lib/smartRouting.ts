@@ -80,7 +80,7 @@ function evaluateDeviceCondition(
 ): boolean {
   const ua = context.userAgent.toLowerCase();
   const detectedOS = detectOS(ua);
-  
+
   return condition.devices.includes(detectedOS);
 }
 
@@ -102,7 +102,7 @@ function evaluateTimeCondition(
 ): boolean {
   const now = new Date(context.timestamp);
   const timezone = condition.timezone || 'UTC';
-  
+
   // Convert to target timezone
   const localTime = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
   const dayOfWeek = localTime.getDay();
@@ -133,7 +133,7 @@ function evaluateLanguageCondition(
 ): boolean {
   // Parse Accept-Language header
   const languages = parseAcceptLanguage(context.acceptLanguage);
-  
+
   // Check if any preferred language matches
   for (const lang of languages) {
     if (condition.languages.includes(lang)) {
@@ -146,7 +146,7 @@ function evaluateLanguageCondition(
 
 function parseAcceptLanguage(header: string): string[] {
   if (!header) return [];
-  
+
   return header
     .split(',')
     .map(lang => {
@@ -174,7 +174,7 @@ async function evaluateGeoCondition(
 ): Promise<boolean> {
   // Get location from IP address
   const location = await getLocationFromIP(context.ipAddress);
-  
+
   if (!location) return false;
 
   // Check countries
@@ -215,20 +215,20 @@ function evaluateUserAgentCondition(
 }
 
 /**
- * IP Geolocation (placeholder - integrate with service)
+ * IP Geolocation using ip-api.com (free tier)
+ * For production, consider: ipapi.co, ipstack.com, ipinfo.io for better rate limits
  */
 async function getLocationFromIP(ipAddress: string): Promise<{
   country: string;
   city?: string;
 } | null> {
-  // TODO: Integrate with IP geolocation service
-  // Options: ipapi.co, ip-api.com, ipstack.com, ipinfo.io
-  
+  // Using free ip-api.com service - rate limited to 45 requests per minute
+
   try {
     // Example using free ip-api.com
     const response = await fetch(`http://ip-api.com/json/${ipAddress}?fields=status,country,countryCode,city`);
     const data = await response.json();
-    
+
     if (data.status === 'success') {
       return {
         country: data.countryCode,
@@ -238,7 +238,7 @@ async function getLocationFromIP(ipAddress: string): Promise<{
   } catch (error) {
     console.error('IP geolocation failed:', error);
   }
-  
+
   return null;
 }
 
@@ -262,10 +262,10 @@ export function getAppStoreURL(
   userAgent: string
 ): string {
   const os = detectOS(userAgent.toLowerCase());
-  
+
   if (os === 'ios') return iosUrl;
   if (os === 'android') return androidUrl;
-  
+
   // Default to iOS for unknown devices
   return iosUrl;
 }

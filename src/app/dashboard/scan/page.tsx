@@ -89,14 +89,21 @@ export default function ScanPage() {
       if (videoRef.current) {
         videoRef.current.srcObject = stream
         streamRef.current = stream
-        setScanning(true)
 
-        if (barcodeMode) {
-          // Use ZXing for barcode scanning
-          scanWithZXing()
-        } else {
-          // Use jsQR for QR code scanning
-          requestAnimationFrame(scanFrame)
+        // Wait for video to be ready before starting scan
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current?.play()
+        }
+
+        videoRef.current.onplaying = () => {
+          setScanning(true)
+          if (barcodeMode) {
+            // Use ZXing for barcode scanning
+            scanWithZXing()
+          } else {
+            // Use jsQR for QR code scanning
+            requestAnimationFrame(scanFrame)
+          }
         }
       }
     } catch (err) {

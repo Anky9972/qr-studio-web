@@ -67,7 +67,7 @@ export default function SmartRoutingManager({
 
   // Device routing state
   const [selectedDevices, setSelectedDevices] = useState<string[]>(['ios']);
-  
+
   // Time routing state
   const [timeSchedule, setTimeSchedule] = useState({
     startTime: '09:00',
@@ -90,12 +90,41 @@ export default function SmartRoutingManager({
       setRuleType(rule.type);
       setDestination(rule.destination);
       setPriority(rule.priority);
-      // TODO: Parse condition based on type
+      // Parse condition based on type
+      switch (rule.type) {
+        case 'device':
+          setSelectedDevices((rule.condition as any).devices || ['ios']);
+          break;
+        case 'time':
+          const timeCond = rule.condition as any;
+          if (timeCond.schedule?.[0]) {
+            setTimeSchedule({
+              startTime: timeCond.schedule[0].startTime || '09:00',
+              endTime: timeCond.schedule[0].endTime || '17:00',
+              days: timeCond.schedule[0].days || [],
+            });
+          }
+          break;
+        case 'language':
+          setSelectedLanguages((rule.condition as any).languages || ['en']);
+          break;
+        case 'scanLimit':
+          setScanlimit((rule.condition as any).maxScans || 1000);
+          break;
+        case 'geo':
+          setSelectedCountries((rule.condition as any).countries || []);
+          break;
+      }
     } else {
       setEditingRule(null);
       setRuleType('device');
       setDestination('');
       setPriority(0);
+      setSelectedDevices(['ios']);
+      setTimeSchedule({ startTime: '09:00', endTime: '17:00', days: [] });
+      setSelectedLanguages(['en']);
+      setScanlimit(1000);
+      setSelectedCountries([]);
     }
     setDialogOpen(true);
   };
