@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { cn } from '@/lib/utils';
 import WelcomeBackBanner from '@/components/WelcomeBackBanner';
+import { useTranslations } from '@/lib/useTranslations';
 
 interface DashboardStats {
   totalQRCodes: number;
@@ -64,6 +65,7 @@ export default function DashboardPage() {
   const [activity, setActivity] = useState<Activity[]>([]);
   const [insights, setInsights] = useState<TodayInsights | null>(null);
   const [loading, setLoading] = useState(true);
+  const t = useTranslations('dashboard');
 
   useEffect(() => {
     fetchDashboardData();
@@ -118,37 +120,37 @@ export default function DashboardPage() {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return t('greeting.morning');
+    if (hour < 18) return t('greeting.afternoon');
+    return t('greeting.evening');
   };
 
   const quickActions = [
     {
       icon: QrCode,
-      title: 'Generate QR',
-      description: 'Create new custom QR code',
+      title: t('quickActions.generateQR'),
+      description: t('quickActions.generateQRDesc'),
       href: '/dashboard/generate',
       gradient: 'from-blue-500 to-cyan-400',
     },
     {
       icon: Scan,
-      title: 'Scan QR',
-      description: 'Scan using camera',
+      title: t('quickActions.scanQR'),
+      description: t('quickActions.scanQRDesc'),
       href: '/dashboard/scan',
       gradient: 'from-emerald-500 to-teal-400',
     },
     {
       icon: UploadCloud,
-      title: 'Bulk Create',
-      description: 'Generate multiple codes',
+      title: t('quickActions.bulkCreate'),
+      description: t('quickActions.bulkCreateDesc'),
       href: '/dashboard/bulk',
       gradient: 'from-violet-500 to-purple-400',
     },
     {
       icon: BarChart2,
-      title: 'Analytics',
-      description: 'View performance stats',
+      title: t('quickActions.analytics'),
+      description: t('quickActions.analyticsDesc'),
       href: '/dashboard/analytics',
       gradient: 'from-amber-500 to-orange-400',
     },
@@ -156,28 +158,28 @@ export default function DashboardPage() {
 
   const statsData = [
     {
-      label: 'Total QR Codes',
+      label: t('stats.totalQRCodes'),
       value: stats?.totalQRCodes.toLocaleString() || '0',
       icon: QrCode,
       change: calculateChange(stats?.qrCodesThisMonth || 0, stats?.totalQRCodes || 1),
       color: 'text-electric-blue'
     },
     {
-      label: 'Total Scans',
+      label: t('stats.totalScans'),
       value: stats?.totalScans.toLocaleString() || '0',
       icon: ActivityIcon,
       change: calculateChange(stats?.scansThisMonth || 0, stats?.totalScans || 1),
       color: 'text-electric-emerald'
     },
     {
-      label: 'Scan Rate',
+      label: t('stats.scanRate'),
       value: calculateScanRate(),
       icon: Zap,
       change: '+0%',
       color: 'text-electric-amber'
     },
     {
-      label: 'Active Campaigns',
+      label: t('stats.activeCampaigns'),
       value: stats?.activeCampaigns.toString() || '0',
       icon: TrendingUp,
       change: '+0%',
@@ -211,7 +213,7 @@ export default function DashboardPage() {
             {getGreeting()}, <span className="text-electric-blue dark:text-electric-cyan font-bold">{session?.user?.name?.split(' ')[0] || 'User'}</span>! 👋
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg">
-            Here's what's happening with your QR codes today.
+            {t('welcomeMessage')}
           </p>
         </motion.div>
 
@@ -224,12 +226,12 @@ export default function DashboardPage() {
             className="rounded-xl border-white/10 hover:bg-white/5"
           >
             <RefreshCw className={cn("w-5 h-5 mr-2", loading && "animate-spin")} />
-            Refresh
+            {t('refresh')}
           </Button>
           <Link href="/dashboard/generate">
             <Button variant="premium" size="lg" className="rounded-xl shadow-lg shadow-blue-500/20">
               <QrCode className="w-5 h-5 mr-2" />
-              Create QR Code
+              {t('createNewQR')}
             </Button>
           </Link>
         </div>
@@ -269,7 +271,7 @@ export default function DashboardPage() {
       {/* Quick Actions Grid */}
       <div>
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <Zap className="w-5 h-5 text-electric-amber" /> Quick Actions
+          <Zap className="w-5 h-5 text-electric-amber" /> {t('quickActions.title')}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {quickActions.map((action, index) => (
@@ -307,9 +309,9 @@ export default function DashboardPage() {
           <Card variant="glass" className="h-full">
             <div className="p-6 border-b border-gray-100 dark:border-white/10 flex justify-between items-center bg-white/50 dark:bg-white/5">
               <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
-                <Clock className="w-5 h-5 text-electric-blue" /> Recent Activity
+                <Clock className="w-5 h-5 text-electric-blue" /> {t('recentActivity.title')}
               </h3>
-              <Button variant="ghost" size="sm" className="text-xs">View All</Button>
+              <Button variant="ghost" size="sm" className="text-xs">{t('recentActivity.viewAll')}</Button>
             </div>
             <div className="divide-y divide-gray-100 dark:divide-white/5">
               {activity.length === 0 ? (
@@ -317,7 +319,7 @@ export default function DashboardPage() {
                   <div className="w-16 h-16 bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3">
                     <ActivityIcon className="w-8 h-8 text-gray-400" />
                   </div>
-                  <p className="text-gray-500 dark:text-gray-400">No activity recorded recently.</p>
+                  <p className="text-gray-500 dark:text-gray-400">{t('recentActivity.empty')}</p>
                 </div>
               ) : (
                 activity.map((item) => (
@@ -355,13 +357,13 @@ export default function DashboardPage() {
           <Card variant="glass" className="overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-white/10 bg-gradient-to-r from-gray-50 to-white dark:from-white/5 dark:to-transparent">
               <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <BarChart2 className="w-5 h-5 text-electric-violet" /> Today's Insights
+                <BarChart2 className="w-5 h-5 text-electric-violet" /> {t('todayInsights.title')}
               </h3>
             </div>
             <div className="p-5 space-y-6">
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Scans Today</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('todayInsights.scansToday')}</p>
                   <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{insights?.todayScans || 0}</p>
                 </div>
                 <div className={cn("px-2 py-1 rounded-lg text-xs font-bold", Number(insights?.scanTrend || 0) >= 0 ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500")}>
@@ -371,19 +373,19 @@ export default function DashboardPage() {
 
               {insights?.mostScanned && (
                 <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
-                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Most Scanned QR</p>
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{t('todayInsights.mostScanned')}</p>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[120px]">
                       {insights.mostScanned.name || 'Unnamed'}
                     </span>
-                    <span className="text-xs font-bold text-electric-blue">{insights.mostScanned.scans} scans</span>
+                    <span className="text-xs font-bold text-electric-blue">{insights.mostScanned.scans} {t('todayInsights.scans')}</span>
                   </div>
                 </div>
               )}
 
               {insights?.topLocations && insights.topLocations.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Top Locations</p>
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">{t('todayInsights.topLocations')}</p>
                   <div className="space-y-2">
                     {insights.topLocations.map((loc, idx) => (
                       <div key={idx} className="flex items-center justify-between text-sm">
@@ -407,8 +409,8 @@ export default function DashboardPage() {
                 <HardDrive className="w-5 h-5 text-gray-600 dark:text-gray-300" />
               </div>
               <div>
-                <h4 className="font-bold text-gray-900 dark:text-white">Storage</h4>
-                <p className="text-xs text-gray-500 dark:text-gray-400">QR Code Limit</p>
+                <h4 className="font-bold text-gray-900 dark:text-white">{t('storage.title')}</h4>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t('storage.qrCodeLimit')}</p>
               </div>
             </div>
             <div className="mb-2 flex justify-between text-sm">
@@ -428,12 +430,12 @@ export default function DashboardPage() {
             <div className="absolute top-0 right-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
             <div className="absolute bottom-0 left-0 -ml-8 -mb-8 h-32 w-32 rounded-full bg-black/10 blur-2xl" />
 
-            <h3 className="relative z-10 text-lg font-bold mb-1">Upgrade to Pro</h3>
+            <h3 className="relative z-10 text-lg font-bold mb-1">{t('upgrade.title')}</h3>
             <p className="relative z-10 text-sm text-white/90 mb-4 leading-relaxed">
-              Unlock unlimited QR codes, advanced analytics, and priority support.
+              {t('upgrade.description')}
             </p>
             <Button variant="premium" className="relative z-10 w-full bg-white text-electric-blue hover:bg-white/90 border-none shadow-none">
-              Upgrade Now
+              {t('upgrade.button')}
             </Button>
           </div>
         </div>

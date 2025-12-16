@@ -43,6 +43,13 @@ export function LanguageSwitcher() {
 
     setIsOpen(false);
 
+    // Store locale preference for pages without locale in URL (like /dashboard)
+    try {
+      localStorage.setItem('qr_studio_locale', newLocale);
+    } catch {
+      // Ignore storage errors
+    }
+
     // Remove current locale from pathname if present
     const pathWithoutLocale = pathname.replace(/^\/(en|es|fr|de|pt)/, '') || '/';
 
@@ -70,7 +77,7 @@ export function LanguageSwitcher() {
           <span className="text-lg">{currentLanguage.flag}</span>
           <span className="text-sm font-medium">{currentLanguage.name}</span>
         </div>
-        <ChevronDown 
+        <ChevronDown
           className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
@@ -126,6 +133,13 @@ export function LanguageSwitcherCompact() {
 
     setIsOpen(false);
 
+    // Store locale preference for pages without locale in URL (like /dashboard)
+    try {
+      localStorage.setItem('qr_studio_locale', newLocale);
+    } catch {
+      // Ignore storage errors
+    }
+
     const pathWithoutLocale = pathname.replace(/^\/(en|es|fr|de|pt)/, '') || '/';
     const newPath = newLocale === 'en' ? pathWithoutLocale : `/${newLocale}${pathWithoutLocale}`;
 
@@ -150,7 +164,7 @@ export function LanguageSwitcherCompact() {
           <span className="text-lg">{currentLanguage.flag}</span>
           <span className="text-sm font-medium">{currentLanguage.name}</span>
         </div>
-        <ChevronDown 
+        <ChevronDown
           className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>

@@ -27,9 +27,11 @@ import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { Scanner, IDetectedBarcode } from '@yudiel/react-qr-scanner'
+import { useTranslations } from '@/lib/useTranslations'
 
 export default function ScanPage() {
   const { addScan, scans, favorites, toggleFavorite, removeScan } = useScanHistoryStore()
+  const t = useTranslations('scan')
 
   const [activeTab, setActiveTab] = useState<'camera' | 'upload'>('camera')
   const [scanning, setScanning] = useState(false)
@@ -239,17 +241,17 @@ export default function ScanPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-            {barcodeMode ? 'Scan Barcode' : 'Scan QR Code'}
+            {barcodeMode ? t('titleBarcode') : t('title')}
           </h1>
           <p className="text-muted-foreground mt-1">
             {barcodeMode
-              ? 'Scan UPC, EAN-13, Code128, and other barcode formats'
-              : 'Use your camera or upload an image to scan QR codes'
+              ? t('descriptionBarcode')
+              : t('description')
             }
           </p>
         </div>
         <div className="flex items-center gap-3 bg-white/5 p-2 rounded-xl border border-white/10">
-          <Label htmlFor="mode-switch" className="text-sm font-medium cursor-pointer">Barcode Mode</Label>
+          <Label htmlFor="mode-switch" className="text-sm font-medium cursor-pointer">{t('barcodeMode')}</Label>
           <Switch
             id="mode-switch"
             checked={barcodeMode}
@@ -293,7 +295,7 @@ export default function ScanPage() {
                     : "text-gray-400 hover:text-white hover:bg-white/5"
                 )}
               >
-                <Camera className="w-4 h-4" /> Camera
+                <Camera className="w-4 h-4" /> {t('tabs.camera')}
               </button>
               <button
                 onClick={() => { setActiveTab('upload'); stopCamera(); setError(''); }}
@@ -304,7 +306,7 @@ export default function ScanPage() {
                     : "text-gray-400 hover:text-white hover:bg-white/5"
                 )}
               >
-                <Upload className="w-4 h-4" /> Upload Image
+                <Upload className="w-4 h-4" /> {t('tabs.upload')}
               </button>
             </div>
 
@@ -319,9 +321,9 @@ export default function ScanPage() {
                           <Camera className="w-10 h-10 text-gray-400 group-hover:text-electric-cyan transition-colors" />
                         </div>
                         <div>
-                          <h3 className="text-lg font-semibold text-white mb-2">Camera Access Required</h3>
+                          <h3 className="text-lg font-semibold text-white mb-2">{t('camera.accessRequired')}</h3>
                           <p className="text-gray-400 max-w-xs mx-auto text-sm">
-                            Click the button below to start your camera and scan a QR code.
+                            {t('camera.accessDescription')}
                           </p>
                         </div>
                       </div>
@@ -366,7 +368,7 @@ export default function ScanPage() {
                         onClick={startCamera}
                         className="w-full"
                       >
-                        <Camera className="w-5 h-5 mr-2" /> Start Camera
+                        <Camera className="w-5 h-5 mr-2" /> {t('camera.start')}
                       </Button>
                     ) : (
                       <Button
@@ -375,7 +377,7 @@ export default function ScanPage() {
                         onClick={stopCamera}
                         className="w-full border-red-500/50 text-red-500 hover:bg-red-500/10 hover:border-red-500 hover:text-red-400"
                       >
-                        <X className="w-5 h-5 mr-2" /> Stop Camera
+                        <X className="w-5 h-5 mr-2" /> {t('camera.stop')}
                       </Button>
                     )}
                   </div>
@@ -392,13 +394,12 @@ export default function ScanPage() {
                     <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                       <ImageIcon className="w-10 h-10 text-gray-400 group-hover:text-electric-cyan transition-colors" />
                     </div>
-                    <h3 className="text-xl font-bold mb-2">Upload QR Image</h3>
+                    <h3 className="text-xl font-bold mb-2">{t('upload.title')}</h3>
                     <p className="text-muted-foreground text-center max-w-sm mb-4">
-                      Drag and drop your image here, or click to browse files.
-                      Supports JPG, PNG, WEBP.
+                      {t('upload.description')}
                     </p>
                     <Button variant="outline" className="pointer-events-none">
-                      Select File
+                      {t('upload.selectFile')}
                     </Button>
                   </div>
 
@@ -415,7 +416,7 @@ export default function ScanPage() {
               {/* Last Scan Result */}
               {lastScan && (
                 <div className="mt-6 pt-6 border-t border-white/10 animate-in slide-in-from-bottom-5 fade-in">
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Last Scanned Result</h3>
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">{t('result.title')}</h3>
                   <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="space-y-1 overflow-hidden">
@@ -448,8 +449,8 @@ export default function ScanPage() {
           <Card variant="glass" className="h-[calc(100vh-200px)] min-h-[500px] flex flex-col">
             <div className="p-6 border-b border-white/10 flex items-center justify-center lg:items-center lg:justify-between">
               <div>
-                <h2 className="text-lg font-bold">Recent Scans</h2>
-                <p className="text-sm text-muted-foreground">Your recent activity</p>
+                <h2 className="text-lg font-bold">{t('history.title')}</h2>
+                <p className="text-sm text-muted-foreground">{t('history.subtitle')}</p>
               </div>
               <Badge variant="outline">{scans.length}</Badge>
             </div>
@@ -458,8 +459,8 @@ export default function ScanPage() {
               {scans.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center p-6 text-muted-foreground">
                   <RefreshCw className="w-12 h-12 mb-4 opacity-20" />
-                  <p>No scans yet.</p>
-                  <p className="text-sm">Start scanning to build your history.</p>
+                  <p>{t('history.empty')}</p>
+                  <p className="text-sm">{t('history.emptySubtitle')}</p>
                 </div>
               ) : (
                 scans.map((scan) => (

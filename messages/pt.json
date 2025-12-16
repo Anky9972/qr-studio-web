@@ -119,7 +119,12 @@
       "price": "R$0",
       "period": "/mês",
       "description": "Perfeito para projetos pessoais",
-      "features": ["50 códigos QR", "Análises básicas", "Personalização padrão", "Exportar PNG/SVG"],
+      "features": [
+        "50 códigos QR",
+        "Análises básicas",
+        "Personalização padrão",
+        "Exportar PNG/SVG"
+      ],
       "cta": "Começar"
     },
     "pro": {
@@ -128,7 +133,13 @@
       "period": "/mês",
       "description": "Ideal para profissionais",
       "badge": "MAIS POPULAR",
-      "features": ["Códigos QR dinâmicos ilimitados", "Análises avançadas", "Personalização completa", "Geração em massa (1.000)", "Suporte prioritário"],
+      "features": [
+        "Códigos QR dinâmicos ilimitados",
+        "Análises avançadas",
+        "Personalização completa",
+        "Geração em massa (1.000)",
+        "Suporte prioritário"
+      ],
       "cta": "Iniciar Teste Grátis"
     },
     "business": {
@@ -136,7 +147,13 @@
       "price": "R$249",
       "period": "/mês",
       "description": "Para equipes em crescimento",
-      "features": ["Tudo no Pro", "Colaboração em equipe", "Marca branca", "Geração em massa (10.000)", "Acesso à API"],
+      "features": [
+        "Tudo no Pro",
+        "Colaboração em equipe",
+        "Marca branca",
+        "Geração em massa (10.000)",
+        "Acesso à API"
+      ],
       "cta": "Iniciar Teste Grátis"
     }
   },
@@ -240,7 +257,156 @@
     "activeQRCodes": "Códigos QR Ativos",
     "scanRate": "Taxa de Leitura",
     "createNewQR": "Criar Novo Código QR",
-    "viewAll": "Ver Todos"
+    "viewAll": "Ver Todos",
+    "greeting": {
+      "morning": "Bom dia",
+      "afternoon": "Boa tarde",
+      "evening": "Boa noite"
+    },
+    "welcomeMessage": "Veja o que está acontecendo com seus códigos QR hoje.",
+    "refresh": "Atualizar",
+    "loading": "Carregando painel...",
+    "stats": {
+      "totalQRCodes": "Total de Códigos QR",
+      "totalScans": "Total de Leituras",
+      "scanRate": "Taxa de Leitura",
+      "activeCampaigns": "Campanhas Ativas"
+    },
+    "quickActions": {
+      "title": "Ações Rápidas",
+      "generateQR": "Gerar QR",
+      "generateQRDesc": "Criar novo código QR personalizado",
+      "scanQR": "Escanear QR",
+      "scanQRDesc": "Escanear usando câmera",
+      "bulkCreate": "Criação em Massa",
+      "bulkCreateDesc": "Gerar múltiplos códigos",
+      "analytics": "Análises",
+      "analyticsDesc": "Ver estatísticas de desempenho"
+    },
+    "recentActivity": {
+      "title": "Atividade Recente",
+      "empty": "Nenhuma atividade registrada recentemente.",
+      "emptySubtitle": "Comece a escanear para construir seu histórico.",
+      "viewAll": "Ver Tudo"
+    },
+    "todayInsights": {
+      "title": "Insights de Hoje",
+      "scansToday": "Leituras Hoje",
+      "mostScanned": "QR Mais Escaneado",
+      "topLocations": "Principais Localizações",
+      "scans": "leituras"
+    },
+    "storage": {
+      "title": "Armazenamento",
+      "qrCodeLimit": "Limite de Códigos QR"
+    },
+    "upgrade": {
+      "title": "Atualizar para Pro",
+      "description": "Desbloqueie códigos QR ilimitados, análises avançadas e suporte prioritário.",
+      "button": "Atualizar Agora"
+    },
+    "sidebar": {
+      "dashboard": "Painel",
+      "generateQRCode": "Gerar Código QR",
+      "scanQRCode": "Escanear Código QR",
+      "bulkGenerate": "Geração em Massa",
+      "management": "Gestão",
+      "myQRCodes": "Meus Códigos QR",
+      "history": "Histórico",
+      "analytics": "Análises",
+      "workspace": "Área de Trabalho",
+      "campaigns": "Campanhas",
+      "templates": "Modelos",
+      "team": "Equipe",
+      "microsites": "Microsites",
+      "linkInBio": "Link na Bio",
+      "vcardPlus": "vCard Plus",
+      "digitalMenu": "Menu Digital",
+      "leadGate": "Lead Gate",
+      "administration": "Administração",
+      "adminPanel": "Painel Admin",
+      "settings": "Configurações",
+      "proDashboard": "Painel Pro"
+    },
+    "time": {
+      "justNow": "Agora mesmo",
+      "minutesAgo": "Há {count}m",
+      "hoursAgo": "Há {count}h",
+      "daysAgo": "Há {count}d"
+    }
+  },
+  "scan": {
+    "title": "Escanear Código QR",
+    "titleBarcode": "Escanear Código de Barras",
+    "description": "Use sua câmera ou carregue uma imagem para escanear códigos QR",
+    "descriptionBarcode": "Escaneie UPC, EAN-13, Code128 e outros formatos de código de barras",
+    "barcodeMode": "Modo Código de Barras",
+    "tabs": {
+      "camera": "Câmera",
+      "upload": "Carregar Imagem"
+    },
+    "camera": {
+      "accessRequired": "Acesso à Câmera Necessário",
+      "accessDescription": "Clique no botão abaixo para iniciar sua câmera e escanear um código QR.",
+      "start": "Iniciar Câmera",
+      "stop": "Parar Câmera"
+    },
+    "upload": {
+      "title": "Carregar Imagem QR",
+      "description": "Arraste e solte sua imagem aqui, ou clique para procurar arquivos. Suporta JPG, PNG, WEBP.",
+      "selectFile": "Selecionar Arquivo"
+    },
+    "result": {
+      "title": "Último Resultado Escaneado",
+      "copied": "Copiado para a área de transferência!",
+      "successQR": "Código QR escaneado com sucesso!",
+      "successBarcode": "Código de barras {type} escaneado com sucesso!"
+    },
+    "history": {
+      "title": "Leituras Recentes",
+      "subtitle": "Sua atividade recente",
+      "empty": "Nenhuma leitura ainda.",
+      "emptySubtitle": "Comece a escanear para construir seu histórico."
+    },
+    "errors": {
+      "cameraAccess": "Acesso à câmera negado ou câmera não encontrada.",
+      "noCodeFound": "Nenhum {type} encontrado na imagem",
+      "processFailed": "Falha ao processar a imagem"
+    }
+  },
+  "generate": {
+    "title": "Gerar Código QR",
+    "description": "Crie códigos QR personalizados impressionantes em segundos.",
+    "steps": {
+      "type": "Que tipo de código QR você quer?",
+      "content": "Inserir Conteúdo",
+      "design": "Personalizar Design"
+    },
+    "actions": {
+      "back": "Voltar",
+      "next": "Próximo Passo",
+      "save": "Salvar",
+      "download": "Baixar"
+    },
+    "preview": {
+      "livePreview": "Visualização ao Vivo"
+    },
+    "ai": {
+      "magicTheme": "Tema Mágico",
+      "magicThemeTitle": "Gerador de Tema Mágico",
+      "magicThemeDescription": "Descreva sua marca ou estilo desejado (ex., \"Cidade neon cyberpunk\", \"Café minimalista orgânico\", \"Escritório de advocacia profissional azul marinho e dourado\").",
+      "generateButton": "Gerar",
+      "enterDescription": "Digite sua descrição..."
+    },
+    "save": {
+      "nameLabel": "Nomeie seu Código QR",
+      "namePlaceholder": "Meu QR Incrível"
+    },
+    "errors": {
+      "contentRequired": "O conteúdo é obrigatório",
+      "saveFailed": "Falha ao salvar",
+      "aiThemeFailed": "Falha ao aplicar tema IA. Tente novamente."
+    }
   },
   "qrCode": {
     "create": "Criar Código QR",

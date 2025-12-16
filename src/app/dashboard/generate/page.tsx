@@ -31,12 +31,14 @@ import { useAIStore } from '@/store/ai-store';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/Dialog';
 import { Input } from '@/components/ui/Input';
 import { AIBackgroundGenerator } from '@/components/qr/AIBackgroundGenerator';
+import { useTranslations } from '@/lib/useTranslations';
 
 export default function GeneratePage() {
   const { data: session } = useSession();
   const { addQRCode } = useQRCodeStore();
   const qrCodeRef = useRef<HTMLDivElement>(null);
   const qrCodeInstance = useRef<QRCodeStyling | null>(null);
+  const t = useTranslations('generate');
 
   // Steps: 0: Type, 1: Content, 2: Design
   const [step, setStep] = useState(0);
@@ -269,13 +271,13 @@ export default function GeneratePage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
-            Generate QR Code
+            {t('title')}
           </h1>
-          <p className="text-muted-foreground mt-1">Create stunning, custom QR codes in seconds.</p>
+          <p className="text-muted-foreground mt-1">{t('description')}</p>
         </div>
         <div className="flex items-center gap-3">
           <Button variant="ghost" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>
-            Back
+            {t('actions.back')}
           </Button>
           <Button
             variant="glow"
@@ -283,7 +285,7 @@ export default function GeneratePage() {
             disabled={step === 2 || (step === 1 && !content)}
             className={cn(step === 2 && "hidden")}
           >
-            Next Step <ChevronRight size={16} className="ml-2" />
+            {t('actions.next')} <ChevronRight size={16} className="ml-2" />
           </Button>
           {step === 2 && (
             <Button
@@ -292,7 +294,7 @@ export default function GeneratePage() {
               onClick={() => setAiPromptOpen(true)}
             >
               <Sparkles className="w-5 h-5 md:mr-2 animate-pulse" />
-              <span className="hidden md:inline">Magic Theme</span>
+              <span className="hidden md:inline">{t('ai.magicTheme')}</span>
             </Button>
           )}
         </div>
@@ -333,7 +335,7 @@ export default function GeneratePage() {
           <div className="sticky top-24 space-y-6">
             <Card variant="glass" className="p-8 flex flex-col items-center justify-center gap-6 min-h-[400px]">
               <div className="absolute top-4 right-4 animate-pulse">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-primary/60">Live Preview</span>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-primary/60">{t('preview.livePreview')}</span>
               </div>
 
               {animation.enabled ? (
@@ -383,17 +385,17 @@ export default function GeneratePage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Wand2 className="w-5 h-5 text-primary" />
-              Magic Theme Generator
+              {t('ai.magicThemeTitle')}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <p className="text-sm text-muted-foreground">
-              Describe your brand or desired style (e.g., "Cyberpunk neon city", "Organic minimalist coffee shop", "Professional law firm navy and gold").
+              {t('ai.magicThemeDescription')}
             </p>
             <Input
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
-              placeholder="Enter your description..."
+              placeholder={t('ai.enterDescription')}
               onKeyDown={(e) => e.key === 'Enter' && handleMagicTheme()}
               autoFocus
             />
@@ -402,7 +404,7 @@ export default function GeneratePage() {
             <Button variant="ghost" onClick={() => setAiPromptOpen(false)}>Cancel</Button>
             <Button variant="glow" onClick={handleMagicTheme} disabled={isGeneratingTheme || !aiPrompt}>
               {isGeneratingTheme ? <Loader2 className="animate-spin mr-2" /> : <Sparkles className="mr-2 w-4 h-4" />}
-              Generate
+              {t('ai.generateButton')}
             </Button>
           </DialogFooter>
         </DialogContent>

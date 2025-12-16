@@ -40,6 +40,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu"
+import { useTranslations } from '@/lib/useTranslations'
 
 const drawerWidth = 280
 
@@ -56,36 +57,37 @@ export default function DashboardLayout({
 
   // Check if user is admin (you can get this from session or API)
   const isAdmin = session?.user?.email === 'admin@qrstudio.com';
+  const t = useTranslations('dashboard.sidebar');
 
   const menuItems = [
-    { text: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { text: 'Generate QR Code', icon: QrCode, path: '/dashboard/generate' },
-    { text: 'Scan QR Code', icon: Scan, path: '/dashboard/scan' },
-    { text: 'Bulk Generate', icon: UploadCloud, path: '/dashboard/bulk' },
+    { text: t('dashboard'), icon: LayoutDashboard, path: '/dashboard' },
+    { text: t('generateQRCode'), icon: QrCode, path: '/dashboard/generate' },
+    { text: t('scanQRCode'), icon: Scan, path: '/dashboard/scan' },
+    { text: t('bulkGenerate'), icon: UploadCloud, path: '/dashboard/bulk' },
 
-    { header: 'Management' },
-    { text: 'My QR Codes', icon: QrCode, path: '/dashboard/qr-codes' },
-    { text: 'History', icon: History, path: '/dashboard/history' },
-    { text: 'Analytics', icon: BarChart2, path: '/dashboard/analytics' },
+    { header: t('management') },
+    { text: t('myQRCodes'), icon: QrCode, path: '/dashboard/qr-codes' },
+    { text: t('history'), icon: History, path: '/dashboard/history' },
+    { text: t('analytics'), icon: BarChart2, path: '/dashboard/analytics' },
 
-    { header: 'Workspace' },
-    { text: 'Campaigns', icon: Folder, path: '/dashboard/campaigns' },
-    { text: 'Templates', icon: LayoutTemplate, path: '/dashboard/templates' },
-    { text: 'Team', icon: Users, path: '/dashboard/team', badge: 'Pro' },
+    { header: t('workspace') },
+    { text: t('campaigns'), icon: Folder, path: '/dashboard/campaigns' },
+    { text: t('templates'), icon: LayoutTemplate, path: '/dashboard/templates' },
+    { text: t('team'), icon: Users, path: '/dashboard/team', badge: 'Pro' },
 
-    { header: 'Microsites' },
-    { text: 'Link in Bio', icon: LinkIcon, path: '/dashboard/link-in-bio', badge: 'New' },
-    { text: 'vCard Plus', icon: Contact, path: '/dashboard/vcard-plus', badge: 'New' },
-    { text: 'Digital Menu', icon: Utensils, path: '/dashboard/digital-menu', badge: 'New' },
-    { text: 'Lead Gate', icon: ClipboardList, path: '/dashboard/lead-gate', badge: 'New' },
+    { header: t('microsites') },
+    { text: t('linkInBio'), icon: LinkIcon, path: '/dashboard/link-in-bio', badge: 'New' },
+    { text: t('vcardPlus'), icon: Contact, path: '/dashboard/vcard-plus', badge: 'New' },
+    { text: t('digitalMenu'), icon: Utensils, path: '/dashboard/digital-menu', badge: 'New' },
+    { text: t('leadGate'), icon: ClipboardList, path: '/dashboard/lead-gate', badge: 'New' },
 
     ...(isAdmin ? [
-      { header: 'Administration' },
-      { text: 'Admin Panel', icon: Settings, path: '/admin' },
+      { header: t('administration') },
+      { text: t('adminPanel'), icon: Settings, path: '/admin' },
     ] : []),
 
     { divider: true },
-    { text: 'Settings', icon: Settings, path: '/dashboard/settings' },
+    { text: t('settings'), icon: Settings, path: '/dashboard/settings' },
   ];
 
   useEffect(() => {
