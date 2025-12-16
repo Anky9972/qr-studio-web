@@ -13,7 +13,8 @@ import {
   RefreshCw,
   Image as ImageIcon,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Focus
 } from 'lucide-react'
 import jsQR from 'jsqr'
 import { BrowserMultiFormatReader, DecodeHintType, BarcodeFormat } from '@zxing/library'
@@ -25,6 +26,7 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/Alert'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
+import { Scanner, IDetectedBarcode } from '@yudiel/react-qr-scanner'
 
 export default function ScanPage() {
   const { addScan, scans, favorites, toggleFavorite, removeScan } = useScanHistoryStore()
@@ -36,29 +38,11 @@ export default function ScanPage() {
   const [success, setSuccess] = useState('')
   const [barcodeMode, setBarcodeMode] = useState(false) // QR mode vs Barcode mode
 
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  // Upload scanning refs
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const animationFrameRef = useRef<number | undefined>(undefined)
-  const streamRef = useRef<MediaStream | null>(null)
   const barcodeReaderRef = useRef<BrowserMultiFormatReader | null>(null)
 
-  // Define stopCamera before useEffect that uses it
-  const stopCamera = useCallback(() => {
-    setScanning(false)
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current)
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop())
-      streamRef.current = null
-    }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null
-    }
-  }, [])
-
-  // Initialize barcode reader
+  // Initialize barcode reader for uploads only
   useEffect(() => {
     const hints = new Map()
     hints.set(DecodeHintType.POSSIBLE_FORMATS, [
@@ -73,102 +57,53 @@ export default function ScanPage() {
       BarcodeFormat.CODABAR,
     ])
     barcodeReaderRef.current = new BrowserMultiFormatReader(hints)
+  }, [])
 
-    return () => {
-      stopCamera()
-    }
-  }, [stopCamera])
+  const stopCamera = useCallback(() => {
+    setScanning(false)
+  }, [])
 
   const startCamera = async () => {
-    try {
-      setError('')
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
-      })
+    setError('')
+    setScanning(true)
+  }
 
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream
-        streamRef.current = stream
-
-        // Wait for video to be ready before starting scan
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current?.play()
-        }
-
-        videoRef.current.onplaying = () => {
-          setScanning(true)
-          if (barcodeMode) {
-            // Use ZXing for barcode scanning
-            scanWithZXing()
-          } else {
-            // Use jsQR for QR code scanning
-            requestAnimationFrame(scanFrame)
-          }
-        }
-      }
-    } catch (err) {
-      setError('Failed to access camera. Please check permissions.')
-      console.error('Camera error:', err)
+  // Trigger haptic feedback on successful scan
+  const triggerHapticFeedback = () => {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate([100, 50, 100]) // Quick double vibration
     }
   }
 
-  const scanWithZXing = async () => {
-    if (!barcodeReaderRef.current || !videoRef.current) return
+  const handleScan = (results: IDetectedBarcode[]) => {
+    if (results && results.length > 0) {
+      const result = results[0]
+      const rawValue = result.rawValue
+      const format = result.format
 
-    try {
-      const result = await barcodeReaderRef.current.decodeOnceFromVideoDevice(
-        undefined,
-        videoRef.current
+      // Debounce logic could go here if needed, but 'Scanner' usually handles frame timing well
+      // trigger haptic feedback
+      triggerHapticFeedback()
+
+      handleScanResult(
+        rawValue,
+        'camera',
+        format.toLowerCase().includes('qr') ? 'QR_CODE' : 'BARCODE',
+        format
       )
-
-      if (result) {
-        const format = result.getBarcodeFormat()
-        const formatName = BarcodeFormat[format]
-
-        handleScanResult(
-          result.getText(),
-          'camera',
-          formatName === 'QR_CODE' ? 'QR_CODE' : 'BARCODE',
-          formatName
-        )
-      }
-    } catch (err: unknown) {
-      if (err instanceof Error && err.name !== 'NotFoundException') {
-        console.error('Barcode scan error:', err)
-      }
-      // Continue scanning
-      if (scanning) {
-        setTimeout(scanWithZXing, 300)
-      }
     }
   }
 
-  // stopCamera is now defined above as useCallback
-
-  const scanFrame = () => {
-    if (!scanning || !videoRef.current || !canvasRef.current) return
-
-    const video = videoRef.current
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-
-    if (video.readyState === video.HAVE_ENOUGH_DATA) {
-      canvas.width = video.videoWidth
-      canvas.height = video.videoHeight
-
-      if (ctx) {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-        const code = jsQR(imageData.data, imageData.width, imageData.height)
-
-        if (code) {
-          handleScanResult(code.data, 'camera')
-          return
-        }
+  const handleScanError = (err: unknown) => {
+    // Suppress console spam for common "no code found" type errors if the library emits them
+    // But typically we log real errors
+    console.error(err)
+    if (err instanceof Error) {
+      // Only show critical errors in UI
+      if (err.name === 'NotAllowedError' || err.name === 'NotFoundError') {
+        setError('Camera access denied or camera not found.')
       }
     }
-
-    animationFrameRef.current = requestAnimationFrame(scanFrame)
   }
 
   const handleScanResult = (
@@ -177,6 +112,14 @@ export default function ScanPage() {
     format: 'QR_CODE' | 'BARCODE' = 'QR_CODE',
     barcodeType?: string
   ) => {
+    // Avoid duplicate scans if content matches lastScan within a short window?
+    // For now we just process it.
+
+    // Check if duplicate of immediately previous scan to avoid spamming user
+    if (lastScan && lastScan.content === content && (new Date().getTime() - new Date(lastScan.timestamp).getTime() < 2000)) {
+      return;
+    }
+
     const scanResult: ScanResult = {
       id: crypto.randomUUID(),
       content,
@@ -221,7 +164,7 @@ export default function ScanPage() {
             ctx.drawImage(image, 0, 0)
 
             if (barcodeMode) {
-              // Try ZXing first for barcodes
+              // Try ZXing first for barcodes using the manual reader ref
               try {
                 if (barcodeReaderRef.current) {
                   const result = await barcodeReaderRef.current.decodeFromImageElement(image)
@@ -312,9 +255,8 @@ export default function ScanPage() {
             checked={barcodeMode}
             onCheckedChange={(checked) => {
               setBarcodeMode(checked)
-              if (scanning) {
-                stopCamera()
-              }
+              // If we wanted to update scanner formats live, we can, 
+              // but Scanner usually takes 'formats' prop updates Reactively
             }}
           />
         </div>
@@ -343,7 +285,7 @@ export default function ScanPage() {
             {/* Custom Tabs */}
             <div className="flex border-b border-white/10">
               <button
-                onClick={() => setActiveTab('camera')}
+                onClick={() => { setActiveTab('camera'); setError(''); }}
                 className={cn(
                   "flex-1 py-4 px-6 text-sm font-medium transition-all flex items-center justify-center gap-2",
                   activeTab === 'camera'
@@ -354,7 +296,7 @@ export default function ScanPage() {
                 <Camera className="w-4 h-4" /> Camera
               </button>
               <button
-                onClick={() => setActiveTab('upload')}
+                onClick={() => { setActiveTab('upload'); stopCamera(); setError(''); }}
                 className={cn(
                   "flex-1 py-4 px-6 text-sm font-medium transition-all flex items-center justify-center gap-2",
                   activeTab === 'upload'
@@ -385,31 +327,35 @@ export default function ScanPage() {
                       </div>
                     )}
 
-                    <video
-                      ref={videoRef}
-                      autoPlay
-                      playsInline
-                      muted
-                      className={cn(
-                        "w-full h-full object-cover absolute inset-0",
-                        scanning ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-
                     {scanning && (
-                      <div className="absolute inset-0 pointer-events-none">
-                        <div className="absolute inset-0 border-[40px] border-black/50"></div>
-                        <div className="absolute inset-[40px] border-2 border-electric-cyan/50 shadow-[0_0_20px_rgba(6,182,212,0.5)]">
-                          <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-electric-cyan -mt-1 -ml-1"></div>
-                          <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-electric-cyan -mt-1 -mr-1"></div>
-                          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-electric-cyan -mb-1 -ml-1"></div>
-                          <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-electric-cyan -mb-1 -mr-1"></div>
-                          <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-electric-cyan/80 animate-scan"></div>
+                      <div className="absolute inset-0 w-full h-full">
+                        {/* Core Scanner Component */}
+                        <Scanner
+                          onScan={handleScan}
+                          onError={handleScanError}
+                          components={{
+                            finder: false,
+                          }}
+
+                          styles={{
+                            container: { width: '100%', height: '100%' },
+                            video: { width: '100%', height: '100%', objectFit: 'cover' }
+                          }}
+                        />
+
+                        {/* Custom Overlay (Finder) */}
+                        <div className="absolute inset-0 pointer-events-none z-10">
+                          <div className="absolute inset-0 border-[40px] border-black/50"></div>
+                          <div className="absolute inset-[40px] border-2 border-electric-cyan/50 shadow-[0_0_20px_rgba(6,182,212,0.5)]">
+                            <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-electric-cyan -mt-1 -ml-1"></div>
+                            <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-electric-cyan -mt-1 -mr-1"></div>
+                            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-electric-cyan -mb-1 -ml-1"></div>
+                            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-electric-cyan -mb-1 -mr-1"></div>
+                            <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-electric-cyan/80 animate-scan"></div>
+                          </div>
                         </div>
                       </div>
                     )}
-
-                    <canvas ref={canvasRef} className="hidden" />
                   </div>
 
                   <div className="flex gap-4">
@@ -500,7 +446,7 @@ export default function ScanPage() {
         {/* History Panel */}
         <div className="w-full lg:w-[400px]">
           <Card variant="glass" className="h-[calc(100vh-200px)] min-h-[500px] flex flex-col">
-            <div className="p-6 border-b border-white/10 flex items-center justify-between">
+            <div className="p-6 border-b border-white/10 flex items-center justify-center lg:items-center lg:justify-between">
               <div>
                 <h2 className="text-lg font-bold">Recent Scans</h2>
                 <p className="text-sm text-muted-foreground">Your recent activity</p>
