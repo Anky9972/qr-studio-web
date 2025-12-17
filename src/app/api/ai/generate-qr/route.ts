@@ -208,20 +208,27 @@ Use high contrast and maintain the QR code structure.`;
     //   }),
     // });
 
-    // PLACEHOLDER: Return a demo response
-    // In production, replace this with actual AI generation
-    return NextResponse.json({
-      error: 'AI QR generation is not yet configured',
-      message: 'Please add API keys for Replicate, OpenAI, or HuggingFace in your .env file',
-      instructions: {
-        replicate: 'Add REPLICATE_API_TOKEN to .env',
-        openai: 'Add OPENAI_API_KEY to .env',
-        huggingface: 'Add HUGGINGFACE_API_KEY to .env',
-      },
-      demoMode: true,
-      // For demo purposes, return a sample QR code
-      imageUrl: '/images/sample-ai-qr.png', // You would need to create this
-    }, { status: 501 }); // 501 Not Implemented
+    // AI QR Generation requires API keys to be configured
+    // Check if any provider is available
+    const hasReplicate = !!process.env.REPLICATE_API_TOKEN;
+    const hasOpenAI = !!process.env.OPENAI_API_KEY;
+    const hasHuggingFace = !!process.env.HUGGINGFACE_API_KEY;
+    const hasStability = !!process.env.STABILITY_API_KEY;
+
+    if (!hasReplicate && !hasOpenAI && !hasHuggingFace && !hasStability) {
+      return NextResponse.json({
+        success: false,
+        error: 'AI QR generation requires configuration',
+        message: 'This feature requires AI service API keys to be configured by the administrator.',
+        configurationRequired: true,
+        availableProviders: {
+          replicate: hasReplicate,
+          openai: hasOpenAI,
+          huggingface: hasHuggingFace,
+          stability: hasStability,
+        },
+      }, { status: 503 }); // 503 Service Unavailable
+    }
 
     // PRODUCTION CODE (uncomment when API is configured):
     /*

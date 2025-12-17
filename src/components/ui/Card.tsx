@@ -9,10 +9,10 @@ const Card = React.forwardRef<
         ref={ref}
         className={cn(
             "rounded-2xl border text-card-foreground shadow-sm transition-all duration-300 font-sans group relative overflow-hidden",
-            variant === "default" && "bg-card border-border hover:border-primary/30 shadow-lg hover:shadow-xl",
-            variant === "glass" && "bg-white/60 dark:bg-black/40 backdrop-blur-xl border-black/5 dark:border-white/5 shadow-glass hover:bg-white/80 dark:hover:bg-black/50 hover:border-black/10 dark:hover:border-white/10 dark:hover:shadow-cyan-500/5",
-            variant === "gradient" && "bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-black border-black/5 dark:border-white/5 hover:border-primary/50",
-            variant === "neon" && "bg-white dark:bg-black border-primary/30 shadow-[0_0_20px_rgba(6,182,212,0.05)] hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] hover:border-primary/60",
+            variant === "default" && "bg-zinc-900 border-zinc-800 hover:border-primary/30 shadow-lg hover:shadow-xl",
+            variant === "glass" && "bg-zinc-900/80 backdrop-blur-xl border-zinc-800 shadow-glass hover:bg-zinc-900 hover:border-zinc-700 hover:shadow-cyan-500/5",
+            variant === "gradient" && "bg-gradient-to-br from-zinc-900 to-black border-zinc-800 hover:border-primary/50",
+            variant === "neon" && "bg-zinc-900 border-primary/30 shadow-[0_0_20px_rgba(6,182,212,0.05)] hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] hover:border-primary/60",
             className
         )}
         {...props}
@@ -46,7 +46,7 @@ const CardTitle = React.forwardRef<
     <h3
         ref={ref}
         className={cn(
-            "text-2xl font-bold leading-none tracking-tight font-display bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 group-hover:from-primary group-hover:to-primary/80 transition-colors",
+            "text-2xl font-bold leading-none tracking-tight font-display bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 group-hover:from-primary group-hover:to-primary/80 transition-colors",
             className
         )}
         {...props}

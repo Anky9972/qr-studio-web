@@ -48,15 +48,60 @@ export function isBot(userAgent: string): boolean {
 }
 
 /**
- * Check if IP is in blocklist (implement your own storage)
+ * Check if IP is in blocklist
+ * Uses in-memory cache for known bad IPs and ranges
  */
+// In-memory blocklist (can be moved to Redis/database for production)
+const blockedIPs = new Set<string>();
+const blockedIPRanges: string[] = [];
+
+// Add common known malicious IP ranges (example)
+const KNOWN_BAD_RANGES = [
+  '0.0.0.0/8',     // "This" network
+  '10.0.0.0/8',    // Private - shouldn't access from outside
+  '127.0.0.0/8',   // Loopback (if not expected)
+];
+
+export function blockIP(ipAddress: string): void {
+  blockedIPs.add(ipAddress);
+}
+
+export function unblockIP(ipAddress: string): void {
+  blockedIPs.delete(ipAddress);
+}
+
+export function isIPInRange(ip: string, range: string): boolean {
+  try {
+    const [rangeIP, bits] = range.split('/');
+    const mask = ~(2 ** (32 - parseInt(bits)) - 1);
+
+    const ipNum = ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet), 0);
+    const rangeNum = rangeIP.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet), 0);
+
+    return (ipNum & mask) === (rangeNum & mask);
+  } catch {
+    return false;
+  }
+}
+
 export async function isIPBlocked(ipAddress: string): Promise<boolean> {
   try {
-    // You can implement IP blocking using Redis, database, or external service
-    // For now, this is a placeholder
-    // Example: Check against a database table of blocked IPs
+    // Check explicit blocklist
+    if (blockedIPs.has(ipAddress)) {
+      return true;
+    }
+
+    // Check blocked IP ranges
+    for (const range of [...blockedIPRanges, ...KNOWN_BAD_RANGES]) {
+      if (isIPInRange(ipAddress, range)) {
+        return true;
+      }
+    }
+
+    // TODO: Extend with database check if needed
     // const blocked = await prisma.blockedIP.findUnique({ where: { ipAddress } });
     // return !!blocked;
+
     return false;
   } catch (error) {
     console.error('Error checking IP block status:', error);

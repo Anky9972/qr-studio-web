@@ -13,9 +13,6 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
 export default function HomePage() {
-  // Always use dark mode
-  const isDark = true
-
   const features = [
     {
       icon: QrCode2Icon,
@@ -40,7 +37,7 @@ export default function HomePage() {
     {
       icon: PaletteIcon,
       title: 'Beautiful Design',
-      description: 'Material Design 3 UI with full dark mode support and accessibility.',
+      description: 'Modern UI with full dark mode support and accessibility.',
     },
     {
       icon: SecurityIcon,
@@ -64,7 +61,7 @@ export default function HomePage() {
   ]
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-md-dark-background' : 'bg-md-light-background'}`}>
+    <div className="min-h-screen bg-zinc-950">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-green-500/10" />
@@ -73,21 +70,19 @@ export default function HomePage() {
             <div className="space-y-6 animate-fade-in">
               <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20">
                 <AutoAwesomeIcon className="text-blue-500" />
-                <span className={`text-sm font-medium ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+                <span className="text-sm font-medium text-blue-400">
                   Professional QR Code Platform
                 </span>
               </div>
 
-              <h1 className={`text-4xl md:text-6xl font-bold leading-tight ${isDark ? 'text-md-dark-on-background' : 'text-md-light-on-background'
-                }`}>
+              <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white">
                 Create & Scan QR Codes{' '}
                 <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
                   Like a Pro
                 </span>
               </h1>
 
-              <p className={`text-lg md:text-xl ${isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
-                }`}>
+              <p className="text-lg md:text-xl text-gray-400">
                 Professional-grade QR code generator and scanner with beautiful design,
                 powerful features, and complete privacy control. Perfect for individuals,
                 businesses, and enterprises.
@@ -96,10 +91,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   href="/dashboard"
-                  className={`inline-flex items-center justify-center px-8 py-4 rounded-lg font-semibold transition-all hover:scale-105 shadow-md-3 ${isDark
-                      ? 'bg-md-dark-primary text-md-dark-on-primary'
-                      : 'bg-md-light-primary text-md-light-on-primary'
-                    }`}
+                  className="inline-flex items-center justify-center px-8 py-4 rounded-lg font-semibold transition-all hover:scale-105 shadow-lg bg-electric-cyan text-black"
                 >
                   Get Started Free
                   <ArrowForwardIcon className="ml-2" />
@@ -107,10 +99,7 @@ export default function HomePage() {
 
                 <Link
                   href="/features"
-                  className={`inline-flex items-center justify-center px-8 py-4 rounded-lg font-semibold transition-all border-2 ${isDark
-                      ? 'border-md-dark-outline text-md-dark-on-surface hover:bg-md-dark-surface-container'
-                      : 'border-md-light-outline text-md-light-on-surface hover:bg-md-light-surface-container'
-                    }`}
+                  className="inline-flex items-center justify-center px-8 py-4 rounded-lg font-semibold transition-all border-2 border-white/20 text-white hover:bg-white/10"
                 >
                   View Features
                 </Link>
@@ -120,8 +109,7 @@ export default function HomePage() {
                 {['Chrome Extension', 'No Credit Card', '100% Free Tier'].map((item) => (
                   <div key={item} className="flex items-center space-x-2">
                     <CheckCircleIcon className="text-green-500 text-sm" />
-                    <span className={`text-sm ${isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
-                      }`}>
+                    <span className="text-sm text-gray-400">
                       {item}
                     </span>
                   </div>
@@ -137,8 +125,7 @@ export default function HomePage() {
       </section>
 
       {/* Stats Section */}
-      <section className={`py-16 border-y ${isDark ? 'bg-md-dark-surface border-md-dark-outline' : 'bg-md-light-surface border-md-light-outline'
-        }`}>
+      <section className="py-16 border-y bg-zinc-900 border-zinc-800">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat) => (
@@ -146,8 +133,7 @@ export default function HomePage() {
                 <div className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
                   {stat.value}
                 </div>
-                <div className={`text-sm md:text-base ${isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
-                  }`}>
+                <div className="text-sm md:text-base text-gray-400">
                   {stat.label}
                 </div>
               </div>
@@ -160,12 +146,10 @@ export default function HomePage() {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${isDark ? 'text-md-dark-on-background' : 'text-md-light-on-background'
-              }`}>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
               Powerful Features for Everyone
             </h2>
-            <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
-              }`}>
+            <p className="text-lg max-w-2xl mx-auto text-gray-400">
               From simple QR generation to advanced analytics, we've got everything you need
             </p>
           </div>
@@ -176,25 +160,15 @@ export default function HomePage() {
               return (
                 <div
                   key={feature.title}
-                  className={`p-6 rounded-xl transition-all hover:scale-105 hover:shadow-md-4 ${isDark
-                      ? 'bg-md-dark-surface-container-highest'
-                      : 'bg-md-light-surface-container-highest'
-                    }`}
+                  className="p-6 rounded-xl transition-all hover:scale-105 hover:shadow-xl bg-zinc-900 border border-zinc-800"
                 >
-                  <div className={`inline-flex p-3 rounded-lg mb-4 ${isDark
-                      ? 'bg-md-dark-primary-container'
-                      : 'bg-md-light-primary-container'
-                    }`}>
-                    <Icon className={`text-2xl ${isDark
-                        ? 'text-md-dark-on-primary-container'
-                        : 'text-md-light-on-primary-container'
-                      }`} />
+                  <div className="inline-flex p-3 rounded-lg mb-4 bg-electric-cyan/20">
+                    <Icon className="text-2xl text-electric-cyan" />
                   </div>
-                  <h3 className={`text-xl font-semibold mb-2 ${isDark ? 'text-md-dark-on-surface' : 'text-md-light-on-surface'
-                    }`}>
+                  <h3 className="text-xl font-semibold mb-2 text-white">
                     {feature.title}
                   </h3>
-                  <p className={isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'}>
+                  <p className="text-gray-400">
                     {feature.description}
                   </p>
                 </div>
@@ -205,15 +179,13 @@ export default function HomePage() {
       </section>
 
       {/* Use Cases Section */}
-      <section className={`py-20 ${isDark ? 'bg-md-dark-surface' : 'bg-md-light-surface'}`}>
+      <section className="py-20 bg-zinc-900">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${isDark ? 'text-md-dark-on-background' : 'text-md-light-on-background'
-              }`}>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
               Trusted by Businesses Worldwide
             </h2>
-            <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
-              }`}>
+            <p className="text-lg max-w-2xl mx-auto text-gray-400">
               See how QR Studio is being used across different industries
             </p>
           </div>
@@ -222,18 +194,13 @@ export default function HomePage() {
             {useCases.map((useCase) => (
               <div
                 key={useCase.title}
-                className={`p-6 rounded-xl text-center transition-all hover:scale-105 ${isDark
-                    ? 'bg-md-dark-surface-container-highest'
-                    : 'bg-md-light-surface-container-highest'
-                  }`}
+                className="p-6 rounded-xl text-center transition-all hover:scale-105 bg-zinc-800 border border-zinc-700"
               >
                 <div className="text-5xl mb-4">{useCase.emoji}</div>
-                <h3 className={`text-lg font-semibold mb-2 ${isDark ? 'text-md-dark-on-surface' : 'text-md-light-on-surface'
-                  }`}>
+                <h3 className="text-lg font-semibold mb-2 text-white">
                   {useCase.title}
                 </h3>
-                <p className={`text-sm ${isDark ? 'text-md-dark-on-surface-variant' : 'text-md-light-on-surface-variant'
-                  }`}>
+                <p className="text-sm text-gray-400">
                   {useCase.description}
                 </p>
               </div>
@@ -245,24 +212,18 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className={`rounded-2xl p-12 text-center relative overflow-hidden ${isDark ? 'bg-md-dark-primary' : 'bg-md-light-primary'
-            }`}>
+          <div className="rounded-2xl p-12 text-center relative overflow-hidden bg-gradient-to-r from-electric-cyan to-electric-blue">
             <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent" />
             <div className="relative z-10">
-              <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${isDark ? 'text-md-dark-on-primary' : 'text-md-light-on-primary'
-                }`}>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
                 Ready to Get Started?
               </h2>
-              <p className={`text-lg mb-8 max-w-2xl mx-auto ${isDark ? 'text-md-dark-on-primary' : 'text-md-light-on-primary'
-                }`}>
+              <p className="text-lg mb-8 max-w-2xl mx-auto text-white/90">
                 Join thousands of users creating professional QR codes today
               </p>
               <Link
                 href="/dashboard"
-                className={`inline-flex items-center px-8 py-4 rounded-lg font-semibold transition-all hover:scale-105 shadow-md-4 ${isDark
-                    ? 'bg-white text-md-dark-primary'
-                    : 'bg-md-dark-primary text-white'
-                  }`}
+                className="inline-flex items-center px-8 py-4 rounded-lg font-semibold transition-all hover:scale-105 shadow-lg bg-white text-zinc-900 hover:bg-white/90"
               >
                 Create Your First QR Code
                 <ArrowForwardIcon className="ml-2" />

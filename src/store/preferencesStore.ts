@@ -2,38 +2,35 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 interface UserPreferences {
-  theme: 'light' | 'dark' | 'system'
-  
   // Scanning preferences
   autoCopy: boolean
   autoOpen: boolean
   soundEnabled: boolean
   vibrationEnabled: boolean
   defaultScanMode: 'camera' | 'upload'
-  
+
   // Generation preferences
   defaultSize: number
   defaultErrorLevel: 'L' | 'M' | 'Q' | 'H'
   defaultFormat: 'png' | 'svg' | 'pdf' | 'webp'
-  
+
   // History preferences
   maxHistoryItems: number
   autoCleanup: boolean
-  
+
   // Notifications
   notificationsEnabled: boolean
 }
 
 interface PreferencesStore {
   preferences: UserPreferences
-  
+
   // Actions
   updatePreferences: (updates: Partial<UserPreferences>) => void
   resetPreferences: () => void
 }
 
 const defaultPreferences: UserPreferences = {
-  theme: 'system',
   autoCopy: true,
   autoOpen: false,
   soundEnabled: true,

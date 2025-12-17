@@ -209,10 +209,10 @@ export default function DashboardPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-3xl md:text-4xl font-bold font-display text-gray-900 dark:text-white">
-            {getGreeting()}, <span className="text-electric-blue dark:text-electric-cyan font-bold">{session?.user?.name?.split(' ')[0] || 'User'}</span>! 👋
+          <h1 className="text-3xl md:text-4xl font-bold font-display text-white">
+            {getGreeting()}, <span className="text-electric-cyan font-bold">{session?.user?.name?.split(' ')[0] || 'User'}</span>! 👋
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg">
+          <p className="text-gray-400 mt-2 text-lg">
             {t('welcomeMessage')}
           </p>
         </motion.div>
@@ -246,11 +246,11 @@ export default function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Card variant="glass" className="h-full relative overflow-hidden group hover:border-white/20 dark:hover:border-white/20 transition-all duration-300">
+            <Card variant="glass" className="h-full relative overflow-hidden group hover:border-white/20 transition-all duration-300 bg-zinc-900 border-zinc-800">
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="p-5 relative z-10">
                 <div className="flex justify-between items-start mb-4">
-                  <div className={cn("p-3 rounded-xl bg-gray-50 dark:bg-white/5", stat.color)}>
+                  <div className={cn("p-3 rounded-xl bg-white/5", stat.color)}>
                     <stat.icon className="w-6 h-6" />
                   </div>
                   <span className="flex items-center text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-full">
@@ -259,8 +259,8 @@ export default function DashboardPage() {
                   </span>
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
+                  <h3 className="text-2xl font-bold text-white">{stat.value}</h3>
+                  <p className="text-sm text-gray-400">{stat.label}</p>
                 </div>
               </div>
             </Card>
@@ -270,7 +270,7 @@ export default function DashboardPage() {
 
       {/* Quick Actions Grid */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
           <Zap className="w-5 h-5 text-electric-amber" /> {t('quickActions.title')}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -283,15 +283,15 @@ export default function DashboardPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 + index * 0.05 }}
               >
-                <div className="relative h-full overflow-hidden rounded-2xl bg-white dark:bg-black border border-gray-200 dark:border-white/10 p-1 group">
+                <div className="relative h-full overflow-hidden rounded-2xl bg-zinc-900 border border-zinc-800 p-1 group">
                   <div className={cn("absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-gradient-to-br", action.gradient)} />
-                  <div className="relative h-full p-5 rounded-xl bg-gray-50/50 dark:bg-white/5 flex flex-col items-center text-center justify-center gap-3 transition-colors group-hover:bg-transparent">
+                  <div className="relative h-full p-5 rounded-xl bg-white/5 flex flex-col items-center text-center justify-center gap-3 transition-colors group-hover:bg-transparent">
                     <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg bg-gradient-to-br", action.gradient)}>
                       <action.icon className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white">{action.title}</h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{action.description}</p>
+                      <h3 className="font-semibold text-white">{action.title}</h3>
+                      <p className="text-xs text-gray-400 mt-1">{action.description}</p>
                     </div>
                   </div>
                 </div>
@@ -306,39 +306,39 @@ export default function DashboardPage() {
 
         {/* Recent Activity: Takes up 2 columns */}
         <div className="lg:col-span-2">
-          <Card variant="glass" className="h-full">
-            <div className="p-6 border-b border-gray-100 dark:border-white/10 flex justify-between items-center bg-white/50 dark:bg-white/5">
-              <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
+          <Card variant="glass" className="h-full bg-zinc-900 border-zinc-800">
+            <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-white/5">
+              <h3 className="font-bold text-lg text-white flex items-center gap-2">
                 <Clock className="w-5 h-5 text-electric-blue" /> {t('recentActivity.title')}
               </h3>
               <Button variant="ghost" size="sm" className="text-xs">{t('recentActivity.viewAll')}</Button>
             </div>
-            <div className="divide-y divide-gray-100 dark:divide-white/5">
+            <div className="divide-y divide-zinc-800">
               {activity.length === 0 ? (
                 <div className="p-8 text-center">
-                  <div className="w-16 h-16 bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3">
                     <ActivityIcon className="w-8 h-8 text-gray-400" />
                   </div>
-                  <p className="text-gray-500 dark:text-gray-400">{t('recentActivity.empty')}</p>
+                  <p className="text-gray-400">{t('recentActivity.empty')}</p>
                 </div>
               ) : (
                 activity.map((item) => (
-                  <div key={item.id} className="p-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                  <div key={item.id} className="p-4 flex items-center gap-4 hover:bg-white/5 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
                       <Scan className="w-5 h-5" />
                     </div>
                     <div className="flex-1 min-w-0 space-y-1">
-                      <p className="font-medium text-gray-900 dark:text-white text-sm truncate">
+                      <p className="font-medium text-white text-sm truncate">
                         {item.qrCodeName || 'Unnamed QR'}
                       </p>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center gap-2 text-xs text-gray-400">
                         <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {item.location}</span>
-                        <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
+                        <span className="w-1 h-1 rounded-full bg-gray-600" />
                         <span className="flex items-center gap-1"><Smartphone className="w-3 h-3" /> {item.device}</span>
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="text-xs font-medium bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-md">
+                      <span className="text-xs font-medium bg-white/10 text-gray-300 px-2 py-1 rounded-md">
                         {item.qrType}
                       </span>
                       <p className="text-[10px] text-gray-400 mt-1">{getTimeAgo(item.scannedAt)}</p>
@@ -354,17 +354,17 @@ export default function DashboardPage() {
         <div className="space-y-6">
 
           {/* Today's Insights */}
-          <Card variant="glass" className="overflow-hidden">
-            <div className="p-5 border-b border-gray-100 dark:border-white/10 bg-gradient-to-r from-gray-50 to-white dark:from-white/5 dark:to-transparent">
-              <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <Card variant="glass" className="overflow-hidden bg-zinc-900 border-zinc-800">
+            <div className="p-5 border-b border-zinc-800 bg-gradient-to-r from-white/5 to-transparent">
+              <h3 className="font-bold text-white flex items-center gap-2">
                 <BarChart2 className="w-5 h-5 text-electric-violet" /> {t('todayInsights.title')}
               </h3>
             </div>
             <div className="p-5 space-y-6">
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('todayInsights.scansToday')}</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{insights?.todayScans || 0}</p>
+                  <p className="text-sm text-gray-400">{t('todayInsights.scansToday')}</p>
+                  <p className="text-3xl font-bold text-white mt-1">{insights?.todayScans || 0}</p>
                 </div>
                 <div className={cn("px-2 py-1 rounded-lg text-xs font-bold", Number(insights?.scanTrend || 0) >= 0 ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500")}>
                   {Number(insights?.scanTrend || 0) > 0 ? '+' : ''}{insights?.scanTrend || '0'}%
@@ -372,10 +372,10 @@ export default function DashboardPage() {
               </div>
 
               {insights?.mostScanned && (
-                <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
-                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{t('todayInsights.mostScanned')}</p>
+                <div className="p-3 rounded-xl bg-white/5 border border-zinc-800">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{t('todayInsights.mostScanned')}</p>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[120px]">
+                    <span className="text-sm font-medium text-white truncate max-w-[120px]">
                       {insights.mostScanned.name || 'Unnamed'}
                     </span>
                     <span className="text-xs font-bold text-electric-blue">{insights.mostScanned.scans} {t('todayInsights.scans')}</span>
@@ -385,15 +385,15 @@ export default function DashboardPage() {
 
               {insights?.topLocations && insights.topLocations.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">{t('todayInsights.topLocations')}</p>
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{t('todayInsights.topLocations')}</p>
                   <div className="space-y-2">
                     {insights.topLocations.map((loc, idx) => (
                       <div key={idx} className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                        <div className="flex items-center gap-2 text-gray-300">
                           <span className="w-1.5 h-1.5 rounded-full bg-electric-cyan" />
                           {loc.country}
                         </div>
-                        <span className="font-mono text-gray-500 dark:text-gray-400">{loc.count}</span>
+                        <span className="font-mono text-gray-400">{loc.count}</span>
                       </div>
                     ))}
                   </div>
@@ -403,21 +403,21 @@ export default function DashboardPage() {
           </Card>
 
           {/* Storage / Usage */}
-          <Card variant="glass" className="p-5">
+          <Card variant="glass" className="p-5 bg-zinc-900 border-zinc-800">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-gray-100 dark:bg-white/10">
-                <HardDrive className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+              <div className="p-2 rounded-lg bg-white/10">
+                <HardDrive className="w-5 h-5 text-gray-300" />
               </div>
               <div>
-                <h4 className="font-bold text-gray-900 dark:text-white">{t('storage.title')}</h4>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{t('storage.qrCodeLimit')}</p>
+                <h4 className="font-bold text-white">{t('storage.title')}</h4>
+                <p className="text-xs text-gray-400">{t('storage.qrCodeLimit')}</p>
               </div>
             </div>
             <div className="mb-2 flex justify-between text-sm">
-              <span className="text-gray-600 dark:text-gray-300 font-medium">{stats?.totalQRCodes || 0} / 1,000</span>
+              <span className="text-gray-300 font-medium">{stats?.totalQRCodes || 0} / 1,000</span>
               <span className="text-electric-blue font-bold">{((stats?.totalQRCodes || 0) / 10).toFixed(1)}%</span>
             </div>
-            <div className="h-2 w-full bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+            <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-electric-blue to-electric-cyan rounded-full transition-all duration-500"
                 style={{ width: `${(stats?.totalQRCodes || 0) / 10}%` }}

@@ -568,18 +568,12 @@ export default function SettingsPage() {
             <Card variant="glass" className="p-6 space-y-4">
               <h3 className="text-lg font-semibold flex items-center"><SettingsIcon className="mr-2 text-primary" size={20} /> General</h3>
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Theme</Label>
-                  <Select value={localPrefs.theme} onValueChange={(val: string) => setLocalPrefs({ ...localPrefs, theme: val as any })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select theme" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="light">Light</SelectItem>
-                      <SelectItem value="dark">Dark</SelectItem>
-                      <SelectItem value="system">System</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                  <div>
+                    <Label className="text-sm font-medium">Appearance</Label>
+                    <p className="text-xs text-muted-foreground mt-1">Dark mode is enabled permanently</p>
+                  </div>
+                  <Badge variant="outline" className="bg-indigo-500/10 text-indigo-400 border-indigo-500/30">Dark</Badge>
                 </div>
                 <Button variant="glow" onClick={savePreferences} className="w-full">
                   <Save size={16} className="mr-2" /> Save Preferences
