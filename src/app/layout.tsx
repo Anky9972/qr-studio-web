@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getLocale } from 'next-intl/server';
 import { Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -21,7 +22,7 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   title: {
-    default: "QR Studio - Professional QR Code Generator & Manager | Free QR Scanner",
+    default: "QR Studio - Free QR Code Generator & Scanner",
     template: "%s | QR Studio"
   },
   description: "Create stunning QR codes in seconds with QR Studio. Professional QR code generator with custom designs, logo embedding, analytics tracking, bulk creation, and team collaboration. Free QR scanner with advanced features.",
@@ -64,7 +65,7 @@ export const metadata: Metadata = {
     siteName: "QR Studio",
     images: [
       {
-        url: "/images/og-image.png",
+        url: "/opengraph-image",
         width: 1200,
         height: 630,
         alt: "QR Studio - Professional QR Code Generator",
@@ -73,10 +74,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "QR Studio - Professional QR Code Generator",
+    title: "QR Studio - Free QR Code Generator & Scanner",
     description: "Create stunning QR codes in seconds. Professional QR code generator with custom designs and analytics.",
-    images: ["/images/og-image.png"],
-    creator: "@qrstudio",
+    images: ["/opengraph-image"],
+    // creator: "@YOUR_HANDLE", // TODO: add when Twitter/X account is live
   },
   robots: {
     index: true,
@@ -92,28 +93,34 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
     languages: {
-      'en-US': '/en',
-      'es-ES': '/es',
-      'fr-FR': '/fr',
-      'de-DE': '/de',
-      'pt-PT': '/pt',
+      'x-default': '/',
+      'en': '/',
+      'es': '/es',
+      'fr': '/fr',
+      'de': '/de',
+      'pt': '/pt',
     },
   },
   category: 'technology',
   classification: 'Business Software',
   icons: {
-    icon: '/icon.png',
-    apple: '/icon.png',
+    icon: [
+      { url: '/icon.png', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icon.png', type: 'image/png' },
+    ],
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
   return (
-    <html lang="en" suppressHydrationWarning className="dark">
+    <html lang={locale} suppressHydrationWarning className="dark">
       <body className={`${jakarta.variable} ${spaceGrotesk.variable} font-sans antialiased`}>
         <Script
           async

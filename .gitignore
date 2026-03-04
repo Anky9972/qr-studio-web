@@ -40,3 +40,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 qr-studio-smtp-server
+TODO_IMPLEMENTATION.md
+SEO_AUDIT.md

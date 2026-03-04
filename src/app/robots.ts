@@ -10,9 +10,10 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         disallow: [
           '/api/',
-          '/dashboard/settings/',
+          '/dashboard/',
           '/_next/',
           '/admin/',
+          '/gate/',
         ],
       },
       {
@@ -20,8 +21,9 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         disallow: [
           '/api/',
-          '/dashboard/settings/',
+          '/dashboard/',
           '/admin/',
+          '/gate/',
         ],
       },
       {
@@ -29,8 +31,9 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         disallow: [
           '/api/',
-          '/dashboard/settings/',
+          '/dashboard/',
           '/admin/',
+          '/gate/',
         ],
       },
     ],

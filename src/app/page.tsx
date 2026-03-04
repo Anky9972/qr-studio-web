@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/images/og-home.png",
+        url: "/opengraph-image",
         width: 1200,
         height: 630,
         alt: "QR Studio - Free QR Code Generator",

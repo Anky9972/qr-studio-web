@@ -16,14 +16,14 @@ export function StructuredData({ type = 'WebApplication', data }: StructuredData
           '@type': 'Organization',
           name: 'QR Studio',
           url: baseUrl,
-          logo: `${baseUrl}/images/logo.png`,
+          logo: `${baseUrl}/icon.png`,
           description: 'Professional QR Code Generator and Management Platform',
           foundingDate: '2024',
-          sameAs: [
-            'https://twitter.com/qrstudio',
-            'https://linkedin.com/company/qrstudio',
-            'https://github.com/qrstudio',
-          ],
+          // sameAs: [
+          //   'https://twitter.com/YOUR_HANDLE',      // update when live
+          //   'https://linkedin.com/company/YOUR_CO', // update when live
+          //   'https://github.com/YOUR_ORG',          // update when live
+          // ],
           contactPoint: {
             '@type': 'ContactPoint',
             contactType: 'Customer Support',
@@ -61,13 +61,8 @@ export function StructuredData({ type = 'WebApplication', data }: StructuredData
             'Campaign Management',
           ],
           screenshot: `${baseUrl}/images/screenshot.png`,
-          aggregateRating: {
-            '@type': 'AggregateRating',
-            ratingValue: '4.8',
-            ratingCount: '1250',
-            bestRating: '5',
-            worstRating: '1',
-          },
+          // NOTE: aggregateRating removed — only add back once you have
+          // verified, third-party review data to avoid Google policy violation.
           ...data,
         }
 
@@ -94,15 +89,12 @@ export function StructuredData({ type = 'WebApplication', data }: StructuredData
           operatingSystem: 'Web, iOS, Android',
           offers: {
             '@type': 'Offer',
-            price: data?.price || '9.99',
+            price: data?.price || '0',
             priceCurrency: 'USD',
             availability: 'https://schema.org/InStock',
           },
-          aggregateRating: {
-            '@type': 'AggregateRating',
-            ratingValue: '4.8',
-            reviewCount: '1250',
-          },
+          // NOTE: aggregateRating removed — only add back once you have
+          // verified, third-party review data to avoid Google policy violation.
           ...data,
         }
 
